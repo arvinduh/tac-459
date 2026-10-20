@@ -35,9 +35,9 @@ const lines = caption ? [caption] : positions;
         <span>{line}</span>
       ))}
     </span>
-    {withSummary && summary && <span class="person-summary">{summary}</span>}
     {detail && <span class="person-detail data">{detail}</span>}
   </span>
+  {withSummary && summary && <span class="person-summary">{summary}</span>}
 </a>
 
 <style>
@@ -45,15 +45,10 @@ const lines = caption ? [caption] : positions;
     display: grid;
     grid-template-columns: 4.5rem 1fr;
     align-items: center;
-    gap: var(--space-6);
+    gap: var(--space-4) var(--space-6);
     padding-block: var(--space-6);
     color: var(--color-text);
     text-decoration: none;
-  }
-
-  /* A bio makes the text tall, so the portrait sits at its top. */
-  .person-row:has(.person-summary) {
-    align-items: start;
   }
 
   .person-row:is(:hover, :focus-visible) :global(.portrait) {
@@ -88,10 +83,17 @@ const lines = caption ? [caption] : positions;
     font-size: var(--text-sm);
   }
 
+  /* Under the name on wide screens; the full row width on phones. */
   .person-summary {
+    grid-column: 2;
     max-width: var(--prose-max);
-    margin-top: var(--space-2);
     color: var(--color-text-muted);
+  }
+
+  @media (width < 36rem) {
+    .person-summary {
+      grid-column: 1 / -1;
+    }
   }
 
   .person-detail {
