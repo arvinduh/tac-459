@@ -45,6 +45,7 @@ const { name, honorific, positions, photo } = person.data;
     align-items: center;
     gap: var(--space-6);
     padding-block: var(--space-6);
+    color: var(--color-text);
     text-decoration: none;
   }
 
@@ -68,15 +69,18 @@ const { name, honorific, positions, photo } = person.data;
   }
 
   .person-name {
-    font: var(--text-lg) / 1.2 var(--font-serif);
     width: fit-content;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    line-height: 1.2;
+    letter-spacing: var(--tracking-heading);
     text-decoration: underline 1px transparent;
     text-underline-offset: 0.2em;
     transition: text-decoration-color var(--duration-fast) var(--ease-out);
   }
 
   .person-row:hover .person-name {
-    text-decoration-color: var(--color-accent);
+    text-decoration: underline 2px var(--color-accent);
   }
 
   .person-roles {

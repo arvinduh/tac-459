@@ -36,7 +36,7 @@ const contacts = [
 <BaseLayout title={name} description={positions.join(' · ')}>
   <article class="page-width person">
     <header class="person-header">
-      <a class="back-link" href={href('/#team')}>
+      <a class="back-link" href={href('/team/')}>
         ← Team
       </a>
       <Image
@@ -95,7 +95,7 @@ const contacts = [
   .back-link,
   .contact-list {
     color: var(--color-text-subtle);
-    font: 400 var(--text-xs) / 1.6 var(--font-mono);
+    font-size: var(--text-sm);
   }
 
   .back-link {
@@ -118,8 +118,9 @@ const contacts = [
   }
 
   .person-name {
-    font: 300 var(--text-title) / 1.05 var(--font-serif);
-    letter-spacing: -0.01em;
+    font-size: var(--text-title);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
   }
 
   .person-roles {
@@ -131,7 +132,7 @@ const contacts = [
     list-style: none;
   }
 
-  /* Same two-column grid as the home page sections. */
+  /* Same two-column grid as every page section. */
   .person-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
@@ -168,7 +169,7 @@ const contacts = [
 
   .prose :global(h2) {
     margin-top: var(--space-8);
-    font: 400 var(--text-lg) / 1.25 var(--font-serif);
+    font-size: var(--text-lg);
   }
 
   .prose :global(ul) {
@@ -180,6 +181,6 @@ const contacts = [
   }
 
   .prose :global(strong) {
-    font-weight: 500;
+    font-weight: var(--weight-semibold);
   }
 </style>
