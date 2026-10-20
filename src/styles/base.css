@@ -10,8 +10,14 @@
   box-sizing: border-box;
 }
 
+/*
+ * Thin, quiet scrollbars. They stay visible: on a desktop without a
+ * trackpad the bar is how people see where they are and how far is left.
+ */
 html {
   color-scheme: light;
+  scrollbar-color: var(--color-rule-strong) transparent;
+  scrollbar-width: thin;
   scroll-padding-top: calc(var(--header-height) + var(--space-6));
 }
 
