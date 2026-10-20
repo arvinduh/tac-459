@@ -1,0 +1,241 @@
+---
+/**
+ * Landing page: what the course is, when it meets, and how it unfolds.
+ *
+ * Every value comes from site.yaml, the current term and the curriculum, so
+ * the page rolls forward with the term file and needs no edits itself.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCurrentTerm, getModules, getSite } from '../lib/course';
+import { href } from '../lib/paths';
+import { formatClock } from '../lib/term';
+
+const site = await getSite();
+const term = await getCurrentTerm();
+const modules = await getModules();
+
+const meetings = term.meetings.map(
+  ({ days, start, end, location }) =>
+    `${days.join(' & ')} · ${formatClock(start)}–${formatClock(end)} · ${location}`,
+);
+
+// Week numbers run across modules, so each module starts where the last ended.
+let firstWeek = 1;
+const outline = modules.map(({ title, weeks }, index) => {
+  const span = { first: firstWeek, last: firstWeek + weeks.length - 1 };
+  firstWeek = span.last + 1;
+  return { number: index + 1, title, ...span };
+});
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="page-width hero-body">
+      <p class="hero-eyebrow">
+        {site.courseCode} · {term.label}
+      </p>
+      <h1 class="hero-title">{site.title}</h1>
+      <p class="hero-lede">{site.description}</p>
+      <ul class="hero-meetings">
+        {meetings.map((meeting) => (
+          <li>{meeting}</li>
+        ))}
+      </ul>
+      <div class="hero-actions">
+        <a class="button button-primary" href={href('/schedule/')}>
+          See the schedule
+        </a>
+        <a class="button button-quiet" href={href('/team/')}>
+          Meet the team
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-width outline" aria-labelledby="outline-heading">
+    <h2 id="outline-heading" class="section-title">
+      Five modules, one product
+    </h2>
+    <ol class="module-list">
+      {outline.map(({ number, title, first, last }) => (
+        <li>
+          <a class="module-card" href={href(`/schedule/#module-${number}`)}>
+            <span class="module-number">{String(number).padStart(2, '0')}</span>
+            <span class="module-title">{title}</span>
+            <span class="module-weeks">
+              Weeks {first}–{last}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    background:
+      radial-gradient(
+        60rem 30rem at 85% -10%,
+        color-mix(in srgb, var(--color-accent) 22%, transparent),
+        transparent 70%
+      ),
+      var(--color-inverse-bg);
+    color: var(--color-on-brand);
+  }
+
+  .hero-body {
+    display: grid;
+    gap: var(--space-6);
+    justify-items: start;
+    padding-block: var(--space-16) calc(var(--space-16) * 1.5);
+  }
+
+  /* Children rise in one after another; reduced motion makes this instant. */
+  .hero-body > * {
+    animation: rise var(--duration-slow) var(--ease-out) both;
+  }
+
+  .hero-body > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  .hero-body > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  .hero-body > :nth-child(n + 4) {
+    animation-delay: 180ms;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+
+  .hero-eyebrow {
+    color: var(--color-accent);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .hero-title {
+    max-width: 18ch;
+    font: var(--text-display) / 1.05 var(--font-display);
+  }
+
+  .hero-lede {
+    max-width: 52ch;
+    opacity: 0.88;
+    font-size: var(--text-lg);
+  }
+
+  .hero-meetings {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  .button {
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .button:hover {
+    transform: translateY(-1px);
+  }
+
+  .button-primary,
+  .button-primary:hover {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+
+  .button-quiet,
+  .button-quiet:hover {
+    box-shadow: inset 0 0 0 1px
+      color-mix(in srgb, var(--color-on-brand) 40%, transparent);
+    color: var(--color-on-brand);
+  }
+
+  .button-quiet:hover {
+    background: color-mix(in srgb, var(--color-on-brand) 10%, transparent);
+  }
+
+  .outline {
+    display: grid;
+    gap: var(--space-8);
+    padding-block: var(--space-16) 0;
+  }
+
+  .section-title {
+    font: var(--text-2xl) / 1.2 var(--font-display);
+  }
+
+  .module-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .module-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-1);
+    color: var(--color-text);
+    text-decoration: none;
+    transition:
+      transform var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out);
+  }
+
+  .module-card:hover {
+    border-color: var(--color-highlight-border);
+    box-shadow: var(--shadow-2);
+    color: var(--color-text);
+    transform: translateY(-2px);
+  }
+
+  .module-number {
+    color: var(--color-brand);
+    font: var(--text-xl) / 1 var(--font-display);
+  }
+
+  .module-title {
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .module-weeks {
+    margin-top: auto;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+</style>
