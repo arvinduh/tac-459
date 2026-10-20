@@ -176,11 +176,6 @@ const projects = defineCollection({
       description: z.string(),
       /** How the team built it. */
       built: z.string(),
-      /** Public links, each shown only when present. */
-      links: z
-        .object({ demo: z.url(), code: z.url(), video: z.url() })
-        .partial()
-        .default({}),
       /** Screenshots; the first is the cover. */
       images: z.tuple([image()], image()),
     }),

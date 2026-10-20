@@ -72,11 +72,6 @@ team:
 # Screenshots in this folder; the first one is the cover.
 images:
   - ./1.webp
-# Optional; delete any you do not have.
-links:
-  demo: https://example.com
-  code: https://github.com/owner/repo
-  video: https://youtu.be/id
 `,
   );
   console.log(

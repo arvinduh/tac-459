@@ -96,10 +96,9 @@ npm run new -- project fall-2026 "Study Buddy AI"
 
 This creates `src/content/projects/fall-2026/study-buddy-ai/index.yaml`. Add the
 screenshots to that folder named `1`, `2`, `3` (the first is the cover), run
-`npm run images`, and fill in the template. Demo, code and video links are
-optional and appear only when present. Add the class photo next to the term file
-(`src/content/terms/fall-2026.jpg`) and set `classPhoto: ./fall-2026.jpg` in the
-term file before running `npm run images`.
+`npm run images`, and fill in the template. Add the class photo next to the term
+file (`src/content/terms/fall-2026.jpg`) and set `classPhoto: ./fall-2026.jpg`
+in the term file before running `npm run images`.
 
 ### Change the course description or curriculum
 

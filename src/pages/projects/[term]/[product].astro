@@ -6,7 +6,6 @@
 import { Image } from 'astro:assets';
 import FullSize from '../../../components/FullSize.astro';
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
-import Arrow from '../../../components/Arrow.astro';
 import BackLink from '../../../components/BackLink.astro';
 import Section from '../../../components/Section.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -25,17 +24,10 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
-const { title, term, team, summary, description, built, links, images } =
-  project.data;
+const { title, term, team, summary, description, built, images } = project.data;
 const termEntry = await getEntry(term);
 if (!termEntry) throw new Error(`Term '${term.id}' is missing`);
 const [cover, ...rest] = images;
-
-const linkList = [
-  links.demo && { label: 'Live demo', url: links.demo },
-  links.code && { label: 'Source code', url: links.code },
-  links.video && { label: 'Video', url: links.video },
-].filter((link) => typeof link === 'object');
 ---
 
 <BaseLayout
@@ -50,16 +42,6 @@ const linkList = [
       <p class="eyebrow">{termLabel(termEntry.id)}</p>
       <h1 class="project-title">{title}</h1>
       <p class="project-lede">{summary}</p>
-      {linkList.length > 0 && (
-        <div class="project-actions">
-          {linkList.map(({ label, url }) => (
-            <a class="arrow-link" href={url}>
-              {label}
-              <Arrow />
-            </a>
-          ))}
-        </div>
-      )}
     </header>
 
     <div class="page-width">
@@ -137,13 +119,6 @@ const linkList = [
     font-size: var(--text-title);
     line-height: 1.05;
     letter-spacing: var(--tracking-display);
-  }
-
-  .project-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3) var(--space-8);
-    margin-top: var(--space-2);
   }
 
   .project-lede {
