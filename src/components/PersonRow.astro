@@ -48,7 +48,7 @@ const lines = caption ? [caption] : positions;
     text-decoration: none;
   }
 
-  .person-row:hover :global(.portrait) {
+  .person-row:is(:hover, :focus-visible) :global(.portrait) {
     filter: grayscale(0);
   }
 
@@ -63,13 +63,15 @@ const lines = caption ? [caption] : positions;
     font-weight: var(--weight-semibold);
     line-height: 1.2;
     letter-spacing: var(--tracking-heading);
-    text-decoration: underline 1px transparent;
-    text-underline-offset: 0.2em;
-    transition: text-decoration-color var(--duration-fast) var(--ease-out);
+    padding-bottom: 0.15em;
+    /* A Gold underline draws in from the left, like the onward links. */
+    background: linear-gradient(var(--color-accent), var(--color-accent))
+      no-repeat 0 100% / 0% 2px;
+    transition: background-size var(--duration-base) var(--ease-out);
   }
 
-  .person-row:hover .person-name {
-    text-decoration: underline 2px var(--color-accent);
+  .person-row:is(:hover, :focus-visible) .person-name {
+    background-size: 100% 2px;
   }
 
   .person-roles {
