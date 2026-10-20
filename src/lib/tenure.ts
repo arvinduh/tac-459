@@ -7,13 +7,13 @@
  */
 
 /** One person's terms in one role, as term positions. */
-export interface Tenure {
+interface Tenure {
   id: string;
   terms: number[];
 }
 
 /** Where a tenure sits: its lane and its unbroken runs of terms. */
-export interface Placement {
+interface Placement {
   id: string;
   lane: number;
   /** Inclusive [first, last] term positions of each unbroken run. */
