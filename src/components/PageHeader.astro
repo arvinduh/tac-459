@@ -1,0 +1,56 @@
+---
+/**
+ * The opening of an inner page: a Cardinal eyebrow, the page's one h1 and
+ * an optional lede.
+ *
+ * Its parts rise in one after another on load, like the home page hero.
+ */
+interface Props {
+  eyebrow: string;
+  title: string;
+  lede?: string;
+}
+
+const { eyebrow, title, lede } = Astro.props;
+---
+
+<header class="page-width page-header">
+  <p class="eyebrow">{eyebrow}</p>
+  <h1 class="page-title">{title}</h1>
+  {lede && <p class="page-lede">{lede}</p>}
+</header>
+
+<style>
+  .page-header {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-16) var(--space-section);
+  }
+
+  .page-header > * {
+    animation: rise var(--duration-slow) var(--ease-out) both;
+  }
+
+  .page-header > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  .page-header > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  .page-title {
+    max-width: 18ch;
+    font-size: var(--text-title);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .page-lede {
+    max-width: var(--prose-max);
+    margin-top: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    line-height: 1.55;
+  }
+</style>

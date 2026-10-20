@@ -1,0 +1,45 @@
+---
+/**
+ * An ordered list of steps, one per row under a hairline.
+ *
+ * Each row leads with its label (such as 'Week 3') or, without one, its
+ * two-digit position, so the order reads at a glance.
+ */
+import type { CollectionEntry } from 'astro:content';
+
+type Component = CollectionEntry<'overview'>['data']['components'][number];
+
+interface Props {
+  steps: Component['steps'];
+}
+
+const { steps } = Astro.props;
+---
+
+<ol class="plain-list">
+  {steps.map(({ label, title, text }, index) => (
+    <li class="numbered-row">
+      <span class="numeral">{label ?? String(index + 1).padStart(2, '0')}</span>
+      <div class="step-body">
+        <h3 class="step-title">{title}</h3>
+        <p class="step-text">{text}</p>
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .step-body {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .step-title {
+    font-size: var(--text-lg);
+  }
+
+  .step-text {
+    max-width: var(--prose-max);
+    color: var(--color-text-muted);
+  }
+</style>
