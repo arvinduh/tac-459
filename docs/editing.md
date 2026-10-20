@@ -87,11 +87,11 @@ term file before running `npm run images`.
 
 ### Change the course description or curriculum
 
-| What                                      | File                     |
-| ----------------------------------------- | ------------------------ |
-| Title, tagline, search description        | `site.yaml`              |
-| The pitch and the three components, steps | `course/overview.yaml`   |
-| Modules, weekly topics, deeper topics     | `course/curriculum.yaml` |
+| What                                               | File                     |
+| -------------------------------------------------- | ------------------------ |
+| Title, tagline, search description                 | `site.yaml`              |
+| Home headline and pitch; the three parts and weeks | `course/overview.yaml`   |
+| Modules, weekly topics, deeper topics              | `course/curriculum.yaml` |
 
 ## Which format, and why
 

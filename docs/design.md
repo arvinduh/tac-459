@@ -12,16 +12,16 @@ tokens (`--color-brand`, `--text-lg`, …), never hex codes or pixel sizes.
 Warm ink on paper carries the content. USC Cardinal and Gold carry the identity
 in a few deliberate places, so they stay meaningful.
 
-| Color           | Role                                                                                                   | Never                       |
-| --------------- | ------------------------------------------------------------------------------------------------------ | --------------------------- |
-| Ink on paper    | All reading text, in three strengths: text, muted, subtle                                              |                             |
-| Cardinal `#900` | Brand and action: header line, wordmark, links, eyebrows, numerals, current page rule, instructor edge | Page or section backgrounds |
-| Gold `#fc0`     | Highlight: the lede's key phrase, hover underlines, selection, learning assistant edge                 | Text (1.5:1 on paper)       |
+| Color           | Role                                                                                               | Never                       |
+| --------------- | -------------------------------------------------------------------------------------------------- | --------------------------- |
+| Ink on paper    | All reading text, in three strengths: text, muted, subtle                                          |                             |
+| Cardinal `#900` | Brand and action: header line, wordmark, links, eyebrows, numerals, semester bars, instructor edge | Page or section backgrounds |
+| Gold `#fc0`     | Highlight: hover underlines on names and cards, selection, learning assistant edge                 | Text (1.5:1 on paper)       |
 
 A quiet surface (`--color-surface`) fills placeholders and timeline bars; color
 goes on a bar's thin edge, and a warm tint of it marks people still teaching.
-Large fields of Cardinal or Gold read as loud, so neither fills more than a
-button.
+Large fields of Cardinal or Gold read as loud, so neither fills more than a thin
+bar.
 
 Contrast on paper: text 16.8:1, muted 6.4:1, subtle 4.6:1 (the floor for any
 text), Cardinal 8.5:1.
@@ -50,20 +50,19 @@ loaded.
 
 **Sizes.** One scale in `tokens.css`, largest first:
 
-| Token            | Used for                                 |
-| ---------------- | ---------------------------------------- |
-| `--text-display` | The home page title only                 |
-| `--text-title`   | Every other page's title (its one `h1`)  |
-| `--text-xl`      | A section's opening statement            |
-| `--text-lg`      | Item titles (`h3`), names, ledes         |
-| `--text-base`    | Body text                                |
-| `--text-sm`      | Secondary text, section labels, eyebrows |
-| `--text-xs`      | Data (mono)                              |
+| Token            | Used for                                |
+| ---------------- | --------------------------------------- |
+| `--text-display` | The home headline and its big figures   |
+| `--text-title`   | Every other page's title (its one `h1`) |
+| `--text-xl`      | Section headings (`h2`)                 |
+| `--text-lg`      | Item titles (`h3`), names, ledes        |
+| `--text-base`    | Body text                               |
+| `--text-sm`      | Secondary text, eyebrows                |
+| `--text-xs`      | Data (mono)                             |
 
-**Headings.** One `h1` per page. Section labels are `h2` but set small at weight
-500: they are signposts in the left column, not shouts. Items inside a section
-are `h3`. Large type gets tighter tracking (`--tracking-display`,
-`--tracking-heading`).
+**Headings.** One `h1` per page. Each section opens with an `h2` at `--text-xl`,
+directly above its content. Items inside a section are `h3`. Large type gets
+tighter tracking (`--tracking-display`, `--tracking-heading`).
 
 ## Calls to action
 
@@ -74,11 +73,16 @@ the course.
 
 ## Layout
 
-One content width (`--content-max`), one gutter, and one editorial grid: a
-section is a hairline, a label in the narrow left column, and content in the
-wide right column. The label stays in view while a long section scrolls. On
-phones the label stacks on top. Ordered rows lead with a numeral
+One content width (`--content-max`), one gutter, and one left edge: a section is
+a hairline, its heading, then its content, so a heading always lines up with
+what it introduces. Nothing is centered. Ordered rows lead with a numeral
 (`numbered-row`).
+
+The home page tells the course as a short story, picture first: the headline and
+two links, a full-width wall of student products, three big figures, the
+semester map, the people and a class photo, then links onward. Text there stays
+to one line per idea; detail lives on each part's own page. The product wall is
+the one element allowed past the content width.
 
 The header is a solid bar that sticks to the top: inline links on wide screens,
 a full-screen sheet on phones. Nothing blurs; a blur costs a filter pass every
@@ -89,8 +93,10 @@ scrolled frame and muddies the text behind it.
 Short and quiet, and only opacity, transform or clipping, so it stays smooth on
 phones. Content rises in on load and between pages; rows and cards marked
 `reveal` rise in as they scroll into view; timeline bars draw in from their
-first term; the lede's highlight sweeps in once. Durations come from tokens, and
-reduced-motion settings collapse them all to an instant.
+first term, and semester bars draw across their weeks. The product wall drifts
+slowly, pauses under the pointer and while off screen, and stands still under
+reduced motion. Durations come from tokens, and reduced-motion settings collapse
+them all to an instant.
 
 Scroll-driven rules use longhand properties: the CSS minifier folds `animation`
 and `animation-timeline` into one shorthand that browsers reject.
