@@ -16,6 +16,8 @@ interface Stop {
   /** Mono tag after the week, such as the part's name. */
   label: string;
   title: string;
+  /** A sentence or two under the title, for readers and search. */
+  text: string;
   href: string;
 }
 
@@ -27,7 +29,7 @@ const { stops } = Astro.props;
 ---
 
 <ol class="page-width path">
-  {stops.map(({ week, label, title, href }) => (
+  {stops.map(({ week, label, title, text, href }) => (
     <li class="stop">
       <p class="stop-week data">
         Week {week} · {label}
@@ -38,6 +40,7 @@ const { stops } = Astro.props;
           <Arrow />
         </a>
       </h2>
+      <p class="stop-text">{text}</p>
     </li>
   ))}
 </ol>
@@ -126,11 +129,19 @@ const { stops } = Astro.props;
   }
 
   .stop-title {
-    max-width: 20ch;
+    margin-top: var(--space-2);
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .stop-text {
+    max-width: var(--prose-max);
     margin-top: var(--space-3);
-    font-size: var(--text-title);
-    line-height: 1.05;
-    letter-spacing: var(--tracking-display);
+    color: color-mix(
+      in srgb,
+      var(--color-text-muted) calc(var(--lit) * 100%),
+      var(--color-text-subtle)
+    );
   }
 
   .stop-link {

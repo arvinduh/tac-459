@@ -19,7 +19,6 @@ const site = defineCollection({
   schema: z.object({
     courseCode: z.string(),
     title: z.string(),
-    tagline: z.string(),
     description: z.string().max(160),
     /** Term the site shows; past terms stay for the archive. */
     currentTerm: reference('terms'),
@@ -99,6 +98,8 @@ const overview = defineCollection({
   schema: z.object({
     /** The promise that opens the home page, one short sentence. */
     headline: z.string(),
+    /** A short paragraph under the headline. */
+    blurb: z.string(),
     components: z
       .array(
         z.object({

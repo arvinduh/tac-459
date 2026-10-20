@@ -7,13 +7,14 @@
  * teaching it close the page. Every value comes from content files, and
  * every detail lives on its own page.
  */
-import { Image } from 'astro:assets';
 import Arrow from '../components/Arrow.astro';
 import PersonRow from '../components/PersonRow.astro';
 import Section from '../components/Section.astro';
 import SemesterPath from '../components/SemesterPath.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { googleCalendarUrl } from '../lib/calendar';
 import {
+  getClassCalendar,
   getCurrentStaff,
   getCurrentTerm,
   getOverview,
@@ -22,7 +23,7 @@ import {
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
-import { formatSession } from '../lib/term';
+import { formatTimes, mapUrl, scheduleUrl } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
@@ -36,7 +37,6 @@ const ROLE_NAMES = {
 
 const projectTerms = await getProjectTerms();
 const projects = projectTerms.flatMap((entry) => entry.projects);
-const classPhoto = projectTerms.find((entry) => entry.classPhoto);
 
 // One stop where each part begins, then demo day at the capstone's end.
 const parts = overview.components.toSorted(
@@ -45,10 +45,11 @@ const parts = overview.components.toSorted(
 const capstone = overview.components.find(({ id }) => id === 'capstone');
 const finale = capstone?.steps?.at(-1);
 const stops = [
-  ...parts.map(({ id, title, promise, weeks }) => ({
+  ...parts.map(({ id, title, promise, summary, weeks }) => ({
     week: weeks.from,
     label: title,
     title: promise,
+    text: summary,
     href: href(`/${id}/`),
   })),
   ...(capstone && finale
@@ -57,6 +58,7 @@ const stops = [
           week: capstone.weeks.to,
           label: finale.title,
           title: `${projects.length} products launched so far.`,
+          text: finale.text,
           href: href('/projects/'),
         },
       ]
@@ -64,6 +66,10 @@ const stops = [
 ];
 
 const absolute = (path: string) => new URL(href(path), Astro.site).href;
+const calendar = await getClassCalendar(absolute('/'));
+const [firstSeries] = calendar.series;
+const googleCalendar =
+  firstSeries && googleCalendarUrl(calendar.text, firstSeries);
 const course = courseSchema({
   name: site.title,
   courseCode: site.courseCode,
@@ -84,10 +90,35 @@ const course = courseSchema({
       {site.courseCode} · {site.title}
     </p>
     <h1 class="hero-title">{overview.headline}</h1>
-    <p class="data">
-      {site.tagline} · {term.label}
-      {term.meetings.map((meeting) => ` · ${formatSession(meeting)}`)}
-    </p>
+    <p class="hero-blurb">{overview.blurb}</p>
+    <div class="hero-facts">
+      <p class="data">
+        <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
+        {term.meetings.map((meeting) => {
+          const map = mapUrl(meeting.location, site.buildings);
+          return (
+            <>
+              {' · '}
+              {formatTimes(meeting)}
+              {' · '}
+              {map ? <a href={map}>{meeting.location}</a> : meeting.location}
+            </>
+          );
+        })}
+      </p>
+      <p class="calendar-links">
+        <a class="arrow-link" href={href('/calendar.ics')} download>
+          Add to calendar
+          <Arrow />
+        </a>
+        {googleCalendar && (
+          <a class="arrow-link" href={googleCalendar}>
+            Google Calendar
+            <Arrow />
+          </a>
+        )}
+      </p>
+    </div>
   </header>
 
   <SemesterPath stops={stops} />
@@ -101,17 +132,6 @@ const course = courseSchema({
           </li>
         ))}
       </ul>
-      {classPhoto?.classPhoto && (
-        <figure class="class-photo">
-          <Image
-            src={classPhoto.classPhoto}
-            alt={`The ${classPhoto.label} class of ${site.courseCode}`}
-            widths={[800, 1600, 2400]}
-            sizes="(width < 70rem) 100vw, 64rem"
-          />
-          <figcaption class="data">{classPhoto.label} class</figcaption>
-        </figure>
-      )}
       <p class="more-link">
         <a class="arrow-link" href={href('/team/')}>
           Office hours and past staff
@@ -142,11 +162,35 @@ const course = courseSchema({
     animation-delay: 120ms;
   }
 
+  .hero > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+
+  /* Wide enough that the headline breaks into two lines on a laptop. */
   .hero-title {
-    max-width: 14ch;
+    max-width: 22ch;
     font-size: var(--text-display);
     line-height: 1;
     letter-spacing: var(--tracking-display);
+  }
+
+  .hero-blurb {
+    max-width: var(--prose-max);
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    line-height: 1.55;
+  }
+
+  .hero-facts {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .calendar-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    font-size: var(--text-sm);
   }
 
   .sections {
@@ -157,19 +201,6 @@ const course = courseSchema({
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
     gap: 0 var(--space-8);
-  }
-
-  .class-photo {
-    display: grid;
-    gap: var(--space-3);
-    margin: var(--space-8) 0 0;
-  }
-
-  .class-photo img {
-    width: 100%;
-    aspect-ratio: 21 / 9;
-    border-radius: var(--radius);
-    object-fit: cover;
   }
 
   .more-link {

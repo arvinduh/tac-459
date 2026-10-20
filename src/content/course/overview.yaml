@@ -3,6 +3,10 @@
 # in search results and links, and `detail` opens the component's own page.
 # The promise at the top of the home page, as one short sentence.
 headline: Build a generative AI product in one semester.
+# A short paragraph under the headline: what the course is, for readers and search.
+blurb: >-
+  The capstone course of the USC Artificial Intelligence Minor, connecting
+  technical foundations, industry analysis and hands-on AI product development.
 components:
   - id: curriculum
     title: Technical foundations
