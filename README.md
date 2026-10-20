@@ -10,12 +10,14 @@ Everything a course staff member edits is under `src/content/`, and every file
 is validated at build time. A typo or a missing person fails the build with the
 file and field name.
 
-| File                             | Holds                                    |
-| -------------------------------- | ---------------------------------------- |
-| `site.yaml`                      | Course name and current term             |
-| `course/curriculum.yaml`         | Modules and weekly topics                |
-| `terms/<term>.yaml`              | One term: label, meeting times and staff |
-| `people/<id>/index.md` and photo | One person's roles, links and bio        |
+| File                                           | Holds                                                  |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| `site.yaml`                                    | Course name and current term                           |
+| `course/overview.yaml`                         | The pitch and the three components, with their steps   |
+| `course/curriculum.yaml`                       | Modules and weekly topics                              |
+| `terms/<term>.yaml` and class photo            | One term: label, meeting times, staff, class photo     |
+| `people/<id>/index.md` and photo               | One person's roles, links and bio                      |
+| `projects/<term>/<product>/index.md` and shots | One past product: summary, team, write-up, screenshots |
 
 ## Starting a new term
 
@@ -25,6 +27,10 @@ file and field name.
 3. Point `currentTerm` in `src/content/site.yaml` at the new file.
 
 Old term files and people stay in place; past staff keep their pages.
+
+After the term ends, add a folder per product under
+`src/content/projects/<term>/` and the class photo beside the term file. Keep
+images under about 2400px wide; the build makes every smaller size.
 
 ## Commands
 
