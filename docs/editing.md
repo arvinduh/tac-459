@@ -31,10 +31,28 @@ npm run check      # the same checks the build runs
 npm run new -- term spring-2027
 ```
 
-This copies the current term file to `src/content/terms/spring-2027.yaml`.
-Update its meeting times, staff and office hours, then set
-`currentTerm: spring-2027` in `src/content/site.yaml`. Old term files stay: they
-feed the team timeline and the projects page.
+This copies the current term file to `src/content/terms/spring-2027.yaml`. The
+file name is the term: the site names it "Spring 2027" and links its USC
+Schedule of Classes page from it. In the new file, update:
+
+| Field        | What                                                      |
+| ------------ | --------------------------------------------------------- |
+| `classes`    | First and last day of classes, `{ start: 2027-01-11, … }` |
+| `noClass`    | Class days that are holidays, left out of the calendar    |
+| `meetings`   | Days, times and room; a room code such as `KAP 160` links |
+| `staff`      | Who teaches, with any office hours                        |
+| `classPhoto` | Remove it until the new class photo exists                |
+
+Then set `currentTerm: spring-2027` in `src/content/site.yaml`. The build
+refuses a current term whose class dates are missing or still last term's, or
+that has no meetings or no instructor, and says which. A new room's building
+goes under `buildings` in `site.yaml` once. Old term files stay: they feed the
+team timeline and the projects page.
+
+Every Monday a CI run checks the date; three weeks after the last class it fails
+with these steps, so a forgotten rollover cannot sit unnoticed. Everything else
+on the site (the calendar file, week numbers, the term name and links) is
+generated from these fields.
 
 ### Add a person
 
