@@ -70,48 +70,49 @@ components:
       selects one direction to refine into a complete application. Every product
       uses a frontier-model API for at least one feature, and students
       progressively build with AI-assisted coding tools.
+    # Labels are semester weeks, matching `weeks` above.
     steps:
-      - label: Week 1
+      - label: Week 8
         title: Form teams
         text: >-
           Teams of six or seven, the same teams as the company overview, meet
           with the professor to start.
-      - label: Week 2
+      - label: Week 9
         title: Propose product ideas
         text: >-
           Develop product ideas grounded in class concepts and a clear user
           problem, and weigh the value each could offer.
-      - label: Week 3
+      - label: Week 10
         title: Prepare idea pitches
         text: >-
           Prepare one slide and a one-minute pitch for each idea, presented
           after the company overview.
-      - label: Week 4
+      - label: Week 11
         title: Pitch and plan the roadmap
         text: >-
           Pitch each idea, then define the product roadmap and the scope of one
           shared MVP with a learning assistant.
-      - label: Week 5
+      - label: Week 12
         title: Build one shared MVP
         text: >-
           Use course code and class concepts to build one minimum viable
           product, establishing the core experience and technical foundation.
-      - label: Week 6
+      - label: Week 13
         title: Start multiple prototypes
         text: >-
           Improve the MVP and explore alternative directions through prototypes
           that add a frontier-model API feature.
-      - label: Week 7
+      - label: Week 14
         title: Develop the prototypes
         text: >-
           Build prototypes in groups of two or three, comparing different
           implementations before choosing a direction.
-      - label: Week 8
+      - label: Week 15
         title: Select and refine
         text: >-
           Choose a prototype and bring the team's work together into one
           complete application, ready to demonstrate.
-      - label: Week 9
+      - label: Week 16
         title: Demo and launch pitch
         text: >-
           Demonstrate the product in a startup-style pitch connecting the user
