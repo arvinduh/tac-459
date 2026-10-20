@@ -42,3 +42,12 @@ export async function getCurrentStaff() {
     }),
   );
 }
+
+/** Returns the course pitch from overview.yaml. */
+export async function getOverview() {
+  const overview = await getEntry('overview', 'overview');
+  if (!overview) {
+    throw new Error('src/content/course/overview.yaml is missing');
+  }
+  return overview.data;
+}

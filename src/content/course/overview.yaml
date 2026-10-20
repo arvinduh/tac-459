@@ -1,0 +1,27 @@
+# The course pitch shown on the home page. Same for every term.
+lede: >-
+  Learn how frontier models work, study the companies building on them, and ship
+  an AI product of your own.
+intro: >-
+  The course connects the technical foundations of generative AI with industry
+  analysis and hands-on product development, through three complementary
+  components.
+components:
+  - title: Technical foundations
+    timing: Throughout the semester
+    summary: >-
+      How generative AI works and how frontier models are built, adapted and
+      evaluated: transformers and attention, prompting, retrieval, fine-tuning
+      with LoRA, alignment and RLHF, evaluation and AI safety.
+  - title: AI company overview
+    timing: Midsemester
+    summary: >-
+      Teams study an emerging AI company backed by Y Combinator or a leading
+      venture firm, analyzing its product, technology, customers and market,
+      then present it with a concrete generative AI use case.
+  - title: AI capstone product
+    timing: Final nine weeks
+    summary: >-
+      Teams take a product from idea to a shared MVP, through multiple
+      prototypes, to a complete application built on frontier-model APIs, ending
+      in a live demo and a startup-style launch pitch.

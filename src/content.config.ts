@@ -76,6 +76,25 @@ const curriculum = defineCollection({
 const clock = z.iso.time({ precision: -1 });
 const weekday = z.enum(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
 
+/** The course pitch: an intro and the components the course is built from. */
+const overview = defineCollection({
+  loader: singleton('src/content/course/overview.yaml', 'overview'),
+  schema: z.object({
+    /** One-sentence pitch under the home page title. */
+    lede: z.string(),
+    intro: z.string(),
+    components: z
+      .array(
+        z.object({
+          title: z.string(),
+          timing: z.string(),
+          summary: z.string(),
+        }),
+      )
+      .min(1),
+  }),
+});
+
 /** One small file per term holding only what changes term to term. */
 const terms = defineCollection({
   loader: glob({ pattern: '*.yaml', base: 'src/content/terms' }),
@@ -102,5 +121,6 @@ export const collections = {
   site,
   people,
   curriculum,
+  overview,
   terms,
 };
