@@ -51,3 +51,11 @@ export async function getOverview() {
   }
   return overview.data;
 }
+
+/** Returns one course component by the id its page is named after. */
+export async function getComponent(id: string) {
+  const { components } = await getOverview();
+  const component = components.find((entry) => entry.id === id);
+  if (!component) throw new Error(`Course component '${id}' is missing`);
+  return component;
+}
