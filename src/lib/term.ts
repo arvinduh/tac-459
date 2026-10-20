@@ -1,4 +1,4 @@
-/** Pure helpers for term data: meeting times and term order. */
+/** Pure helpers for term data: weekly slots, clock times and term order. */
 
 /** Formats 'HH:MM' for people, e.g. '13:50' as '1:50 pm'. */
 export function formatClock(clock: string): string {
@@ -6,6 +6,19 @@ export function formatClock(clock: string): string {
   const suffix = hours < 12 ? 'am' : 'pm';
   const twelve = hours % 12 || 12;
   return `${twelve}:${String(minutes).padStart(2, '0')} ${suffix}`;
+}
+
+/** A weekly slot as stored in a term file. */
+interface Session {
+  days: string[];
+  start: string;
+  end: string;
+  location: string;
+}
+
+/** Formats a weekly slot, e.g. 'Mon & Wed 12:00 pm–1:50 pm · KAP 160'. */
+export function formatSession({ days, start, end, location }: Session) {
+  return `${days.join(' & ')} ${formatClock(start)}–${formatClock(end)} · ${location}`;
 }
 
 const SEASONS = ['spring', 'summer', 'fall'];

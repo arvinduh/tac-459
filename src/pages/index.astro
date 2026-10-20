@@ -18,7 +18,7 @@ import {
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
-import { formatClock } from '../lib/term';
+import { formatSession } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
@@ -45,10 +45,7 @@ const course = courseSchema({
   })),
 });
 
-const meetings = term.meetings.map(
-  ({ days, start, end, location }) =>
-    `${days.join(' & ')} ${formatClock(start)}–${formatClock(end)} · ${location}`,
-);
+const meetings = term.meetings.map(formatSession);
 ---
 
 <BaseLayout schema={[course]}>
