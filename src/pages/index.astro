@@ -10,7 +10,7 @@
 import Arrow from '../components/Arrow.astro';
 import PersonRow from '../components/PersonRow.astro';
 import Section from '../components/Section.astro';
-import SemesterPath from '../components/SemesterPath.astro';
+import SemesterStory from '../components/SemesterStory.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { googleCalendarUrl } from '../lib/calendar';
 import {
@@ -112,7 +112,10 @@ const course = courseSchema({
     </div>
   </header>
 
-  <SemesterPath stops={stops} />
+  <SemesterStory
+    panels={stops}
+    covers={projects.slice(0, 8).map(({ data }) => data.images[0])}
+  />
 
   <div class="sections">
     <Section id="team" label={`Taught in ${term.label} by`}>
