@@ -63,9 +63,6 @@ const stops = [
 
 const absolute = (path: string) => new URL(href(path), Astro.site).href;
 const calendar = await getClassCalendar(absolute('/'));
-const [firstSeries] = calendar.series;
-const googleCalendar =
-  firstSeries && googleCalendarUrl(calendar.text, firstSeries);
 const course = courseSchema({
   name: site.title,
   courseCode: site.courseCode,
@@ -90,29 +87,27 @@ const course = courseSchema({
     <div class="hero-facts">
       <p class="data">
         <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
-        {term.meetings.map((meeting) => {
+        {term.meetings.map((meeting, index) => {
           const map = mapUrl(meeting.location, site.buildings);
+          const series = calendar.series[index];
           return (
             <>
               {' · '}
-              {formatTimes(meeting)}
+              {series ? (
+                <a
+                  href={googleCalendarUrl(calendar.text, series)}
+                  title="Add the class to Google Calendar"
+                >
+                  {formatTimes(meeting)}
+                </a>
+              ) : (
+                formatTimes(meeting)
+              )}
               {' · '}
               {map ? <a href={map}>{meeting.location}</a> : meeting.location}
             </>
           );
         })}
-      </p>
-      <p class="calendar-links">
-        <a class="arrow-link" href={href('/calendar.ics')} download>
-          Add to calendar
-          <Arrow />
-        </a>
-        {googleCalendar && (
-          <a class="arrow-link" href={googleCalendar}>
-            Google Calendar
-            <Arrow />
-          </a>
-        )}
       </p>
     </div>
   </header>
@@ -180,13 +175,6 @@ const course = courseSchema({
   .hero-facts {
     display: grid;
     gap: var(--space-3);
-  }
-
-  .calendar-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-6);
-    font-size: var(--text-sm);
   }
 
   .sections {
