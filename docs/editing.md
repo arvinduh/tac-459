@@ -74,8 +74,8 @@ so past staff keep their pages and their place on the timeline.
 
 ### Post office hours
 
-Add `officeHours` to that person's line in the term file. Leave it out when
-hours are announced elsewhere.
+Add `officeHours` to that person's line in the term file, either as a weekly
+slot or as a short note such as `officeHours: Announced on Piazza`.
 
 ```yaml
 staff:

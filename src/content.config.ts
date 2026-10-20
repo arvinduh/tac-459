@@ -150,8 +150,8 @@ const terms = defineCollection({
         z.object({
           person: reference('people'),
           role: z.enum(['instructor', 'learningAssistant']),
-          /** Weekly office hours; omit when announced elsewhere. */
-          officeHours: session.optional(),
+          /** A weekly slot, or a note such as 'Announced on Piazza'. */
+          officeHours: z.union([session, z.string()]).optional(),
         }),
       ),
     }),

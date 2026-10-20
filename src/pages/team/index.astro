@@ -46,7 +46,11 @@ const description = `The ${term.label} instructors and learning assistants of ${
                 person={person}
                 withSummary
                 {...(officeHours && {
-                  detail: `Office hours ${formatSession(officeHours)}`,
+                  detail: `Office hours · ${
+                    typeof officeHours === 'string'
+                      ? officeHours
+                      : formatSession(officeHours)
+                  }`,
                 })}
               />
             </li>
