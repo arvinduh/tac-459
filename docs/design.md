@@ -15,7 +15,7 @@ in a few deliberate places, so they stay meaningful.
 | Color           | Role                                                                                               | Never                       |
 | --------------- | -------------------------------------------------------------------------------------------------- | --------------------------- |
 | Ink on paper    | All reading text, in three strengths: text, muted, subtle                                          |                             |
-| Cardinal `#900` | Brand and action: header line, wordmark, links, eyebrows, numerals, semester bars, instructor edge | Page or section backgrounds |
+| Cardinal `#900` | Brand and action: header line, wordmark, links, eyebrows, numerals, semester line, instructor edge | Page or section backgrounds |
 | Gold `#fc0`     | Highlight: hover underlines on names and cards, selection, learning assistant edge                 | Text (1.5:1 on paper)       |
 
 A quiet surface (`--color-surface`) fills placeholders and timeline bars; color
@@ -52,7 +52,7 @@ loaded.
 
 | Token            | Used for                                |
 | ---------------- | --------------------------------------- |
-| `--text-display` | The home headline and its big figures   |
+| `--text-display` | The home headline only                  |
 | `--text-title`   | Every other page's title (its one `h1`) |
 | `--text-xl`      | Section headings (`h2`)                 |
 | `--text-lg`      | Item titles (`h3`), names, ledes        |
@@ -78,11 +78,11 @@ a hairline, its heading, then its content, so a heading always lines up with
 what it introduces. Nothing is centered. Ordered rows lead with a numeral
 (`numbered-row`).
 
-The home page tells the course as a short story, picture first: the headline and
-two links, a full-width wall of student products, three big figures, the
-semester map, the people and a class photo, then links onward. Text there stays
-to one line per idea; detail lives on each part's own page. The product wall is
-the one element allowed past the content width.
+The home page is the headline, then the semester as one line: a hairline in the
+left gutter with a stop at the week each part begins and one at demo day. Each
+stop is a mono week label and a one-line promise linking to its page. The people
+teaching it close the page. The line is the one element that sits in the gutter,
+so the words keep the left edge.
 
 The header is a solid bar that sticks to the top: inline links on wide screens,
 a full-screen sheet on phones. Nothing blurs; a blur costs a filter pass every
@@ -93,10 +93,11 @@ scrolled frame and muddies the text behind it.
 Short and quiet, and only opacity, transform or clipping, so it stays smooth on
 phones. Content rises in on load and between pages; rows and cards marked
 `reveal` rise in as they scroll into view; timeline bars draw in from their
-first term, and semester bars draw across their weeks. The product wall drifts
-slowly, pauses under the pointer and while off screen, and stands still under
-reduced motion. Durations come from tokens, and reduced-motion settings collapse
-them all to an instant.
+first term. On the home page the window's middle is the semester's "now": the
+semester line fills in Cardinal as it passes, and each stop darkens from subtle
+to ink when the line reaches it. It is pure scroll timeline, so nothing runs
+while the page is still. Durations come from tokens, and reduced-motion settings
+collapse them all to an instant.
 
 Scroll-driven rules use longhand properties: the CSS minifier folds `animation`
 and `animation-timeline` into one shorthand that browsers reject.
