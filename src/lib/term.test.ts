@@ -7,6 +7,8 @@ import {
   formatSession,
   formatTimes,
   mapUrl,
+  nextTermId,
+  rolloverReminder,
   scheduleUrl,
   termLabel,
   termRank,
@@ -98,5 +100,21 @@ test('currentTermProblems catches a term copied forward', () => {
       'add at least one instructor',
       'add classes: { start, end }',
     ],
+  );
+});
+
+test('nextTermId alternates spring and fall', () => {
+  assert.equal(nextTermId('fall-2026'), 'spring-2027');
+  assert.equal(nextTermId('spring-2027'), 'fall-2027');
+});
+
+test('rolloverReminder waits three weeks after the last class', () => {
+  assert.equal(
+    rolloverReminder('fall-2026', '2026-12-04', '2026-12-25'),
+    undefined,
+  );
+  assert.match(
+    rolloverReminder('fall-2026', '2026-12-04', '2026-12-26') ?? '',
+    /npm run new -- term spring-2027/,
   );
 });

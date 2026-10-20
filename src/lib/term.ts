@@ -135,3 +135,33 @@ export function currentTermProblems(id: string, term: TermFacts): string[] {
   }
   return problems;
 }
+
+/** Returns the regular term after this one: spring to fall, fall to spring. */
+export function nextTermId(id: string): string {
+  const { season, year } = parseTerm(id);
+  return season === 'fall' ? `spring-${year + 1}` : `fall-${year}`;
+}
+
+/** Days after the last class before the site counts as out of date. */
+const ROLLOVER_GRACE_DAYS = 21;
+
+/**
+ * Says what to do when the current term ended long enough ago that the
+ * site should have moved on, or returns undefined while it is still fine.
+ * `today` and `classesEnd` are 'YYYY-MM-DD'.
+ */
+export function rolloverReminder(
+  id: string,
+  classesEnd: string,
+  today: string,
+): string | undefined {
+  const due = new Date(`${classesEnd}T00:00:00Z`);
+  due.setUTCDate(due.getUTCDate() + ROLLOVER_GRACE_DAYS);
+  if (today <= due.toISOString().slice(0, 10)) return undefined;
+  const next = nextTermId(id);
+  return (
+    `${termLabel(id)} classes ended on ${classesEnd}. Start ${termLabel(next)}: ` +
+    `run npm run new -- term ${next}, fill it in, then set currentTerm: ${next} ` +
+    'in src/content/site.yaml (see docs/editing.md).'
+  );
+}
