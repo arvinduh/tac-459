@@ -19,7 +19,7 @@ const { projects } = Astro.props;
 
 <ul class="plain-list project-grid">
   {projects.map(({ id, data }) => (
-    <li>
+    <li class="reveal">
       <a class="project-card" href={href(`/projects/${id}/`)}>
         <Image
           class="project-cover"

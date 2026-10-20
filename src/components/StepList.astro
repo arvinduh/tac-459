@@ -18,7 +18,7 @@ const { steps } = Astro.props;
 
 <ol class="plain-list">
   {steps.map(({ label, title, text }, index) => (
-    <li class="numbered-row">
+    <li class="numbered-row reveal">
       <span class="numeral">{label ?? String(index + 1).padStart(2, '0')}</span>
       <div class="step-body">
         <h3 class="step-title">{title}</h3>

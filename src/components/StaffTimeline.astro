@@ -223,7 +223,10 @@ const sections = groups.map(({ role, laneCount, people }) => ({
     }
 
     .bar {
-      animation: draw linear both;
+      /* Longhands only; see .reveal in base.css. */
+      animation-name: draw;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
       animation-timeline: --staff-timeline;
       animation-range: entry 10% entry 90%;
     }

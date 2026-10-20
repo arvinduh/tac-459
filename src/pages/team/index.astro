@@ -41,7 +41,7 @@ const description = `The ${term.label} instructors and learning assistants of ${
       <Section id={id} label={label}>
         <ul class="plain-list person-list">
           {members.map(({ person, officeHours }) => (
-            <li>
+            <li class="reveal">
               <PersonRow
                 person={person}
                 {...(officeHours && {

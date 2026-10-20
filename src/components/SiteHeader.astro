@@ -45,7 +45,10 @@ const { courseCode } = Astro.props;
 
   @supports (animation-timeline: scroll()) {
     .site-header {
-      animation: header-rule linear both;
+      /* Longhands only; see .reveal in base.css. */
+      animation-name: header-rule;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
       animation-timeline: scroll();
       animation-range: 0 var(--space-16);
     }

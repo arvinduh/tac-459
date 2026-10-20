@@ -104,7 +104,7 @@ const facts = [
       <p class="intro">{overview.intro}</p>
       <ol class="plain-list component-list">
         {overview.components.map(({ id, title, timing, summary }, index) => (
-          <li class="numbered-row">
+          <li class="numbered-row reveal">
             <span class="numeral">{String(index + 1).padStart(2, '0')}</span>
             <div class="component-body">
               <h3 class="component-title">
@@ -136,7 +136,7 @@ const facts = [
     <Section id="team" label={`${term.label} team`}>
       <ul class="plain-list team-grid">
         {staff.map(({ person, role }) => (
-          <li>
+          <li class="reveal">
             <PersonRow person={person} caption={ROLE_NAMES[role]} />
           </li>
         ))}

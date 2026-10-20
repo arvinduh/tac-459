@@ -265,6 +265,26 @@ img {
   transform: none;
 }
 
+/*
+ * Rows and cards that rise into place as they scroll into view, over the
+ * first few pixels of entering so a tall item never sits half faded. Pure
+ * CSS on the compositor; browsers without scroll timelines show it as is.
+ */
+@supports (animation-timeline: view()) {
+  /* Screen only: a print or a full-page capture never scrolls them in. */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    /* Longhands only: a minifier folds a shorthand and timeline together,
+       which browsers reject. */
+    .reveal {
+      animation-name: rise;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+      animation-timeline: view();
+      animation-range: entry 0 entry 8rem;
+    }
+  }
+}
+
 /* Entrance for content that rises into place; reduced motion makes it instant. */
 @keyframes rise {
   from {
