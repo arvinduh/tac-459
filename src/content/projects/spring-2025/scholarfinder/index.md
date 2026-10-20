@@ -1,0 +1,22 @@
+---
+title: 'ScholarFinder: Smart Research Paper Finder'
+term: spring-2025
+team: [Khai-Ly Tran, Serena Li, Eric Almendral, Babo Hu, Harmony Cen, Demi Zhou]
+summary: >-
+  Semantic search over arXiv papers with similarity scores, LLM summaries, and
+  related-paper recommendations.
+images: [./1.webp, ./2.webp, ./3.webp]
+---
+
+A semantic research-paper search tool that goes beyond keyword matching, letting
+students, researchers, and educators query an indexed corpus of arXiv papers
+with interpretable similarity scores, LLM-generated summaries, and
+recommendations for related work.
+
+## How it was built
+
+Indexes papers fetched from the arXiv API, embeds titles and abstracts with
+OpenAI embeddings, and stores them in Pinecone for cosine-similarity retrieval.
+A FastAPI backend serves a Streamlit frontend, with PyMuPDF and chunked
+GPT-3.5-Turbo calls for full-paper summarization and Levenshtein-based fuzzy
+matching for author and journal filters.

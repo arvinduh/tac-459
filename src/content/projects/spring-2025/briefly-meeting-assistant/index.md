@@ -1,0 +1,29 @@
+---
+title: 'Briefly: AI Meeting Assistant'
+term: spring-2025
+team:
+  [
+    Santiago Briones,
+    Daniella Echeverria,
+    Brad Shen,
+    Matthew Cullen,
+    Yuki Yu,
+    Phillip Awong,
+  ]
+summary: >-
+  Turns uploaded meeting recordings into transcripts, summaries, and assigned
+  action items.
+images: [./1.webp, ./2.webp, ./3.webp]
+---
+
+An AI meeting note-taker that turns uploaded video recordings into clean
+transcripts, smart summaries, and delegated action items. Briefly is built to
+address the productivity loss from the 17 average weekly meetings the modern
+worker now sits through.
+
+## How it was built
+
+A four-stage pipeline that extracts and trims audio from uploaded video,
+generates a transcript via speech-to-text, then runs LLM-based summarization and
+action-item extraction to surface decisions, owners, and follow-ups in a single
+dashboard view.

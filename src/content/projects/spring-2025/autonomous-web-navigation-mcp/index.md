@@ -1,0 +1,22 @@
+---
+title: Autonomous Web Navigation with MCP
+term: spring-2025
+team:
+  [Arjun Bedi, Will Dolan, Aditya Kumar, Luke Legrand, Allison Lim, Aarav Monga]
+summary: >-
+  A Claude agent that searches the web through MCP, ranks sources by relevance
+  and credibility, and returns a cited answer.
+images: [./1.webp, ./2.webp, ./3.webp]
+---
+
+An autonomous web-search agent that mimics how a human researcher works by
+navigating the web, ranking sources by relevance and credibility, resolving
+conflicts between disagreeing sources, and returning a multi-source,
+citation-backed answer through a conversational Streamlit interface.
+
+## How it was built
+
+Uses Anthropic's Claude with the Model Context Protocol (MCP) for autonomous
+Google search and web scraping, sentence-transformer cosine similarity for
+relevance scoring, Claude-evaluated credibility scores for pairwise conflict
+resolution, and RAG over the top-ranked documents for the final response.

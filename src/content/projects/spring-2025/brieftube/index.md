@@ -1,0 +1,21 @@
+---
+title: 'BriefTube: AI-Powered YouTube Video Summarizer'
+term: spring-2025
+team: [Andrew Kim, Anton Wagner, Celine Chen, Taylor Yiu, Vivek Raheja]
+summary: >-
+  Summarizes long YouTube videos with GPT-4 and Whisper, adding clickable key
+  timestamps, mood metadata, and keyframes.
+images: [./1.webp, ./2.webp, ./3.webp]
+---
+
+BriefTube helps users get the gist of long YouTube videos in minutes by
+generating AI-powered summaries, clickable key timestamps, emotion and context
+metadata, and visual keyframes. It is designed for students, researchers, and
+busy professionals who consume long-form video content.
+
+## How it was built
+
+Built as a Streamlit app powered by GPT-4 for long-context summarization,
+Whisper for speech-to-text transcription, and vision models for keyframe and
+mood inference, with yt-dlp and OpenCV handling video retrieval and frame
+analysis.

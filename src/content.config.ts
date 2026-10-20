@@ -134,10 +134,26 @@ const terms = defineCollection({
     }),
 });
 
+/** Products past teams built: one folder per product, under its term. */
+const projects = defineCollection({
+  loader: glob({ pattern: '*/*/index.md', base: 'src/content/projects' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      term: reference('terms'),
+      team: z.array(z.string()).min(1),
+      /** One sentence for cards and the meta description. */
+      summary: z.string().max(160),
+      /** Screenshots; the first is the cover. */
+      images: z.tuple([image()], image()),
+    }),
+});
+
 export const collections = {
   site,
   people,
   curriculum,
   overview,
   terms,
+  projects,
 };
