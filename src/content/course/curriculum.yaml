@@ -1,0 +1,26 @@
+# Weekly topics by module. Dates come from the term file, not from here.
+modules:
+  - title: Introduction to Generative AI, NLP, and Text Processing
+    weeks:
+      - title: Introduction to NLP, Generative AI, and Text Processing
+        core:
+          - Course Overview
+          - Historical Evolution of AI and NLP
+          - Basic Text Processing and Language Understanding
+        deeper:
+          - Key Concepts in Machine Learning and NLP
+          - Overview of NLP Applications in Various Domains
+          - Challenges and Limitations in NLP
+      - title: Text Cleaning and Preprocessing
+        due: [assignment-1]
+        core:
+          - Text Cleaning and Preprocessing
+          - Text Normalization and Tokenization
+          - Lemmatization and Stemming
+          - Regular Expressions in Text Processing
+          - Overview of python libraries such as NLTK, Spacy, regex etc.
+        deeper:
+          - Techniques for Noise Reduction
+          - Co-occurrence Matrix in Text Analysis
+          - Feature Extraction from Text
+          - Basic Overview of Word Embeddings

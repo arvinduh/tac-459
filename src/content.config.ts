@@ -4,7 +4,7 @@
  * A typo in a date, a missing person or a dangling deliverable id fails the
  * build with the file and field name, so broken content never deploys.
  */
-import { defineCollection } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { parse } from 'yaml';
@@ -58,4 +58,24 @@ const deliverables = defineCollection({
   }),
 });
 
-export const collections = { site, people, deliverables };
+/** Weekly topics grouped by module; week dates derive from the term. */
+const curriculum = defineCollection({
+  loader: singleton('src/content/course/curriculum.yaml', 'curriculum'),
+  schema: z.object({
+    modules: z.array(
+      z.object({
+        title: z.string(),
+        weeks: z.array(
+          z.object({
+            title: z.string(),
+            due: z.array(reference('deliverables')).default([]),
+            core: z.array(z.string()).min(1),
+            deeper: z.array(z.string()).default([]),
+          }),
+        ),
+      }),
+    ),
+  }),
+});
+
+export const collections = { site, people, deliverables, curriculum };
