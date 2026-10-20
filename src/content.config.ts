@@ -5,7 +5,7 @@
  * build with the file and field name, so broken content never deploys.
  */
 import { defineCollection } from 'astro:content';
-import { file } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { parse } from 'yaml';
 
@@ -26,4 +26,27 @@ const site = defineCollection({
   }),
 });
 
-export const collections = { site };
+/** One folder per person, ever; the folder name is the person's id. */
+const people = defineCollection({
+  loader: glob({
+    pattern: '*/index.md',
+    base: 'src/content/people',
+    generateId: ({ entry }) => entry.split('/')[0] ?? entry,
+  }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string(),
+      honorific: z.string().optional(),
+      positions: z.array(z.string()).min(1),
+      email: z.email().optional(),
+      links: z
+        .object({ linkedin: z.url(), viterbi: z.url() })
+        .partial()
+        .default({}),
+      photo: image(),
+      /** Card blurb; defaults to the bio's first paragraph when omitted. */
+      summary: z.string().optional(),
+    }),
+});
+
+export const collections = { site, people };
