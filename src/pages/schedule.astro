@@ -5,6 +5,7 @@
  * Each week carries its date range as data attributes so the browser can
  * mark the current week without the build knowing today's date.
  */
+import CurrentWeek from '../components/CurrentWeek.astro';
 import DueList from '../components/DueList.astro';
 import PageIntro from '../components/PageIntro.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -12,6 +13,7 @@ import {
   getCurrentTerm,
   getDeliverableTitles,
   getModules,
+  getSite,
 } from '../lib/course';
 import {
   dueKey,
@@ -27,6 +29,7 @@ interface DueItem {
   when?: string;
 }
 
+const { timeZone } = await getSite();
 const term = await getCurrentTerm();
 const modules = await getModules();
 const titles = await getDeliverableTitles();
@@ -68,7 +71,7 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
       ...week,
       number: weekIndex,
       start: isoDay(start),
-      end: isoDay(end),
+      before: isoDay(weekOf(term.startDate, weekIndex).start),
       range: `${formatDay(start)} – ${formatDay(end)}`,
       due,
     };
@@ -82,60 +85,67 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
     frontier models.
   </PageIntro>
 
-  <div class="page-width modules">
-    {schedule.map(({ number, title, weeks }) => (
-      <section
-        id={`module-${number}`}
-        class="module"
-        aria-labelledby={`module-${number}-title`}
-      >
-        <h2 id={`module-${number}-title`} class="module-heading">
-          <span class="module-number">Module {number}</span>
-          {title}
-        </h2>
-        <ol class="week-list">
-          {weeks.map((week) => (
-            <li class="week" data-start={week.start} data-end={week.end}>
-              <div class="week-when">
-                <span class="week-number">Week {week.number}</span>
-                <span class="week-range">{week.range}</span>
-              </div>
-              <div class="week-body">
-                <h3 class="week-title">{week.title}</h3>
-                <ul class="topic-list">
-                  {week.core.map((topic) => (
-                    <li>{topic}</li>
-                  ))}
-                </ul>
-                {week.deeper.length > 0 && (
-                  <details class="deeper">
-                    <summary>Go deeper</summary>
-                    <ul class="topic-list">
-                      {week.deeper.map((topic) => (
-                        <li>{topic}</li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
-                {week.due.length > 0 && <DueList items={week.due} />}
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-    ))}
-    {finals.length > 0 && (
-      <section class="module" aria-labelledby="finals-title">
-        <h2 id="finals-title" class="module-heading">
-          <span class="module-number">After week {weekCount}</span>
-          Finals
-        </h2>
-        <div class="week week-finals">
-          <DueList items={finals} />
-        </div>
-      </section>
-    )}
-  </div>
+  <CurrentWeek timeZone={timeZone}>
+    <div class="page-width modules">
+      {schedule.map(({ number, title, weeks }) => (
+        <section
+          id={`module-${number}`}
+          class="module"
+          aria-labelledby={`module-${number}-title`}
+        >
+          <h2 id={`module-${number}-title`} class="module-heading">
+            <span class="module-number">Module {number}</span>
+            {title}
+          </h2>
+          <ol class="week-list">
+            {weeks.map((week) => (
+              <li
+                class="week"
+                data-start={week.start}
+                data-before={week.before}
+              >
+                <div class="week-when">
+                  <span class="week-number">Week {week.number}</span>
+                  <span class="week-range">{week.range}</span>
+                  <span class="week-now">This week</span>
+                </div>
+                <div class="week-body">
+                  <h3 class="week-title">{week.title}</h3>
+                  <ul class="topic-list">
+                    {week.core.map((topic) => (
+                      <li>{topic}</li>
+                    ))}
+                  </ul>
+                  {week.deeper.length > 0 && (
+                    <details class="deeper">
+                      <summary>Go deeper</summary>
+                      <ul class="topic-list">
+                        {week.deeper.map((topic) => (
+                          <li>{topic}</li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                  {week.due.length > 0 && <DueList items={week.due} />}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+      {finals.length > 0 && (
+        <section class="module" aria-labelledby="finals-title">
+          <h2 id="finals-title" class="module-heading">
+            <span class="module-number">After week {weekCount}</span>
+            Finals
+          </h2>
+          <div class="week week-finals">
+            <DueList items={finals} />
+          </div>
+        </section>
+      )}
+    </div>
+  </CurrentWeek>
 </BaseLayout>
 
 <style>
@@ -188,6 +198,31 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
       grid-template-columns: 1fr;
       gap: var(--space-3);
     }
+  }
+
+  .week[data-current] {
+    border-color: var(--color-brand);
+    box-shadow:
+      inset 4px 0 0 var(--color-brand),
+      var(--shadow-2);
+  }
+
+  .week-now {
+    display: none;
+    width: fit-content;
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--color-brand);
+    color: var(--color-on-brand);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .week[data-current] .week-now {
+    display: block;
   }
 
   .week-finals {
