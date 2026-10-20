@@ -68,24 +68,30 @@ tighter tracking (`--tracking-display`, `--tracking-heading`).
 
 There are no buttons. Every link that leads onward is a Cardinal `arrow-link`:
 on hover an underline draws in from the left and the arrow grows a shaft and
-slides forward. Course pages end with a `NextPage` link to the following part of
-the course.
+slides forward.
 
 ## Layout
 
 One content width (`--content-max`), one gutter, and one left edge: a section is
 a hairline, its heading, then its content, so a heading always lines up with
-what it introduces. Nothing is centered. Ordered rows lead with a numeral
-(`numbered-row`).
+what it introduces. Nothing is centered.
 
 The home page is the headline, a short blurb and the term's facts (linked to the
 USC Schedule of Classes, the map and Google Calendar), then the semester as a
 scroll story: four panels on the left (the week each part begins, then demo
-day), each a mono week label, a one-line promise linking to its page and the
-part's summary, beside one pinned drawing on a quiet band to the right. The
-drawing is a team's app window; it changes once per panel, so each panel has one
-movement. On phones the drawing pins under the header and the words pass beneath
-it. The people teaching close the page.
+day), each a mono week label, a one-line promise linking to that part on the
+Course page and the part's summary, beside one pinned drawing on a quiet band to
+the right. The drawing is a team's app window; it changes once per panel, so
+each panel has one movement. On phones the drawing pins under the header and the
+words pass beneath it. The people teaching close the page.
+
+The site has two levels of detail and no more. Home tells the story; the Course
+page is the reference: each part's span and long description, then one table of
+the semester with a row per week and a lane per part, generated from the course
+files. Lanes carry the staff timeline's edges (ink, Gold, Cardinal), the lane
+names stick under the header, and a part whose steps are not one per week fills
+its span as one cell whose words stay in view. On phones the table reads as a
+list of weeks.
 
 The header is a solid bar that sticks to the top: inline links on wide screens,
 a full-screen sheet on phones. Nothing blurs; a blur costs a filter pass every
