@@ -1,27 +1,17 @@
 ---
 /**
- * One quiet line at the top: the course wordmark and the page links.
+ * The top of every page: the course wordmark, linking home, and the menu.
  *
  * It holds still during page transitions so only the content below moves.
- * The current page is read from the URL; a section also owns its children,
- * so a person page marks Team.
  */
 import { href } from '../lib/paths';
+import Menu from './Menu.astro';
 
 interface Props {
   courseCode: string;
 }
 
-const NAV = [
-  { label: 'Curriculum', path: '/curriculum/' },
-  { label: 'Company overview', path: '/company-overview/' },
-  { label: 'Capstone', path: '/capstone/' },
-  { label: 'Projects', path: '/projects/' },
-  { label: 'Team', path: '/team/' },
-];
-
 const { courseCode } = Astro.props;
-const here = Astro.url.pathname;
 ---
 
 <header
@@ -32,83 +22,21 @@ const here = Astro.url.pathname;
   <a class="wordmark" href={href('/')}>
     {courseCode}
   </a>
-  <nav aria-label="Primary">
-    <ul class="nav-list">
-      {NAV.map(({ label, path }) => (
-        <li>
-          <a
-            class="nav-link"
-            href={href(path)}
-            aria-current={here.startsWith(href(path)) ? 'page' : undefined}
-          >
-            {label}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </nav>
+  <Menu />
 </header>
 
 <style>
-  /* On narrow screens the links wrap under the wordmark. */
+  /* Tall enough to clear the fixed menu dot at the top right. */
   .site-header {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-4) var(--space-8);
-    padding-block: var(--space-8);
-  }
-
-  .wordmark,
-  .nav-link {
-    text-decoration: none;
+    align-items: center;
+    min-height: calc(var(--menu-dot) + 2 * var(--space-6));
   }
 
   .wordmark {
     color: var(--color-brand);
     font: var(--weight-semibold) var(--text-sm) / 1 var(--font-mono);
     letter-spacing: 0.04em;
-  }
-
-  .nav-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3) var(--space-6);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .nav-link {
-    position: relative;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-  }
-
-  .nav-link:hover {
-    color: var(--color-text);
-  }
-
-  .nav-link[aria-current='page'] {
-    color: var(--color-brand);
-  }
-
-  /* A short Gold bar under the current page, drawn in from the left. */
-  .nav-link::after {
-    position: absolute;
-    bottom: -0.45em;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--color-accent);
-    content: '';
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--duration-base) var(--ease-out);
-  }
-
-  .nav-link[aria-current='page']::after {
-    transform: scaleX(1);
+    text-decoration: none;
   }
 </style>

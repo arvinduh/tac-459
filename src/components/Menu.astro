@@ -1,0 +1,335 @@
+---
+/**
+ * The site's navigation: a Cardinal dot fixed in the top-right corner that
+ * opens a panel with a circular reveal, blurring the page behind it.
+ *
+ * Built on the native Popover API, so opening, light dismiss (a tap outside
+ * or Esc) and focus return need no JavaScript, and the links stay in the
+ * HTML for crawlers. The close button sits exactly where the dot was, so the
+ * dot appears to open and close the panel itself. Each link carries a short
+ * note drawn from content, so the menu also previews the site.
+ */
+import {
+  getComponent,
+  getCurrentTerm,
+  getModules,
+  getProjectTerms,
+} from '../lib/course';
+import { href } from '../lib/paths';
+
+const [modules, company, capstone, projectTerms, term] = await Promise.all([
+  getModules(),
+  getComponent('company-overview'),
+  getComponent('capstone'),
+  getProjectTerms(),
+  getCurrentTerm(),
+]);
+const weeks = modules.reduce((sum, module) => sum + module.weeks.length, 0);
+const products = projectTerms.reduce(
+  (sum, entry) => sum + entry.projects.length,
+  0,
+);
+
+const LINKS = [
+  { label: 'Home', path: '/', note: 'Overview' },
+  { label: 'Curriculum', path: '/curriculum/', note: `${weeks} weeks` },
+  {
+    label: 'Company overview',
+    path: '/company-overview/',
+    note: company.timing,
+  },
+  { label: 'Capstone', path: '/capstone/', note: capstone.timing },
+  { label: 'Projects', path: '/projects/', note: `${products} products` },
+  { label: 'Team', path: '/team/', note: term.label },
+];
+
+const here = Astro.url.pathname;
+// Home matches only itself; every other page also owns its children.
+const isCurrent = (path: string) =>
+  path === '/' ? here === href('/') : here.startsWith(href(path));
+---
+
+<button
+  class="menu-dot menu-open"
+  type="button"
+  popovertarget="site-menu"
+  aria-label="Open menu"
+>
+  <span class="bars"></span>
+</button>
+
+<nav class="menu" id="site-menu" popover aria-label="Site">
+  <div class="menu-card">
+    <button
+      class="menu-dot menu-close"
+      type="button"
+      popovertarget="site-menu"
+      popovertargetaction="hide"
+      aria-label="Close menu"
+    >
+      <span class="bars"></span>
+    </button>
+    <ul class="plain-list menu-list">
+      {LINKS.map(({ label, path, note }) => (
+        <li>
+          <a
+            href={href(path)}
+            aria-current={isCurrent(path) ? 'page' : undefined}
+          >
+            <span class="menu-label">{label}</span>
+            <span class="menu-note">{note}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .menu-dot {
+    display: grid;
+    place-items: center;
+    width: var(--menu-dot);
+    height: var(--menu-dot);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--color-brand);
+    color: var(--color-bg);
+    cursor: pointer;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  /* Both pin to the content's right edge, not the window's. */
+  .menu-open,
+  .menu {
+    --menu-right: max(
+      var(--gutter),
+      calc((100% - var(--content-max)) / 2 + var(--gutter))
+    );
+  }
+
+  .menu-open {
+    position: fixed;
+    top: var(--space-6);
+    right: var(--menu-right);
+    z-index: 20;
+    box-shadow: var(--shadow-float);
+  }
+
+  .menu-dot:active {
+    transform: scale(0.94);
+  }
+
+  /* Two lines; the lower rests shorter and stretches out on hover. */
+  .bars {
+    position: relative;
+    width: 1.1rem;
+    height: 0.55rem;
+  }
+
+  .bars::before,
+  .bars::after {
+    position: absolute;
+    right: 0;
+    left: 0;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentcolor;
+    content: '';
+    transition:
+      transform var(--duration-base) var(--ease-out),
+      right var(--duration-base) var(--ease-out);
+  }
+
+  .bars::before {
+    top: 0;
+  }
+
+  .bars::after {
+    right: 40%;
+    bottom: 0;
+  }
+
+  @media (hover: hover) {
+    .menu-open:hover {
+      transform: scale(1.06);
+    }
+
+    .menu-open:hover .bars::after {
+      right: 0;
+    }
+  }
+
+  /* Inside the panel the same lines cross into a close mark. */
+  .menu-close .bars::after {
+    right: 0;
+    transform: translateY(-0.26rem) rotate(-45deg);
+  }
+
+  .menu-close .bars::before {
+    transform: translateY(0.26rem) rotate(45deg);
+  }
+
+  /*
+   * The popover is a transparent frame pinned to the dot; the card inside
+   * grows out of the dot in a circle, Cardinal turning to paper, while the
+   * links rise in one after another.
+   */
+  .menu {
+    position: fixed;
+    inset: var(--space-6) var(--menu-right) auto auto;
+    width: min(22rem, calc(100vw - 2 * var(--gutter)));
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    overflow: visible;
+    filter: drop-shadow(0 18px 40px rgb(26 25 24 / 0.18));
+    transition:
+      overlay var(--duration-slow) allow-discrete,
+      display var(--duration-slow) allow-discrete;
+  }
+
+  .menu-card {
+    --r: calc(var(--menu-dot) / 2);
+    position: relative;
+    padding: calc(var(--menu-dot) + var(--space-2)) var(--space-6)
+      var(--space-6);
+    border-radius: var(--radius-panel);
+    background: var(--color-brand);
+    clip-path: circle(var(--r) at calc(100% - var(--r)) var(--r));
+    transition:
+      clip-path var(--duration-slow) var(--ease-out),
+      background-color var(--duration-base) ease;
+  }
+
+  .menu:popover-open .menu-card {
+    background: var(--color-bg);
+    clip-path: circle(150% at calc(100% - var(--r)) var(--r));
+  }
+
+  @starting-style {
+    .menu:popover-open .menu-card {
+      background: var(--color-brand);
+      clip-path: circle(var(--r) at calc(100% - var(--r)) var(--r));
+    }
+  }
+
+  .menu-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .menu::backdrop {
+    background: var(--color-backdrop);
+    opacity: 0;
+    backdrop-filter: blur(var(--backdrop-blur));
+    transition:
+      opacity var(--duration-base) ease,
+      overlay var(--duration-slow) allow-discrete,
+      display var(--duration-slow) allow-discrete;
+  }
+
+  .menu:popover-open::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .menu:popover-open::backdrop {
+      opacity: 0;
+    }
+  }
+
+  .menu-list li {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
+  }
+
+  .menu:popover-open .menu-list li {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--duration-slow) ease var(--delay, 0ms),
+      transform var(--duration-slow) var(--ease-out) var(--delay, 0ms);
+  }
+
+  @starting-style {
+    .menu:popover-open .menu-list li {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  .menu-list li:nth-child(1) {
+    --delay: 120ms;
+  }
+
+  .menu-list li:nth-child(2) {
+    --delay: 160ms;
+  }
+
+  .menu-list li:nth-child(3) {
+    --delay: 200ms;
+  }
+
+  .menu-list li:nth-child(4) {
+    --delay: 240ms;
+  }
+
+  .menu-list li:nth-child(5) {
+    --delay: 280ms;
+  }
+
+  .menu-list li:nth-child(6) {
+    --delay: 320ms;
+  }
+
+  .menu-list li + li {
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .menu-list a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .menu-label {
+    position: relative;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-heading);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .menu-list a:hover .menu-label {
+    color: var(--color-brand);
+  }
+
+  /* The current page gets a small Gold dot before its name. */
+  .menu-list a[aria-current='page'] .menu-label::before {
+    position: absolute;
+    top: calc(50% - 0.2rem);
+    left: -0.9rem;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    content: '';
+  }
+
+  .menu-note {
+    color: var(--color-text-subtle);
+    font: var(--weight-medium) var(--text-xs) / 1.6 var(--font-mono);
+    white-space: nowrap;
+  }
+</style>
