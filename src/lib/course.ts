@@ -7,7 +7,7 @@
  */
 import { getCollection, getEntry } from 'astro:content';
 import { placeInLanes } from './tenure';
-import { termLabel, termRank } from './term';
+import { currentTermProblems, termLabel, termRank } from './term';
 
 /** Returns the validated contents of site.yaml. */
 export async function getSite() {
@@ -16,12 +16,24 @@ export async function getSite() {
   return site.data;
 }
 
-/** Returns the term that site.yaml names as current, with its id and name. */
+/**
+ * Returns the term that site.yaml names as current, with its id and name.
+ *
+ * Throws, failing the build, when that term file is not filled in yet.
+ */
 export async function getCurrentTerm() {
   const { currentTerm } = await getSite();
   const term = await getEntry(currentTerm);
   if (!term) throw new Error(`Term '${currentTerm.id}' is missing`);
-  return { ...term.data, id: term.id, label: termLabel(term.id) };
+  const problems = currentTermProblems(term.id, term.data);
+  const { classes } = term.data;
+  if (problems.length > 0 || !classes) {
+    const file = `src/content/terms/${term.id}.yaml`;
+    throw new Error(
+      `${file} is not ready to be current: ${problems.join('; ')}`,
+    );
+  }
+  return { ...term.data, classes, id: term.id, label: termLabel(term.id) };
 }
 
 /** Returns the curriculum's modules in teaching order. */

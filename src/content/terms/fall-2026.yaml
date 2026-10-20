@@ -1,4 +1,7 @@
 # Everything that changes per term, and nothing else.
+# First and last day of classes, and class days that are holidays.
+classes: { start: 2026-08-24, end: 2026-12-04 }
+noClass: [2026-09-07, 2026-11-25]
 meetings:
   - { days: [Mon, Wed], start: '12:00', end: '13:50', location: KAP 160 }
 staff:

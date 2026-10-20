@@ -23,6 +23,8 @@ const site = defineCollection({
     description: z.string().max(160),
     /** Term the site shows; past terms stay for the archive. */
     currentTerm: reference('terms'),
+    /** Campus building names by room-code prefix, for map links. */
+    buildings: z.record(z.string(), z.string()).default({}),
     googleSiteVerification: z.array(z.string()),
     indexable: z.boolean(),
   }),
@@ -74,6 +76,15 @@ const curriculum = defineCollection({
 /** Wall-clock time in the course time zone, e.g. '13:50'. */
 const clock = z.iso.time({ precision: -1 });
 const weekday = z.enum(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+/**
+ * A calendar day as 'YYYY-MM-DD'. YAML reads a bare 2026-08-24 as a date,
+ * so both that and a quoted string are accepted.
+ */
+const day = z
+  .union([z.date(), z.iso.date()])
+  .transform((value) =>
+    typeof value === 'string' ? value : value.toISOString().slice(0, 10),
+  );
 /** A weekly slot: class meetings and office hours share this shape. */
 const session = z.object({
   days: z.array(weekday).min(1),
@@ -131,6 +142,10 @@ const terms = defineCollection({
       /** Whole-class photo, kept beside the term file. */
       classPhoto: image().optional(),
       meetings: z.array(session).default([]),
+      /** First and last day of classes; required once the term is current. */
+      classes: z.object({ start: day, end: day }).optional(),
+      /** Weekdays without class, such as holidays, left out of the calendar. */
+      noClass: z.array(day).default([]),
       staff: z.array(
         z.object({
           person: reference('people'),

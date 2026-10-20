@@ -68,16 +68,23 @@ export function scheduleUrl(termId: string, courseCode: string): string {
 }
 
 /**
- * Links a room such as 'KAP 160' to its building on Google Maps.
- *
- * The building code is the location's first word, looked up in the site's
- * building list; locations it cannot place, such as 'Zoom', get no link.
+ * Names the building a room such as 'KAP 160' is in: the location's first
+ * word looked up in the site's building list. Places it cannot name, such
+ * as 'Zoom', return undefined.
  */
+export function buildingName(
+  location: string,
+  buildings: Record<string, string>,
+): string | undefined {
+  return buildings[location.split(/\s/)[0] ?? ''];
+}
+
+/** Links a room to its building on Google Maps, when the building is known. */
 export function mapUrl(
   location: string,
   buildings: Record<string, string>,
 ): string | undefined {
-  const building = buildings[location.split(/\s/)[0] ?? ''];
+  const building = buildingName(location, buildings);
   if (!building) return undefined;
   const query = `${building}, University of Southern California`;
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
@@ -85,7 +92,7 @@ export function mapUrl(
 
 /** The parts of a term file that a current term must fill in. */
 interface TermFacts {
-  classes?: { start: string; end: string };
+  classes?: { start: string; end: string } | undefined;
   noClass: string[];
   meetings: unknown[];
   staff: { role: string }[];
