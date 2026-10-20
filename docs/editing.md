@@ -35,13 +35,12 @@ This copies the current term file to `src/content/terms/spring-2027.yaml`. The
 file name is the term: the site names it "Spring 2027" and links its USC
 Schedule of Classes page from it. In the new file, update:
 
-| Field        | What                                                      |
-| ------------ | --------------------------------------------------------- |
-| `classes`    | First and last day of classes, `{ start: 2027-01-11, … }` |
-| `noClass`    | Class days that are holidays, left out of the calendar    |
-| `meetings`   | Days, times and room; a room code such as `KAP 160` links |
-| `staff`      | Who teaches, with any office hours                        |
-| `classPhoto` | Remove it until the new class photo exists                |
+| Field      | What                                                      |
+| ---------- | --------------------------------------------------------- |
+| `classes`  | First and last day of classes, `{ start: 2027-01-11, … }` |
+| `noClass`  | Class days that are holidays, left out of the calendar    |
+| `meetings` | Days, times and room; a room code such as `KAP 160` links |
+| `staff`    | Who teaches, with any office hours                        |
 
 Then set `currentTerm: spring-2027` in `src/content/site.yaml`. The build
 refuses a current term whose class dates are missing or still last term's, or

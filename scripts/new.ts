@@ -92,7 +92,11 @@ async function newTerm(id: string) {
   if (!current) throw new Error('site.yaml has no currentTerm');
   const from = join(CONTENT, 'terms', `${current}.yaml`);
   const text = await readFile(from, 'utf8');
-  await create(join(CONTENT, 'terms', `${id}.yaml`), text);
+  // Last term's class photo is not this term's.
+  await create(
+    join(CONTENT, 'terms', `${id}.yaml`),
+    text.replace(/^classPhoto: .*\n/m, ''),
+  );
   console.log(
     `Next: update meetings, staff and office hours in it, then set ` +
       `currentTerm: ${id} in ${join(CONTENT, 'site.yaml')}.`,
