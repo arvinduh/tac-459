@@ -5,6 +5,7 @@
  * Each week carries its date range as data attributes so the browser can
  * mark the current week without the build knowing today's date.
  */
+import DueList from '../components/DueList.astro';
 import PageIntro from '../components/PageIntro.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {
@@ -12,18 +13,45 @@ import {
   getDeliverableTitles,
   getModules,
 } from '../lib/course';
-import { formatClock, formatDay, isoDay, weekOf } from '../lib/term';
+import {
+  dueKey,
+  formatClock,
+  formatDay,
+  isoDay,
+  weekIndexOf,
+  weekOf,
+} from '../lib/term';
+
+interface DueItem {
+  title: string;
+  when?: string;
+}
 
 const term = await getCurrentTerm();
 const modules = await getModules();
 const titles = await getDeliverableTitles();
+const weekCount = modules.reduce((count, { weeks }) => count + weeks.length, 0);
 
-const dueDates = new Map(
-  term.due.map(({ deliverable, date, time }) => [
-    deliverable.id,
-    time ? `${formatDay(date)}, ${formatClock(time)}` : formatDay(date),
-  ]),
+// Dated deliverables go in the week their date falls in. Anything after the
+// last teaching week collects at index `weekCount`, shown as finals.
+const datedIds = new Set(term.due.map(({ deliverable }) => deliverable.id));
+const datedByWeek = new Map<number, DueItem[]>();
+const byDueTime = term.due.toSorted((a, b) =>
+  dueKey(a.date, a.time).localeCompare(dueKey(b.date, b.time)),
 );
+for (const { deliverable, date, time } of byDueTime) {
+  const index = Math.min(
+    Math.max(weekIndexOf(term.startDate, date), 0),
+    weekCount,
+  );
+  const day = formatDay(date);
+  const item = {
+    title: titles.get(deliverable.id) ?? deliverable.id,
+    when: time ? `${day}, ${formatClock(time)}` : day,
+  };
+  datedByWeek.set(index, [...(datedByWeek.get(index) ?? []), item]);
+}
+const finals = datedByWeek.get(weekCount) ?? [];
 
 // Week numbers run across modules, so each week's index is global.
 let weekIndex = 0;
@@ -32,6 +60,10 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
   title,
   weeks: weeks.map((week) => {
     const { start, end } = weekOf(term.startDate, weekIndex);
+    const undated: DueItem[] = week.due
+      .filter(({ id }) => !datedIds.has(id))
+      .map(({ id }) => ({ title: titles.get(id) ?? id }));
+    const due = [...undated, ...(datedByWeek.get(weekIndex) ?? [])];
     weekIndex += 1;
     return {
       ...week,
@@ -39,10 +71,7 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
       start: isoDay(start),
       end: isoDay(end),
       range: `${formatDay(start)} – ${formatDay(end)}`,
-      due: week.due.map(({ id }) => ({
-        title: titles.get(id) ?? id,
-        when: dueDates.get(id),
-      })),
+      due,
     };
   }),
 }));
@@ -50,7 +79,7 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
 
 <BaseLayout title="Schedule">
   <PageIntro eyebrow={term.label} title="Schedule">
-    {weekIndex} weeks across {modules.length} modules, from text processing to
+    {weekCount} weeks across {modules.length} modules, from text processing to
     frontier models.
   </PageIntro>
 
@@ -89,22 +118,24 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
                     </ul>
                   </details>
                 )}
-                {week.due.length > 0 && (
-                  <ul class="due-list" aria-label="Due this week">
-                    {week.due.map(({ title, when }) => (
-                      <li class="due-chip">
-                        {title}
-                        {when && <span class="due-when">Due {when}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                {week.due.length > 0 && <DueList items={week.due} />}
               </div>
             </li>
           ))}
         </ol>
       </section>
     ))}
+    {finals.length > 0 && (
+      <section class="module" aria-labelledby="finals-title">
+        <h2 id="finals-title" class="module-heading">
+          <span class="module-number">After week {weekCount}</span>
+          Finals
+        </h2>
+        <div class="week week-finals">
+          <DueList items={finals} />
+        </div>
+      </section>
+    )}
   </div>
 </BaseLayout>
 
@@ -158,6 +189,10 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
       grid-template-columns: 1fr;
       gap: var(--space-3);
     }
+  }
+
+  .week-finals {
+    grid-template-columns: 1fr;
   }
 
   .week-when {
@@ -221,30 +256,5 @@ const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
 
   .deeper .topic-list {
     padding-top: var(--space-2);
-  }
-
-  .due-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .due-chip {
-    display: inline-flex;
-    gap: var(--space-2);
-    padding: var(--space-1) var(--space-3);
-    border: 1px solid var(--color-highlight-border);
-    border-radius: var(--radius-pill);
-    background: var(--color-highlight-bg);
-    color: var(--color-highlight-text);
-    font-size: var(--text-sm);
-    font-weight: 600;
-  }
-
-  .due-when {
-    font-weight: 400;
   }
 </style>

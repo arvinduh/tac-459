@@ -1,0 +1,45 @@
+---
+/** Row of chips naming deliverables and, when known, when each is due. */
+interface Props {
+  items: { title: string; when?: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="due-list" aria-label="Due">
+  {items.map(({ title, when }) => (
+    <li class="due-chip">
+      {title}
+      {when && <span class="due-when">Due {when}</span>}
+    </li>
+  ))}
+</ul>
+
+<style>
+  .due-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .due-chip {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-highlight-border);
+    border-radius: var(--radius-md);
+    background: var(--color-highlight-bg);
+    color: var(--color-highlight-text);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .due-when {
+    font-weight: 400;
+  }
+</style>
