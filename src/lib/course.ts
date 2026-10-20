@@ -6,6 +6,7 @@
  * in one place.
  */
 import { getCollection, getEntry } from 'astro:content';
+import { formatOfficeHours } from './term';
 
 /** Returns the validated contents of site.yaml. */
 export async function getSite() {
@@ -35,4 +36,22 @@ export async function getModules() {
 export async function getDeliverableTitles(): Promise<Map<string, string>> {
   const deliverables = await getCollection('deliverables');
   return new Map(deliverables.map(({ id, data }) => [id, data.title]));
+}
+
+/** Returns this term's staff in term-file order, with office hours. */
+export async function getCurrentStaff() {
+  const term = await getCurrentTerm();
+  const officeHours = new Map(
+    term.officeHours.map(({ person, hours, where }) => [
+      person.id,
+      formatOfficeHours(where, hours),
+    ]),
+  );
+  return Promise.all(
+    term.staff.map(async ({ person, role }) => {
+      const entry = await getEntry(person);
+      if (!entry) throw new Error(`Person '${person.id}' is missing`);
+      return { role, person: entry, officeHours: officeHours.get(person.id) };
+    }),
+  );
 }
