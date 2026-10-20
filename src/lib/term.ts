@@ -36,6 +36,11 @@ export function weekOf(
   return { start, end: new Date(start.getTime() + 4 * DAY_MS) };
 }
 
+/** Returns the 0-based week of a term that `day` falls in, Monday to Sunday. */
+export function weekIndexOf(startDate: Date, day: Date): number {
+  return Math.floor((day.getTime() - startDate.getTime()) / (7 * DAY_MS));
+}
+
 /**
  * Returns the due moment as 'YYYY-MM-DDTHH:MM' course wall time.
  *

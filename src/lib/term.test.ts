@@ -1,7 +1,14 @@
 /** Unit tests for term calendar math. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { dueKey, formatClock, formatDay, isoDay, weekOf } from './term.ts';
+import {
+  dueKey,
+  formatClock,
+  formatDay,
+  isoDay,
+  weekIndexOf,
+  weekOf,
+} from './term.ts';
 
 const START = new Date('2026-08-24');
 
@@ -32,4 +39,11 @@ test('formatClock uses a 12-hour clock', () => {
   assert.equal(formatClock('00:05'), '12:05 am');
   assert.equal(formatClock('12:00'), '12:00 pm');
   assert.equal(formatClock('13:50'), '1:50 pm');
+});
+
+test('weekIndexOf counts Monday through Sunday as one week', () => {
+  assert.equal(weekIndexOf(START, new Date('2026-08-24')), 0);
+  assert.equal(weekIndexOf(START, new Date('2026-08-30')), 0);
+  assert.equal(weekIndexOf(START, new Date('2026-11-02')), 10);
+  assert.equal(weekIndexOf(START, new Date('2026-08-23')), -1);
 });
