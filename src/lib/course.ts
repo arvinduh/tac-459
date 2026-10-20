@@ -7,7 +7,8 @@
  */
 import { getCollection, getEntry } from 'astro:content';
 import { placeInLanes } from './tenure';
-import { currentTermProblems, termLabel, termRank } from './term';
+import type { EventText, MeetingSeries } from './calendar';
+import { buildingName, currentTermProblems, termLabel, termRank } from './term';
 
 /** Returns the validated contents of site.yaml. */
 export async function getSite() {
@@ -34,6 +35,34 @@ export async function getCurrentTerm() {
     );
   }
   return { ...term.data, classes, id: term.id, label: termLabel(term.id) };
+}
+
+/**
+ * Returns the current term's class meetings as calendar series, with what
+ * the calendar entry says about itself. `siteUrl` is the home page's URL.
+ */
+export async function getClassCalendar(siteUrl: string) {
+  const [site, term] = await Promise.all([getSite(), getCurrentTerm()]);
+  const text: EventText = {
+    title: `${site.courseCode}: ${site.title}`,
+    description: `${site.courseCode} class, ${term.label}.`,
+    url: siteUrl,
+  };
+  const series: MeetingSeries[] = term.meetings.map((meeting) => {
+    const building = buildingName(meeting.location, site.buildings);
+    return {
+      days: meeting.days,
+      start: meeting.start,
+      end: meeting.end,
+      location: building
+        ? `${meeting.location}, ${building}`
+        : meeting.location,
+      from: term.classes.start,
+      until: term.classes.end,
+      skip: term.noClass,
+    };
+  });
+  return { id: term.id, text, series };
 }
 
 /** Returns the curriculum's modules in teaching order. */

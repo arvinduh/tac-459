@@ -9,6 +9,27 @@
 /** The course's time zone; every clock time in term files is local to it. */
 const TIME_ZONE = 'America/Los_Angeles';
 
+/** The zone's US daylight-saving rules (in force since 2007), per RFC 5545. */
+const VTIMEZONE = [
+  'BEGIN:VTIMEZONE',
+  `TZID:${TIME_ZONE}`,
+  'BEGIN:DAYLIGHT',
+  'TZOFFSETFROM:-0800',
+  'TZOFFSETTO:-0700',
+  'TZNAME:PDT',
+  'DTSTART:20070311T020000',
+  'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
+  'END:DAYLIGHT',
+  'BEGIN:STANDARD',
+  'TZOFFSETFROM:-0700',
+  'TZOFFSETTO:-0800',
+  'TZNAME:PST',
+  'DTSTART:20071104T020000',
+  'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+  'END:STANDARD',
+  'END:VTIMEZONE',
+];
+
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 /** One weekly meeting and the term dates it repeats between. */
@@ -99,6 +120,7 @@ export function buildIcs(
     'CALSCALE:GREGORIAN',
     `X-WR-CALNAME:${escapeText(text.title)}`,
     `X-WR-TIMEZONE:${TIME_ZONE}`,
+    ...VTIMEZONE,
     ...series.flatMap((meeting, index) => {
       const first = firstMeeting(meeting.from, meeting.days);
       const skipped = meeting.skip.map((date) =>

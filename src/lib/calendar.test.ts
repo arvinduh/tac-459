@@ -27,6 +27,7 @@ test('firstMeeting finds the first class day on or after the start', () => {
 test('buildIcs repeats weekly in local time and skips holidays', () => {
   const ics = buildIcs('fall-2026', TEXT, [SERIES]);
   assert.ok(ics.endsWith('END:VCALENDAR\r\n'));
+  assert.match(ics, /BEGIN:VTIMEZONE\r\nTZID:America\/Los_Angeles/);
   assert.match(ics, /DTSTART;TZID=America\/Los_Angeles:20260824T120000\r\n/);
   assert.match(ics, /DTEND;TZID=America\/Los_Angeles:20260824T135000\r\n/);
   assert.match(ics, /RRULE:FREQ=WEEKLY;BYDAY=MO,WE;UNTIL=20261205T075959Z/);
