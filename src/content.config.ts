@@ -49,4 +49,13 @@ const people = defineCollection({
     }),
 });
 
-export const collections = { site, people };
+/** Every graded item; weeks and terms point at these ids. */
+const deliverables = defineCollection({
+  loader: file('src/content/course/deliverables.yaml'),
+  schema: z.object({
+    title: z.string(),
+    kind: z.enum(['assignment', 'project', 'presentation']),
+  }),
+});
+
+export const collections = { site, people, deliverables };

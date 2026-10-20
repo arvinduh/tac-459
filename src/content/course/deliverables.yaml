@@ -1,0 +1,22 @@
+# Every graded item, by id. Curriculum weeks and term dates refer to these ids.
+assignment-1: { title: Assignment 1, kind: assignment }
+assignment-2: { title: Assignment 2, kind: assignment }
+assignment-3: { title: Assignment 3, kind: assignment }
+assignment-4: { title: Assignment 4, kind: assignment }
+assignment-5: { title: Assignment 5, kind: assignment }
+assignment-6: { title: Assignment 6, kind: assignment }
+assignment-7: { title: Assignment 7, kind: assignment }
+assignment-8: { title: Assignment 8, kind: assignment }
+assignment-9: { title: Assignment 9, kind: assignment }
+assignment-10: { title: Assignment 10, kind: assignment }
+assignment-11: { title: Assignment 11, kind: assignment }
+assignment-12: { title: Assignment 12, kind: assignment }
+company-overview:
+  { title: AI Company Overview presentation, kind: presentation }
+product-roadmap: { title: Product roadmap, kind: project }
+prototype-code: { title: Prototype code and design, kind: project }
+capstone-presentation:
+  { title: AI Capstone Product presentation, kind: presentation }
+capstone-deliverables:
+  { title: AI Capstone Product deliverables, kind: project }
+final-submission: { title: Complete product submission, kind: project }
