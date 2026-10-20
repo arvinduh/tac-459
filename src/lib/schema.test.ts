@@ -32,15 +32,15 @@ test('courseSchema omits an unknown location', () => {
   assert.equal('location' in course.hasCourseInstance, false);
 });
 
-test('personSchema omits sameAs when there are no profiles', () => {
+test('personSchema omits sameAs and image when there are none', () => {
   const person = personSchema({
     name: 'Ada',
     url: 'https://example.edu/team/ada/',
-    image: 'https://example.edu/ada.webp',
     jobTitle: ['Instructor'],
     sameAs: [],
   });
   assert.equal('sameAs' in person, false);
+  assert.equal('image' in person, false);
   assert.deepEqual(person.jobTitle, ['Instructor']);
 });
 

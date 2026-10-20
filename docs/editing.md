@@ -42,8 +42,9 @@ feed the team timeline and the projects page.
 npm run new -- person "Jane Doe"
 ```
 
-This creates `src/content/people/jane-doe/index.md`. Put a square photo in the
-same folder, run `npm run images`, and fill in the template. Then add them to
+This creates `src/content/people/jane-doe/index.md`. Fill in the template. Their
+initials stand in for a portrait until you put a square photo in the same
+folder, run `npm run images` and uncomment the `photo` line. Then add them to
 the term file's `staff` list:
 
 ```yaml

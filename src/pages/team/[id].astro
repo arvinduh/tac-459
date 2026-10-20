@@ -4,9 +4,10 @@
  *
  * Every person ever on staff gets a page, so past staff keep a stable URL.
  */
-import { getImage, Image } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BackLink from '../../components/BackLink.astro';
+import Portrait from '../../components/Portrait.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { personSchema } from '../../lib/schema';
 
@@ -27,11 +28,12 @@ const { name, honorific, positions, email, links, photo } = person.data;
 const displayName = honorific ? `${honorific} ${name}` : name;
 const { Content } = await render(person);
 
-const portrait = await getImage({ src: photo, width: 480, format: 'webp' });
+const portrait =
+  photo && (await getImage({ src: photo, width: 480, format: 'webp' }));
 const schema = personSchema({
   name,
   url: new URL(Astro.url.pathname, Astro.site).href,
-  image: new URL(portrait.src, Astro.site).href,
+  ...(portrait && { image: new URL(portrait.src, Astro.site).href }),
   jobTitle: positions,
   sameAs: [links.linkedin, links.viterbi].filter(
     (link) => typeof link === 'string',
@@ -43,6 +45,8 @@ const contacts = [
   links.linkedin && { label: 'LinkedIn', url: links.linkedin },
   links.viterbi && { label: 'USC Viterbi', url: links.viterbi },
 ].filter((contact) => typeof contact === 'object');
+// A new person may have no bio or links yet; skip the empty band.
+const hasDetails = contacts.length > 0 || Boolean(person.body?.trim());
 ---
 
 <BaseLayout
@@ -54,15 +58,14 @@ const contacts = [
   <article class="page-width person">
     <header class="person-header">
       <BackLink path="/team/" label="Team" />
-      <Image
-        class="person-photo"
-        src={photo}
-        alt={`Portrait of ${name}`}
-        width={240}
-        height={240}
-        loading="eager"
-        transition:name={`photo-${person.id}`}
-      />
+      <div class="person-photo">
+        <Portrait
+          person={person}
+          size={120}
+          alt={`Portrait of ${name}`}
+          eager
+        />
+      </div>
       <h1 class="person-name" transition:name={`name-${person.id}`}>
         {displayName}
       </h1>
@@ -73,20 +76,22 @@ const contacts = [
       </ul>
     </header>
 
-    <div class="person-grid">
-      {contacts.length > 0 && (
-        <ul class="contact-list" aria-label="Contact">
-          {contacts.map(({ label, url }) => (
-            <li>
-              <a href={url}>{label}</a>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div class="prose">
-        <Content />
+    {hasDetails && (
+      <div class="person-grid">
+        {contacts.length > 0 && (
+          <ul class="contact-list" aria-label="Contact">
+            {contacts.map(({ label, url }) => (
+              <li>
+                <a href={url}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        )}
+        <div class="prose">
+          <Content />
+        </div>
       </div>
-    </div>
+    )}
   </article>
 </BaseLayout>
 
@@ -118,11 +123,6 @@ const contacts = [
 
   .person-photo {
     width: 7.5rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px var(--color-rule);
-    object-fit: cover;
-    filter: grayscale(1) contrast(1.05);
   }
 
   .person-name {

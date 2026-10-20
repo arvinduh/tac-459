@@ -54,7 +54,7 @@ export function courseSchema(input: CourseInput) {
 
 interface PersonInput extends PersonRef {
   jobTitle: string[];
-  image: string;
+  image?: string;
   /** Profiles elsewhere, such as LinkedIn. */
   sameAs: string[];
 }
@@ -66,7 +66,7 @@ export function personSchema(input: PersonInput) {
     '@type': 'Person',
     name: input.name,
     url: input.url,
-    image: input.image,
+    ...(input.image && { image: input.image }),
     jobTitle: input.jobTitle,
     ...(input.sameAs.length > 0 && { sameAs: input.sameAs }),
     affiliation: {

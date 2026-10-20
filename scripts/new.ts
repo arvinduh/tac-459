@@ -40,7 +40,8 @@ name: ${name}
 positions:
   - Learning Assistant
 # Optional: email, honorific (e.g. Prof.), links: { linkedin: …, viterbi: … }
-photo: ./photo.webp
+# Initials show until a photo is added: put photo.webp here and uncomment.
+# photo: ./photo.webp
 ---
 
 A few sentences about ${name}: studies, work and interests.
@@ -50,7 +51,7 @@ A few sentences about ${name}: studies, work and interests.
 - One line per role or project.
 `,
   );
-  console.log(`Next: add a square photo to ${dir}, then run npm run images.`);
+  console.log(`Next: fill in ${dir}/index.md; add a square photo when ready.`);
 }
 
 /** Creates a product folder under its term with a record template. */

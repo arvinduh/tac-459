@@ -3,12 +3,11 @@
  * One person as a single row: portrait, name, roles and an optional detail
  * line, linking to their page.
  *
- * Portraits show in grayscale so photos from different sources read as one
- * set. The portrait and name share transition names with the person page.
+ * The portrait and name share transition names with the person page.
  */
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { href } from '../lib/paths';
+import Portrait from './Portrait.astro';
 
 interface Props {
   person: CollectionEntry<'people'>;
@@ -19,19 +18,12 @@ interface Props {
 }
 
 const { person, caption, detail } = Astro.props;
-const { name, honorific, positions, photo } = person.data;
+const { name, honorific, positions } = person.data;
 const lines = caption ? [caption] : positions;
 ---
 
 <a class="person-row" href={href(`/team/${person.id}/`)}>
-  <Image
-    class="person-photo"
-    src={photo}
-    alt=""
-    width={160}
-    height={160}
-    transition:name={`photo-${person.id}`}
-  />
+  <Portrait person={person} size={72} />
   <span class="person-text">
     <span class="person-name" transition:name={`name-${person.id}`}>
       {honorific ? `${honorific} ${name}` : name}
@@ -56,17 +48,7 @@ const lines = caption ? [caption] : positions;
     text-decoration: none;
   }
 
-  .person-photo {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px var(--color-rule);
-    object-fit: cover;
-    filter: grayscale(1) contrast(1.05);
-    transition: filter var(--duration-base) var(--ease-out);
-  }
-
-  .person-row:hover .person-photo {
+  .person-row:hover :global(.portrait) {
     filter: grayscale(0);
   }
 

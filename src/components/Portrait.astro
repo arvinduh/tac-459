@@ -1,0 +1,78 @@
+---
+/**
+ * A person's round portrait, or their initials when no photo has arrived.
+ *
+ * Photos show in grayscale so pictures from different sources read as one
+ * set. Both forms share a transition name, so the portrait carries over
+ * between the team list and the person's page.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  person: CollectionEntry<'people'>;
+  /** Rendered width and height in CSS pixels; the source is fetched at 2x. */
+  size: number;
+  /** Alt text; leave empty when the name sits right beside the portrait. */
+  alt?: string;
+  eager?: boolean;
+}
+
+const { person, size, alt = '', eager } = Astro.props;
+const { name, photo } = person.data;
+const initials = name
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((word) => word[0])
+  .filter((_, index, all) => index === 0 || index === all.length - 1)
+  .join('');
+const transition = `photo-${person.id}`;
+---
+
+{photo ? (
+  <Image
+    class="portrait"
+    src={photo}
+    alt={alt}
+    width={size * 2}
+    height={size * 2}
+    loading={eager ? 'eager' : 'lazy'}
+    transition:name={transition}
+  />
+) : (
+  <svg
+    class="portrait initials"
+    viewBox="0 0 100 100"
+    role={alt ? 'img' : undefined}
+    aria-label={alt || undefined}
+    aria-hidden={alt ? undefined : 'true'}
+    transition:name={transition}
+  >
+    <text x="50" y="50" dy="0.35em" text-anchor="middle">
+      {initials}
+    </text>
+  </svg>
+)}
+
+<style>
+  .portrait {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--color-rule);
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05);
+    transition: filter var(--duration-base) var(--ease-out);
+  }
+
+  /* An SVG, so the letters scale with the circle at any size. */
+  .initials {
+    background: var(--color-surface);
+  }
+
+  .initials text {
+    fill: var(--color-text-subtle);
+    font: var(--weight-medium) 34px var(--font-sans);
+    letter-spacing: 0.02em;
+  }
+</style>

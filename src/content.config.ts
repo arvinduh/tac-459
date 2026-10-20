@@ -45,7 +45,8 @@ const people = defineCollection({
         .object({ linkedin: z.url(), viterbi: z.url() })
         .partial()
         .default({}),
-      photo: image(),
+      /** Square portrait; initials stand in until one is added. */
+      photo: image().optional(),
       /** Card blurb; defaults to the bio's first paragraph when omitted. */
       summary: z.string().optional(),
     }),
