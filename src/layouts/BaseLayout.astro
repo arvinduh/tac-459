@@ -21,7 +21,7 @@ interface Props {
 }
 
 const site = await getSite();
-const { courseCode, title: courseTitle, tagline } = site;
+const { courseCode, title: courseTitle } = site;
 const { title, description = site.description } = Astro.props;
 // Old content fades out first and new content rises in after it, so the
 // two pages never overlap mid-swap.
@@ -71,6 +71,6 @@ const fullTitle = title
     >
       <slot />
     </main>
-    <SiteFooter courseCode={courseCode} title={courseTitle} tagline={tagline} />
+    <SiteFooter courseCode={courseCode} title={courseTitle} />
   </body>
 </html>
