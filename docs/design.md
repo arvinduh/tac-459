@@ -94,10 +94,10 @@ Only a block that is wider than the phone, such as the staff timeline, scrolls
 sideways; the page itself never does.
 
 Portraits are grayscale in lists, so photos from different cameras read as one
-set, and fade to color slowly on hover; on a person's own page they are in
-color. A person's page names their roles and terms in mono, since both are data
-drawn from the term files. Class photos and screenshots link to their full-size
-file, with a zoom cursor as the only cue.
+set, and fade to color on hover in step with the name's underline; on a person's
+own page they are in color. A person's page names their roles and terms in mono,
+since both are data drawn from the term files. Class photos and screenshots link
+to their full-size file, with a zoom cursor as the only cue.
 
 ## Motion
 
