@@ -27,7 +27,7 @@ components:
   - id: company-overview
     title: AI company overview
     timing: Midsemester
-    weeks: { from: 8, to: 11 }
+    weeks: { from: 5, to: 8 }
     summary: >-
       Teams study an emerging AI company backed by Y Combinator or a leading
       venture firm, analyzing its product, technology, customers and market,
