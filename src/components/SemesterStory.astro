@@ -99,7 +99,7 @@ const CELLS = 6;
     {panels.map(({ week, label, title, text, href }) => (
       <li class="panel">
         <div class="panel-text">
-          <p class="panel-week data">
+          <p class="panel-week numeral">
             Week {week} · {label}
           </p>
           <h2 class="panel-title">
@@ -135,10 +135,6 @@ const CELLS = 6;
     display: grid;
     gap: var(--space-3);
     max-width: 30rem;
-  }
-
-  .panel-week {
-    color: var(--color-brand);
   }
 
   .panel-title {

@@ -10,18 +10,15 @@ interface Props {
   /** Anchor for in-page links; also derives the heading's id. */
   id: string;
   label: string;
-  /** Short mono tag above the label, such as 'Module 2'. */
-  numeral?: string;
 }
 
-const { id, label, numeral } = Astro.props;
+const { id, label } = Astro.props;
 const headingId = `${id}-heading`;
 ---
 
 <section class="page-width" id={id} aria-labelledby={headingId}>
   <div class="section-rule">
     <h2 class="section-label" id={headingId}>
-      {numeral && <span class="numeral">{numeral}</span>}
       {label}
     </h2>
     <div>
@@ -41,8 +38,6 @@ const headingId = `${id}-heading`;
   }
 
   .section-label {
-    display: grid;
-    gap: var(--space-2);
     max-width: var(--prose-max);
     font-size: var(--text-xl);
   }
