@@ -26,13 +26,20 @@ body {
   font: var(--text-base) / 1.6 var(--font-sans);
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizelegibility;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
 }
 
 h1,
 h2,
 h3 {
   margin: 0;
-  line-height: 1.2;
+  font-weight: 400;
+  line-height: 1.1;
   text-wrap: balance;
 }
 
@@ -41,20 +48,22 @@ p {
   text-wrap: pretty;
 }
 
+/* Links stay ink; a hairline underline turns Cardinal on hover. */
 a {
-  color: var(--color-brand);
-  text-underline-offset: 0.2em;
-  transition: color var(--duration-fast) var(--ease-out);
+  color: inherit;
+  text-decoration: underline 1px var(--color-rule);
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color var(--duration-fast) var(--ease-out);
 }
 
 a:hover {
-  color: var(--color-brand-hover);
+  text-decoration-color: var(--color-accent);
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 3px;
-  border-radius: var(--radius-sm);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: 2px;
 }
 
 main {
@@ -82,14 +91,13 @@ img {
   left: var(--space-2);
   z-index: 20;
   padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-sm);
-  background: var(--color-brand);
-  color: var(--color-on-brand);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: var(--text-sm);
   transform: translateY(-200%);
 }
 
 .skip-link:focus-visible {
-  color: var(--color-on-brand);
   transform: none;
 }
 
@@ -97,7 +105,7 @@ img {
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
 }
 
