@@ -47,3 +47,20 @@ export function placeInLanes(tenures: readonly Tenure[]): Placement[] {
     return { id, lane, runs: toRuns(terms) };
   });
 }
+
+/**
+ * Names each unbroken run of terms by its first and last term, e.g.
+ * 'Spring 2024–Fall 2025, Fall 2026'; `labels` maps term positions to names.
+ */
+export function formatRuns(
+  runs: ReadonlyArray<[number, number]>,
+  labels: readonly string[],
+): string {
+  return runs
+    .map(([first, last]) =>
+      first === last
+        ? (labels[first] ?? '')
+        : `${labels[first] ?? ''}–${labels[last] ?? ''}`,
+    )
+    .join(', ');
+}

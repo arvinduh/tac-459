@@ -1,7 +1,7 @@
 /** Unit tests for packing tenures into timeline lanes. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { placeInLanes, toRuns } from './tenure.ts';
+import { formatRuns, placeInLanes, toRuns } from './tenure.ts';
 
 test('toRuns splits at gaps', () => {
   assert.deepEqual(toRuns([3, 0, 1]), [
@@ -38,4 +38,18 @@ test('placeInLanes fits a tenure into a gap only when every term is free', () =>
   ]);
   const lanes = Object.fromEntries(placed.map(({ id, lane }) => [id, lane]));
   assert.deepEqual(lanes, { a: 0, b: 0, c: 1 });
+});
+
+test('formatRuns names runs by their first and last terms', () => {
+  const labels = ['Spring 2024', 'Fall 2024', 'Spring 2025', 'Fall 2025'];
+  assert.equal(
+    formatRuns(
+      [
+        [0, 1],
+        [3, 3],
+      ],
+      labels,
+    ),
+    'Spring 2024–Fall 2024, Fall 2025',
+  );
 });
