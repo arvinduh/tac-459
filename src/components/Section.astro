@@ -1,0 +1,57 @@
+---
+/**
+ * A numbered home page section on the site's two-column editorial grid.
+ *
+ * The label column holds the number and name in mono; the content column
+ * holds the slot. Below the grid breakpoint the label stacks on top.
+ */
+interface Props {
+  /** Anchor the header's section links point at. */
+  id: string;
+  number: number;
+  label: string;
+}
+
+const { id, number, label } = Astro.props;
+const headingId = `${id}-heading`;
+---
+
+<section class="page-width" id={id} aria-labelledby={headingId}>
+  <div class="section-grid">
+    <h2 class="section-label" id={headingId}>
+      <span class="section-number">{String(number).padStart(2, '0')}</span>
+      {label}
+    </h2>
+    <div class="section-body">
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .section-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  @media (width < 48rem) {
+    .section-grid {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+  }
+
+  .section-label {
+    display: flex;
+    gap: var(--space-3);
+    color: var(--color-text-subtle);
+    font: 400 var(--text-xs) / 1.6 var(--font-mono);
+  }
+
+  .section-number {
+    color: var(--color-text);
+  }
+</style>
