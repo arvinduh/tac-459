@@ -7,9 +7,7 @@ import { href } from './paths';
 /** Top-level pages in reading order. */
 export const NAV_LINKS = [
   { label: 'Home', path: '/' },
-  { label: 'Curriculum', path: '/curriculum/' },
-  { label: 'Company overview', path: '/company-overview/' },
-  { label: 'Capstone', path: '/capstone/' },
+  { label: 'Course', path: '/course/' },
   { label: 'Projects', path: '/projects/' },
   { label: 'Team', path: '/team/' },
 ] as const;

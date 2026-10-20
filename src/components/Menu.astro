@@ -8,24 +8,16 @@
  * hides. The links stay in the HTML for crawlers either way. In the sheet
  * each link adds a short note drawn from content, previewing the page.
  */
-import {
-  getComponent,
-  getCurrentTerm,
-  getModules,
-  getProjectTerms,
-} from '../lib/course';
+import { getCurrentTerm, getOverview, getProjectTerms } from '../lib/course';
 import { NAV_LINKS, isCurrentPath } from '../lib/nav';
 import { href } from '../lib/paths';
-import { formatWeeks } from '../lib/term';
 
-const [modules, company, capstone, projectTerms, term] = await Promise.all([
-  getModules(),
-  getComponent('company-overview'),
-  getComponent('capstone'),
+const [overview, projectTerms, term] = await Promise.all([
+  getOverview(),
   getProjectTerms(),
   getCurrentTerm(),
 ]);
-const weeks = modules.reduce((sum, module) => sum + module.weeks.length, 0);
+const weeks = Math.max(...overview.components.map(({ weeks }) => weeks.to));
 const products = projectTerms.reduce(
   (sum, entry) => sum + entry.projects.length,
   0,
@@ -33,9 +25,7 @@ const products = projectTerms.reduce(
 
 const NOTES: Record<(typeof NAV_LINKS)[number]['path'], string> = {
   '/': 'Overview',
-  '/curriculum/': `${weeks} weeks`,
-  '/company-overview/': formatWeeks(company.weeks),
-  '/capstone/': formatWeeks(capstone.weeks),
+  '/course/': `${weeks} weeks`,
   '/projects/': `${products} products`,
   '/team/': term.label,
 };

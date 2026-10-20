@@ -104,7 +104,7 @@ const overview = defineCollection({
     components: z
       .array(
         z.object({
-          /** Slug of the component's own page, e.g. 'capstone'. */
+          /** The part's anchor on the Course page, e.g. 'capstone'. */
           id: z.enum(['curriculum', 'company-overview', 'capstone']),
           title: z.string(),
           /** The part as one short promise, shown at its stop on the home page. */
@@ -115,7 +115,7 @@ const overview = defineCollection({
             .refine(({ from, to }) => from <= to, 'weeks.from is after to'),
           /** Short form for search results and links to the part. */
           summary: z.string(),
-          /** Long form that opens the component's own page. */
+          /** Long form, opening the part on the Course page. */
           detail: z.string(),
           steps: z
             .array(

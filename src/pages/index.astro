@@ -5,7 +5,7 @@
  * Below the headline, one panel per part of the course, and one for demo
  * day, passes beside a pinned drawing that changes with each. The people
  * teaching it close the page. Every value comes from content files, and
- * every detail lives on its own page.
+ * the detail lives on the Course page.
  */
 import Arrow from '../components/Arrow.astro';
 import PersonRow from '../components/PersonRow.astro';
@@ -46,7 +46,7 @@ const stops = [
     label: title,
     title: promise,
     text: summary,
-    href: href(`/${id}/`),
+    href: href(`/course/#${id}`),
   })),
   ...(capstone && finale
     ? [
