@@ -24,6 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      # Warns, never fails, so an image uploaded on github.com still deploys.
+      - run: npm run images -- --check
       - run: npm test
       - run: npm run build
       - if: github.ref == 'refs/heads/main'
