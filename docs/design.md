@@ -78,15 +78,24 @@ a hairline, its heading, then its content, so a heading always lines up with
 what it introduces. Nothing is centered. Ordered rows lead with a numeral
 (`numbered-row`).
 
-The home page is the headline, then the semester as one line: a hairline in the
-left gutter with a stop at the week each part begins and one at demo day. Each
-stop is a mono week label and a one-line promise linking to its page. The people
-teaching it close the page. The line is the one element that sits in the gutter,
-so the words keep the left edge.
+The home page is the headline, a short blurb and the term's facts (linked to the
+USC Schedule of Classes, the map and calendars), then the semester as one line:
+a hairline in the left gutter with a stop at the week each part begins and one
+at demo day. Each stop is a mono week label, a one-line promise linking to its
+page and the part's summary. The people teaching it close the page. The line is
+the one element that sits in the gutter, so the words keep the left edge.
 
 The header is a solid bar that sticks to the top: inline links on wide screens,
 a full-screen sheet on phones. Nothing blurs; a blur costs a filter pass every
-scrolled frame and muddies the text behind it.
+scrolled frame and muddies the text behind it. The footer is one line naming the
+course and its school; the header alone carries navigation. Scrollbars are thin
+and quiet but never hidden: on a mouse-driven desktop they show where you are.
+Only a block that is wider than the phone, such as the staff timeline, scrolls
+sideways; the page itself never does.
+
+Portraits are grayscale in lists, so photos from different cameras read as one
+set, and fade to color slowly on hover; on a person's own page they are in
+color.
 
 ## Motion
 
