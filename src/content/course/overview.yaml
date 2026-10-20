@@ -4,6 +4,8 @@
 lede: >-
   Learn how frontier models work, study the companies building on them, and ship
   an AI product of your own.
+# Optional: a phrase copied exactly from the lede, highlighted on the home page.
+highlight: ship an AI product of your own
 intro: >-
   The capstone of the USC Artificial Intelligence Minor connects the technical
   foundations of generative AI with industry analysis and hands-on product

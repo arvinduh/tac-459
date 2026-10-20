@@ -16,9 +16,14 @@ interface Session {
   location: string;
 }
 
+/** Formats when a weekly slot meets, e.g. 'Mon & Wed 12:00 pm–1:50 pm'. */
+export function formatTimes({ days, start, end }: Omit<Session, 'location'>) {
+  return `${days.join(' & ')} ${formatClock(start)}–${formatClock(end)}`;
+}
+
 /** Formats a weekly slot, e.g. 'Mon & Wed 12:00 pm–1:50 pm · KAP 160'. */
-export function formatSession({ days, start, end, location }: Session) {
-  return `${days.join(' & ')} ${formatClock(start)}–${formatClock(end)} · ${location}`;
+export function formatSession(session: Session) {
+  return `${formatTimes(session)} · ${session.location}`;
 }
 
 const SEASONS = ['spring', 'summer', 'fall'];

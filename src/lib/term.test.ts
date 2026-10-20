@@ -1,7 +1,7 @@
 /** Unit tests for time formatting and term order. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { formatClock, formatSession, termRank } from './term.ts';
+import { formatClock, formatSession, formatTimes, termRank } from './term.ts';
 
 test('formatClock uses a 12-hour clock', () => {
   assert.equal(formatClock('00:05'), '12:05 am');
@@ -27,6 +27,7 @@ test('termRank rejects ids that are not season-year', () => {
 
 test('formatSession joins days, times and place', () => {
   const slot = { days: ['Mon', 'Wed'], start: '12:00', end: '13:50' };
+  assert.equal(formatTimes(slot), 'Mon & Wed 12:00 pm–1:50 pm');
   assert.equal(
     formatSession({ ...slot, location: 'KAP 160' }),
     'Mon & Wed 12:00 pm–1:50 pm · KAP 160',

@@ -11,6 +11,7 @@
   --ink-900: #1a1918;
   --ink-600: #5f5b57;
   --ink-500: #76716c;
+  --ink-200: #d4d0cb;
   --ink-100: #e7e4e0;
   --ink-50: #f1efec;
   --cardinal-600: #900;
@@ -24,6 +25,8 @@
   /* 4.6:1 on paper: the faintest text allowed, for labels and metadata. */
   --color-text-subtle: var(--ink-500);
   --color-rule: var(--ink-100);
+  /* Outlines that must read as a control, not a divider. */
+  --color-rule-strong: var(--ink-200);
   /* A quiet fill for placeholders and tracks, one step off the paper. */
   --color-surface: var(--ink-50);
   /* 8.5:1 on paper. */
@@ -64,6 +67,7 @@
   --space-section: clamp(4rem, 2rem + 6vw, 7.5rem);
 
   --radius: 6px;
+  --radius-pill: 999px;
   --shadow-raised: 0 12px 32px -12px rgb(26 25 24 / 0.25);
 
   /* The sticky header, including its Cardinal top line. */

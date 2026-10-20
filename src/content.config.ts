@@ -85,34 +85,41 @@ const session = z.object({
 /** The course pitch: an intro and the components the course is built from. */
 const overview = defineCollection({
   loader: singleton('src/content/course/overview.yaml', 'overview'),
-  schema: z.object({
-    /** One-sentence pitch under the home page title. */
-    lede: z.string(),
-    intro: z.string(),
-    components: z
-      .array(
-        z.object({
-          /** Slug of the component's own page, e.g. 'capstone'. */
-          id: z.enum(['curriculum', 'company-overview', 'capstone']),
-          title: z.string(),
-          timing: z.string(),
-          /** Short form for the home page. */
-          summary: z.string(),
-          /** Long form that opens the component's own page. */
-          detail: z.string(),
-          steps: z
-            .array(
-              z.object({
-                label: z.string().optional(),
-                title: z.string(),
-                text: z.string(),
-              }),
-            )
-            .default([]),
-        }),
-      )
-      .min(1),
-  }),
+  schema: z
+    .object({
+      /** One-sentence pitch under the home page title. */
+      lede: z.string(),
+      /** A phrase copied exactly from the lede, marked as its key promise. */
+      highlight: z.string().optional(),
+      intro: z.string(),
+      components: z
+        .array(
+          z.object({
+            /** Slug of the component's own page, e.g. 'capstone'. */
+            id: z.enum(['curriculum', 'company-overview', 'capstone']),
+            title: z.string(),
+            timing: z.string(),
+            /** Short form for the home page. */
+            summary: z.string(),
+            /** Long form that opens the component's own page. */
+            detail: z.string(),
+            steps: z
+              .array(
+                z.object({
+                  label: z.string().optional(),
+                  title: z.string(),
+                  text: z.string(),
+                }),
+              )
+              .default([]),
+          }),
+        )
+        .min(1),
+    })
+    .refine(({ lede, highlight }) => !highlight || lede.includes(highlight), {
+      error: 'highlight must be copied exactly from lede',
+      path: ['highlight'],
+    }),
 });
 
 /** One small file per term holding only what changes term to term. */

@@ -5,6 +5,7 @@
  * It summarizes each part of the site and links into it, so every detail
  * lives on exactly one page. Every value comes from content files.
  */
+import Arrow from '../components/Arrow.astro';
 import PersonRow from '../components/PersonRow.astro';
 import ProjectGrid from '../components/ProjectGrid.astro';
 import Section from '../components/Section.astro';
@@ -18,7 +19,7 @@ import {
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
-import { formatSession } from '../lib/term';
+import { formatTimes } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
@@ -30,8 +31,11 @@ const ROLE_NAMES = {
   learningAssistant: 'Learning assistant',
 };
 
-const latest = (await getProjectTerms()).find(
-  (entry) => entry.projects.length > 0,
+const projectTerms = await getProjectTerms();
+const latest = projectTerms.find((entry) => entry.projects.length > 0);
+const productCount = projectTerms.reduce(
+  (sum, entry) => sum + entry.projects.length,
+  0,
 );
 
 const absolute = (path: string) => new URL(href(path), Astro.site).href;
@@ -48,20 +52,51 @@ const course = courseSchema({
   })),
 });
 
-const meetings = term.meetings.map(formatSession);
+// The lede splits around its highlighted phrase, when it has one.
+const { lede, highlight } = overview;
+const mark = highlight ? lede.indexOf(highlight) : -1;
+const ledeParts =
+  highlight && mark >= 0
+    ? [lede.slice(0, mark), highlight, lede.slice(mark + highlight.length)]
+    : [lede];
+
+const facts = [
+  { label: 'Term', value: term.label },
+  ...term.meetings.flatMap((meeting) => [
+    { label: 'Meets', value: formatTimes(meeting) },
+    { label: 'Room', value: meeting.location },
+  ]),
+  { label: 'Student products', value: String(productCount) },
+];
 ---
 
 <BaseLayout schema={[course]}>
   <header class="page-width hero">
     <p class="eyebrow">{site.tagline}</p>
     <h1 class="hero-title">{site.title}</h1>
-    <p class="hero-lede">{overview.lede}</p>
-    <ul class="plain-list hero-meta data">
-      <li>{term.label}</li>
-      {meetings.map((meeting) => (
-        <li>{meeting}</li>
+    <p class="hero-lede">
+      {ledeParts[0]}
+      {ledeParts[1] && <mark class="highlight">{ledeParts[1]}</mark>}
+      {ledeParts[2]}
+    </p>
+    <div class="hero-actions">
+      <a class="button" href={href('/curriculum/')}>
+        Explore the curriculum
+        <Arrow />
+      </a>
+      <a class="button button-quiet" href={href('/projects/')}>
+        See student projects
+        <Arrow />
+      </a>
+    </div>
+    <dl class="hero-facts">
+      {facts.map(({ label, value }) => (
+        <div>
+          <dt>{label}</dt>
+          <dd class="data">{value}</dd>
+        </div>
       ))}
-    </ul>
+    </dl>
   </header>
 
   <div class="sections">
@@ -73,7 +108,10 @@ const meetings = term.meetings.map(formatSession);
             <span class="numeral">{String(index + 1).padStart(2, '0')}</span>
             <div class="component-body">
               <h3 class="component-title">
-                <a href={href(`/${id}/`)}>{title}</a>
+                <a href={href(`/${id}/`)}>
+                  {title}
+                  <Arrow />
+                </a>
               </h3>
               <p class="component-timing">{timing}</p>
               <p class="component-summary">{summary}</p>
@@ -87,7 +125,10 @@ const meetings = term.meetings.map(formatSession);
       <Section id="projects" label="Recent projects">
         <ProjectGrid projects={latest.projects.slice(0, 2)} />
         <p class="more-link">
-          <a href={href('/projects/')}>See every term's projects</a>
+          <a class="arrow-link" href={href('/projects/')}>
+            See all {productCount} products
+            <Arrow />
+          </a>
         </p>
       </Section>
     )}
@@ -101,7 +142,10 @@ const meetings = term.meetings.map(formatSession);
         ))}
       </ul>
       <p class="more-link">
-        <a href={href('/team/')}>Office hours and past staff</a>
+        <a class="arrow-link" href={href('/team/')}>
+          Office hours and past staff
+          <Arrow />
+        </a>
       </p>
     </Section>
   </div>
@@ -131,6 +175,10 @@ const meetings = term.meetings.map(formatSession);
     animation-delay: 180ms;
   }
 
+  .hero > :nth-child(5) {
+    animation-delay: 240ms;
+  }
+
   .hero-title {
     max-width: 16ch;
     font-size: var(--text-display);
@@ -145,11 +193,53 @@ const meetings = term.meetings.map(formatSession);
     line-height: 1.55;
   }
 
-  .hero-meta {
+  /*
+   * The lede's key phrase gets a Gold marker that sweeps in once the hero
+   * has risen; the ink stays on top, so contrast is unchanged.
+   */
+  .highlight {
+    padding-inline: 0.1em;
+    background: linear-gradient(
+        transparent 60%,
+        color-mix(in srgb, var(--color-accent) 55%, transparent) 60%
+      )
+      no-repeat 0 0 / 0% 100%;
+    color: var(--color-text);
+    animation: sweep var(--duration-slow) var(--ease-out) 700ms forwards;
+  }
+
+  @keyframes sweep {
+    to {
+      background-size: 100% 100%;
+    }
+  }
+
+  .hero-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1) var(--space-6);
-    margin-top: var(--space-4);
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  /* Facts sit in a ruled row, like a spec sheet: label over value. */
+  .hero-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-12);
+    margin: var(--space-12) 0 0;
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .hero-facts dt {
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+
+  .hero-facts dd {
+    margin: 0;
+    color: var(--color-text);
+    font-size: var(--text-sm);
   }
 
   .sections {
@@ -186,14 +276,18 @@ const meetings = term.meetings.map(formatSession);
     text-decoration: none;
   }
 
-  .component-title a::after {
-    color: var(--color-brand);
-    content: ' →';
-    transition: margin var(--duration-fast) var(--ease-out);
+  .component-title a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
   }
 
-  .component-title a:hover::after {
-    margin-left: 0.2em;
+  .component-title a:hover {
+    color: var(--color-brand);
+  }
+
+  .component-title :global(.arrow) {
+    color: var(--color-brand);
   }
 
   .component-timing {
@@ -208,6 +302,5 @@ const meetings = term.meetings.map(formatSession);
 
   .more-link {
     margin-top: var(--space-8);
-    font-weight: var(--weight-medium);
   }
 </style>

@@ -89,6 +89,92 @@ img {
   padding-inline: var(--gutter);
 }
 
+/*
+ * Calls to action. A button is a page's main next step and comes at most
+ * twice per view: one solid Cardinal, one quiet outline. Every other link
+ * that leads onward is an arrow link. All three end in an Arrow.
+ */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  height: 2.75rem;
+  padding-inline: 1.25rem 1.1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-brand);
+  color: var(--color-bg);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.button:hover {
+  background: var(--color-brand-hover);
+  color: var(--color-bg);
+}
+
+.button-quiet {
+  border-color: var(--color-rule-strong);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.button-quiet:hover {
+  border-color: var(--color-text-subtle);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  color: var(--color-text);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+}
+
+.arrow-link:hover {
+  color: var(--color-brand);
+}
+
+.arrow-link .arrow {
+  color: var(--color-brand);
+}
+
+.arrow {
+  flex: none;
+  width: 0.6em;
+  height: 0.6em;
+  overflow: visible;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.arrow-shaft {
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.arrow-head {
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+:is(a, button):is(:hover, :focus-visible) .arrow-shaft {
+  opacity: 1;
+}
+
+:is(a, button):is(:hover, :focus-visible) .arrow-head {
+  transform: translateX(3px);
+}
+
 /* Small Cardinal line naming what a page or hero is about. */
 .eyebrow {
   color: var(--color-brand);
