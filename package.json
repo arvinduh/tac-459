@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "test": "node --test 'src/**/*.test.ts' 'scripts/**/*.test.ts'",
     "images": "node scripts/images.ts",
-    "new": "node scripts/new.ts"
+    "new": "node scripts/new.ts",
+    "rollover": "node scripts/rollover.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",

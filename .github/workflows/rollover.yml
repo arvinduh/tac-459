@@ -1,0 +1,24 @@
+# Every Monday, fails once the current term ended three weeks ago, so the
+# repository's owners get a failed-run email telling them to start the next
+# term. Rolling forward itself is gated by the Site workflow's build.
+name: Term rollover
+
+on:
+  schedule:
+    - cron: '0 16 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rollover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+      - run: npm run rollover
