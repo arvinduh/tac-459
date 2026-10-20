@@ -8,6 +8,10 @@ links:
   linkedin: https://www.linkedin.com/in/reza-jafarkhani-a6065828/
   viterbi: https://viterbi.usc.edu/directory/faculty/Jafarkhani/Reza
 photo: ./photo.webp
+summary: >-
+  Reza Jafarkhani teaches every course in the USC AI Minor, specializing in
+  machine learning, artificial intelligence and data analytics, and brings that
+  experience to the course's technical foundations.
 ---
 
 Reza Jafarkhani is a Senior Lecturer of Technology and Applied Computing at the

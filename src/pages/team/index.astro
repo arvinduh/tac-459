@@ -44,6 +44,7 @@ const description = `The ${term.label} instructors and learning assistants of ${
             <li class="reveal">
               <PersonRow
                 person={person}
+                withSummary
                 {...(officeHours && {
                   detail: `Office hours ${formatSession(officeHours)}`,
                 })}

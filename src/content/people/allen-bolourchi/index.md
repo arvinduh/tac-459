@@ -10,6 +10,11 @@ links:
   linkedin: https://www.linkedin.com/in/allenbolourchi/
   viterbi: https://viterbi.usc.edu/directory/faculty/Bolourchi/Allen
 photo: ./photo.webp
+summary: >-
+  Allen Bolourchi leads AI research and product at Meta Superintelligence Labs
+  and FAIR, and designed TAC 459 from the ground up as the capstone of the USC
+  AI Minor. Previously, he led AI/ML personalization for the App Store and Apple
+  Arcade at Apple.
 ---
 
 Allen Bolourchi leads AI research and product at **Meta Superintelligence Labs**

@@ -15,10 +15,12 @@ interface Props {
   caption?: string;
   /** An extra quiet line, such as office hours. */
   detail?: string;
+  /** Shows the person's short bio under their roles. */
+  withSummary?: boolean;
 }
 
-const { person, caption, detail } = Astro.props;
-const { name, honorific, positions } = person.data;
+const { person, caption, detail, withSummary } = Astro.props;
+const { name, honorific, positions, summary } = person.data;
 const lines = caption ? [caption] : positions;
 ---
 
@@ -33,6 +35,7 @@ const lines = caption ? [caption] : positions;
         <span>{line}</span>
       ))}
     </span>
+    {withSummary && summary && <span class="person-summary">{summary}</span>}
     {detail && <span class="person-detail data">{detail}</span>}
   </span>
 </a>
@@ -46,6 +49,11 @@ const lines = caption ? [caption] : positions;
     padding-block: var(--space-6);
     color: var(--color-text);
     text-decoration: none;
+  }
+
+  /* A bio makes the text tall, so the portrait sits at its top. */
+  .person-row:has(.person-summary) {
+    align-items: start;
   }
 
   .person-row:is(:hover, :focus-visible) :global(.portrait) {
@@ -78,6 +86,12 @@ const lines = caption ? [caption] : positions;
     display: grid;
     color: var(--color-text-muted);
     font-size: var(--text-sm);
+  }
+
+  .person-summary {
+    max-width: var(--prose-max);
+    margin-top: var(--space-2);
+    color: var(--color-text-muted);
   }
 
   .person-detail {

@@ -48,7 +48,7 @@ const people = defineCollection({
         .default({}),
       /** Square portrait; initials stand in until one is added. */
       photo: image().optional(),
-      /** Card blurb; defaults to the bio's first paragraph when omitted. */
+      /** A short bio for the team page; without one, only positions show. */
       summary: z.string().optional(),
     }),
 });
