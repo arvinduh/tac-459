@@ -1,0 +1,45 @@
+---
+/**
+ * Document shell for every page: metadata from site.yaml, global styles and
+ * the client router that animates navigation between pages.
+ */
+import '@fontsource-variable/inter';
+import '@fontsource/libre-caslon-display/latin-400.css';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import { getEntry } from 'astro:content';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  /** Page name for the tab title; omitted on the home page. */
+  title?: string;
+  description?: string;
+}
+
+const site = await getEntry('site', 'site');
+if (!site) throw new Error('src/content/site.yaml is missing');
+const { courseCode, title: courseTitle } = site.data;
+const { title, description = site.data.description } = Astro.props;
+const fullTitle = title
+  ? `${title} · ${courseCode}`
+  : `${courseCode} · ${courseTitle}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    {!site.data.indexable && <meta name="robots" content="noindex" />}
+    {site.data.googleSiteVerification.map((token) => (
+      <meta name="google-site-verification" content={token} />
+    ))}
+    <ClientRouter />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
