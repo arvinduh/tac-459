@@ -244,7 +244,7 @@ const LAYERS = 4;
     position: relative;
     aspect-ratio: 5 / 4;
     overflow: clip;
-    border-radius: 28px;
+    border-radius: var(--radius-tile);
     background: var(--color-surface);
   }
 
@@ -263,7 +263,7 @@ const LAYERS = 4;
     left: 10%;
     width: 80%;
     height: 76%;
-    border-radius: 12px;
+    border-radius: calc(2 * var(--radius));
     translate: calc(var(--column, 0) * 120%) calc(var(--row, 0) * 126.3%);
   }
 
@@ -472,7 +472,6 @@ const LAYERS = 4;
 
       .tile {
         aspect-ratio: 4 / 3;
-        border-radius: 20px;
       }
 
       .panel {

@@ -67,7 +67,12 @@
   --space-section: clamp(4rem, 2rem + 6vw, 7.5rem);
 
   --radius: 6px;
+  /* Large rounded tiles: the story's drawing, the course map, sheets. */
+  --radius-tile: 1.75rem;
   --shadow-raised: 0 12px 32px -12px rgb(26 25 24 / 0.25);
+  --shadow-overlay: 0 24px 64px -24px rgb(26 25 24 / 0.35);
+  /* Dims the page behind a sheet. */
+  --color-scrim: rgb(26 25 24 / 0.24);
 
   /* The sticky header, including its Cardinal top line. */
   --header-height: 3.75rem;
