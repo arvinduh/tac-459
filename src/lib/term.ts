@@ -58,3 +58,19 @@ export function formatClock(clock: string): string {
   const twelve = hours % 12 || 12;
   return `${twelve}:${String(minutes).padStart(2, '0')} ${suffix}`;
 }
+
+/**
+ * Describes office hours for people, e.g. 'Tue 2:30 pm–3:30 pm · Zoom'.
+ *
+ * Missing hours mean they are announced on Piazza; a missing place means
+ * it is still to be announced.
+ */
+export function formatOfficeHours(
+  where: readonly string[],
+  hours?: { day: string; start: string; end: string },
+): string {
+  const when = hours
+    ? `${hours.day} ${formatClock(hours.start)}–${formatClock(hours.end)}`
+    : 'Hours announced on Piazza';
+  return `${when} · ${where.length > 0 ? where.join(', ') : 'Location TBA'}`;
+}

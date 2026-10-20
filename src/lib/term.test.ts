@@ -5,6 +5,7 @@ import {
   dueKey,
   formatClock,
   formatDay,
+  formatOfficeHours,
   isoDay,
   weekIndexOf,
   weekOf,
@@ -46,4 +47,16 @@ test('weekIndexOf counts Monday through Sunday as one week', () => {
   assert.equal(weekIndexOf(START, new Date('2026-08-30')), 0);
   assert.equal(weekIndexOf(START, new Date('2026-11-02')), 10);
   assert.equal(weekIndexOf(START, new Date('2026-08-23')), -1);
+});
+
+test('formatOfficeHours fills gaps with what students should expect', () => {
+  const hours = { day: 'Tue', start: '14:30', end: '15:30' };
+  assert.equal(
+    formatOfficeHours(['RRB 211', 'Zoom'], hours),
+    'Tue 2:30 pm–3:30 pm · RRB 211, Zoom',
+  );
+  assert.equal(
+    formatOfficeHours([]),
+    'Hours announced on Piazza · Location TBA',
+  );
 });
