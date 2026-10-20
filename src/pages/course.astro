@@ -1,32 +1,32 @@
 ---
 /**
- * The course in full: what each part is, then every week of the semester.
+ * The course in full: the semester as one map, then what each part is.
  *
  * The home page tells the course as a story; this page is the reference.
- * Each part opens with what it is and when, anchored by its id so the home
- * page can link to it, and the week-by-week timeline below holds all the
- * detail: weekly topics, the company overview's steps and the capstone's
- * roadmap.
+ * The map comes first, so the shape of the semester reads before any
+ * paragraph, and its shapes open every detail: weekly topics, the company
+ * overview's steps and the capstone's roadmap. Each part's description
+ * follows, anchored by its id so the home page and the map link to it.
  */
 import PageHeader from '../components/PageHeader.astro';
-import Section from '../components/Section.astro';
-import WeekTimeline from '../components/WeekTimeline.astro';
+import SemesterMap from '../components/SemesterMap.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getModules, getOverview } from '../lib/course';
 import { formatWeeks } from '../lib/term';
-import { buildWeeks } from '../lib/weeks';
+import { buildLanes } from '../lib/lanes';
 
 const [overview, modules] = await Promise.all([getOverview(), getModules()]);
 const parts = overview.components.toSorted(
   (a, b) => a.weeks.from - b.weeks.from,
 );
-const rows = buildWeeks(parts, modules);
-const span = formatWeeks({ from: 1, to: rows.length });
+const { last, lanes } = buildLanes(parts, modules);
+const span = formatWeeks({ from: 1, to: last });
 ---
 
 <BaseLayout title="Course" description={overview.blurb}>
   <PageHeader eyebrow={span} title="Course" lede={overview.blurb} />
   <div class="page-width">
+    <SemesterMap last={last} lanes={lanes} />
     <ul class="plain-list parts">
       {parts.map(({ id, title, weeks, detail }) => (
         <li class={`part lane-${id}`} id={id}>
@@ -37,9 +37,6 @@ const span = formatWeeks({ from: 1, to: rows.length });
       ))}
     </ul>
   </div>
-  <Section id="weeks" label="Week by week">
-    <WeekTimeline lanes={parts} rows={rows} />
-  </Section>
 </BaseLayout>
 
 <style>
@@ -47,7 +44,7 @@ const span = formatWeeks({ from: 1, to: rows.length });
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
     gap: var(--space-12) var(--space-8);
-    margin-bottom: var(--space-section);
+    margin-top: var(--space-section);
   }
 
   .part {
