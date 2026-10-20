@@ -4,10 +4,11 @@
  *
  * Every person ever on staff gets a page, so past staff keep a stable URL.
  */
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BackLink from '../../components/BackLink.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { href } from '../../lib/paths';
+import { personSchema } from '../../lib/schema';
 
 interface Props {
   person: CollectionEntry<'people'>;
@@ -26,6 +27,17 @@ const { name, honorific, positions, email, links, photo } = person.data;
 const displayName = honorific ? `${honorific} ${name}` : name;
 const { Content } = await render(person);
 
+const portrait = await getImage({ src: photo, width: 480, format: 'webp' });
+const schema = personSchema({
+  name,
+  url: new URL(Astro.url.pathname, Astro.site).href,
+  image: new URL(portrait.src, Astro.site).href,
+  jobTitle: positions,
+  sameAs: [links.linkedin, links.viterbi].filter(
+    (link) => typeof link === 'string',
+  ),
+});
+
 const contacts = [
   email && { label: 'Email', url: `mailto:${email}` },
   links.linkedin && { label: 'LinkedIn', url: links.linkedin },
@@ -33,12 +45,15 @@ const contacts = [
 ].filter((contact) => typeof contact === 'object');
 ---
 
-<BaseLayout title={name} description={positions.join(' · ')}>
+<BaseLayout
+  title={name}
+  description={positions.join(' · ')}
+  trail={[{ name: 'Team', path: '/team/' }]}
+  schema={[schema]}
+>
   <article class="page-width person">
     <header class="person-header">
-      <a class="back-link" href={href('/team/')}>
-        ← Team
-      </a>
+      <BackLink path="/team/" label="Team" />
       <Image
         class="person-photo"
         src={photo}
@@ -92,20 +107,13 @@ const contacts = [
     animation: rise var(--duration-slow) var(--ease-out) both;
   }
 
-  .back-link,
+  .person-header :global(.back-link) {
+    margin-bottom: var(--space-8);
+  }
+
   .contact-list {
     color: var(--color-text-subtle);
     font-size: var(--text-sm);
-  }
-
-  .back-link {
-    margin-bottom: var(--space-8);
-    text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out);
-  }
-
-  .back-link:hover {
-    color: var(--color-text);
   }
 
   .person-photo {
