@@ -2,7 +2,7 @@
 name: Dylan Chen
 positions:
   - 'Major: Business Administration, Applied Data Science'
-photo: ./photo.jpg
+photo: ./photo.webp
 summary: >-
   Dylan Chen is a USC student graduating in Spring 2027 with a B.S. in Business
   Administration, a Minor in AI Applications, and an M.S. in Applied Data

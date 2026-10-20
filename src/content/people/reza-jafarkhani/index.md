@@ -7,7 +7,7 @@ email: jafarkha@usc.edu
 links:
   linkedin: https://www.linkedin.com/in/reza-jafarkhani-a6065828/
   viterbi: https://viterbi.usc.edu/directory/faculty/Jafarkhani/Reza
-photo: ./photo.png
+photo: ./photo.webp
 ---
 
 Reza Jafarkhani is a Senior Lecturer of Technology and Applied Computing at the

@@ -2,7 +2,7 @@
 name: Arvin Duh
 positions:
   - 'Major: AI for Business'
-photo: ./photo.jpg
+photo: ./photo.webp
 summary: >-
   Arvin Duh is a USC student graduating in Spring 2027 with a B.S. in AI for
   Business. During his 2026 internship at Google, he built an agent-eval
