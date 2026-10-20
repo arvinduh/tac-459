@@ -1,9 +1,10 @@
 /*
  * Design tokens: the only file allowed to hold raw design values.
  *
- * The palette is near-monochrome warm ink on paper. USC Cardinal is the one
- * accent, kept for links and focus so it never competes with content.
- * Components read only the semantic tokens.
+ * Warm ink on paper carries the content; USC Cardinal and Gold carry the
+ * identity in small, deliberate places. Cardinal marks the brand, labels,
+ * links and the current page. Gold is a fill only, never text: it fails
+ * contrast on paper at 1.5:1. Components read only the semantic tokens.
  */
 :root {
   --paper: #fafaf8;
@@ -11,7 +12,9 @@
   --ink-600: #5f5b57;
   --ink-500: #76716c;
   --ink-100: #e7e4e0;
-  --cardinal: #900;
+  --cardinal-600: #900;
+  --cardinal-700: #7a0000;
+  --gold-400: #fc0;
 
   --color-bg: var(--paper);
   --color-text: var(--ink-900);
@@ -20,14 +23,23 @@
   /* 4.6:1 on paper: the faintest text allowed, for labels and metadata. */
   --color-text-subtle: var(--ink-500);
   --color-rule: var(--ink-100);
-  --color-accent: var(--cardinal);
-  --color-focus: var(--cardinal);
+  /* 8.5:1 on paper. */
+  --color-brand: var(--cardinal-600);
+  --color-brand-hover: var(--cardinal-700);
+  --color-accent: var(--gold-400);
+  --color-focus: var(--cardinal-600);
 }
 
 :root {
+  /* One family for everything; mono only for codes and numerals. */
   --font-sans: 'Inter Variable', system-ui, sans-serif;
-  --font-serif: 'Crimson Pro Variable', Georgia, serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  /* Inter needs tighter tracking as it grows. */
+  --tracking-display: -0.035em;
+  --tracking-heading: -0.015em;
 
   /* One modular scale; the largest steps grow with the viewport. */
   --text-xs: 0.8125rem;
