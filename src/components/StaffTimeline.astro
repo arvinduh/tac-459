@@ -8,6 +8,10 @@
  * People who never overlap share a lane, so each role takes only as many
  * rows as its busiest term. Wide timelines scroll sideways, opening at the
  * newest term, and role labels and names stay in view while they scroll.
+ *
+ * Bars are quiet fills with a role-colored edge, Cardinal for instructors
+ * and Gold for learning assistants; people still teaching get a warmer
+ * fill and full-strength names, so the current team reads first.
  */
 import { getStaffTimeline } from '../lib/course';
 import { href } from '../lib/paths';
@@ -19,6 +23,7 @@ interface Props {
 
 const { currentTermId } = Astro.props;
 const { terms, groups } = await getStaffTimeline();
+const currentIndex = terms.findIndex(({ id }) => id === currentTermId);
 
 const LABELS = {
   instructor: 'Instructors',
@@ -26,14 +31,18 @@ const LABELS = {
 };
 
 type Person = (typeof groups)[number]['people'][number]['person'];
-type Cell = { span: number; person?: Person };
+type Cell = { span: number; person?: Person; current?: boolean };
 
 /** One lane's cells, left to right: a bar where a run starts, else a gap. */
 function laneCells(people: (typeof groups)[number]['people'], lane: number) {
   const starts = new Map<number, Cell>();
   for (const { person, runs } of people.filter((p) => p.lane === lane)) {
     for (const [first, last] of runs) {
-      starts.set(first, { person, span: last - first + 1 });
+      starts.set(first, {
+        person,
+        span: last - first + 1,
+        current: last === currentIndex,
+      });
     }
   }
   const cells: Cell[] = [];
@@ -80,11 +89,11 @@ const sections = groups.map(({ role, laneCount, people }) => ({
         </tr>
         {lanes.map((cells) => (
           <tr>
-            {cells.map(({ span, person }) => (
+            {cells.map(({ span, person, current }) => (
               <td colspan={span > 1 ? span : undefined}>
                 {person && (
                   <a
-                    class="bar"
+                    class:list={['bar', { current }]}
                     href={href(`/team/${person.id}/`)}
                     title={person.data.name}
                   >
@@ -141,11 +150,14 @@ const sections = groups.map(({ role, laneCount, people }) => ({
     text-align: left;
   }
 
-  .term {
-    padding-bottom: var(--space-2);
+  /* Each term opens with a tick, so bars visibly start on a term. */
+  .timeline .term {
+    padding: 0 var(--space-2) var(--space-2);
+    border-left: 1px solid var(--color-rule);
   }
 
   .term.current {
+    border-left-color: var(--color-brand);
     color: var(--color-brand);
   }
 
@@ -163,30 +175,73 @@ const sections = groups.map(({ role, laneCount, people }) => ({
 
   /* Names never widen a column; the colgroup alone sets the grid. */
   .bar {
+    --edge: var(--color-text-subtle);
     display: block;
     contain: inline-size;
     overflow: clip;
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius);
+    padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
+    border-radius: 3px;
+    background: var(--color-surface);
+    box-shadow: inset 2px 0 0 var(--edge);
+    color: var(--color-text-muted);
     font-size: var(--text-sm);
     font-weight: var(--weight-medium);
     text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
-    transition: filter var(--duration-fast) var(--ease-out);
-  }
-
-  .bar:hover {
-    filter: brightness(1.08);
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out);
   }
 
   .group-instructor .bar {
-    background: var(--color-brand);
-    color: var(--color-bg);
+    --edge: var(--color-brand);
   }
 
   .group-learningAssistant .bar {
-    background: var(--color-accent);
+    --edge: var(--color-accent);
+  }
+
+  .bar.current {
+    background: color-mix(in srgb, var(--edge) 7%, var(--color-bg));
     color: var(--color-text);
+  }
+
+  .bar:hover {
+    background: color-mix(in srgb, var(--edge) 16%, var(--color-bg));
+    color: var(--color-text);
+  }
+
+  /*
+   * Bars draw in from their start as the timeline scrolls into view. The
+   * timeline is named on the scroller, since the scroller itself is the
+   * nearest scroll container of every bar.
+   */
+  @supports (animation-timeline: view()) {
+    .timeline-scroll {
+      view-timeline: --staff-timeline block;
+    }
+
+    .bar {
+      animation: draw linear both;
+      animation-timeline: --staff-timeline;
+      animation-range: entry 10% entry 90%;
+    }
+  }
+
+  @keyframes draw {
+    from {
+      clip-path: inset(0 100% 0 0 round 3px);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0 round 3px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bar {
+      animation: none;
+    }
   }
 </style>
