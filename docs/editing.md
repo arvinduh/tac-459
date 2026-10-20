@@ -106,7 +106,7 @@ term file before running `npm run images`.
 
 | What                                                   | File                     |
 | ------------------------------------------------------ | ------------------------ |
-| Title and search description                           | `site.yaml`              |
+| Course title, home tab title and search description    | `site.yaml`              |
 | Home headline and blurb; each part's promise and weeks | `course/overview.yaml`   |
 | Modules, weekly topics, deeper topics                  | `course/curriculum.yaml` |
 

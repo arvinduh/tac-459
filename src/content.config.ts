@@ -19,6 +19,8 @@ const site = defineCollection({
   schema: z.object({
     courseCode: z.string(),
     title: z.string(),
+    /** The home page's tab and search-result title, tuned for search. */
+    homeTitle: z.string().max(70),
     description: z.string().max(160),
     /** Term the site shows; past terms stay for the archive. */
     currentTerm: reference('terms'),
