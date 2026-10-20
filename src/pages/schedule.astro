@@ -15,8 +15,8 @@ import {
 } from '../lib/course';
 import {
   dueKey,
-  formatClock,
   formatDay,
+  formatDue,
   isoDay,
   weekIndexOf,
   weekOf,
@@ -44,10 +44,9 @@ for (const { deliverable, date, time } of byDueTime) {
     Math.max(weekIndexOf(term.startDate, date), 0),
     weekCount,
   );
-  const day = formatDay(date);
   const item = {
     title: titles.get(deliverable.id) ?? deliverable.id,
-    when: time ? `${day}, ${formatClock(time)}` : day,
+    when: formatDue(date, time),
   };
   datedByWeek.set(index, [...(datedByWeek.get(index) ?? []), item]);
 }
