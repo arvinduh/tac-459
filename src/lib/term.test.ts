@@ -5,6 +5,7 @@ import {
   dueKey,
   formatClock,
   formatDay,
+  formatDue,
   formatOfficeHours,
   isoDay,
   weekIndexOf,
@@ -59,4 +60,9 @@ test('formatOfficeHours fills gaps with what students should expect', () => {
     formatOfficeHours([]),
     'Hours announced on Piazza · Location TBA',
   );
+});
+
+test('formatDue shows the time only when one is set', () => {
+  assert.equal(formatDue(new Date('2026-11-02'), '12:00'), 'Nov 2, 12:00 pm');
+  assert.equal(formatDue(new Date('2026-11-09')), 'Nov 9');
 });

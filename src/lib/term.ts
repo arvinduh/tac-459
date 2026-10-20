@@ -74,3 +74,9 @@ export function formatOfficeHours(
     : 'Hours announced on Piazza';
   return `${when} · ${where.length > 0 ? where.join(', ') : 'Location TBA'}`;
 }
+
+/** Formats a due moment for people, e.g. 'Nov 2, 12:00 pm' or 'Nov 9'. */
+export function formatDue(date: Date, time?: string): string {
+  const day = formatDay(date);
+  return time ? `${day}, ${formatClock(time)}` : day;
+}
