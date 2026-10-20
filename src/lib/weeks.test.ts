@@ -38,6 +38,11 @@ test('buildWeeks fills each lane over its own span', () => {
   );
 });
 
+test('buildWeeks spans grouped steps over the part', () => {
+  const cell = buildWeeks(PARTS, MODULES)[1]?.cells[1];
+  assert.equal(cell?.kind === 'steps' && cell.span, 2);
+});
+
 test('buildWeeks marks where each module begins', () => {
   const [first, second, third] = buildWeeks(PARTS, MODULES).map(
     ({ cells }) => cells[0],

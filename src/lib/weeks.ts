@@ -38,7 +38,8 @@ export type Cell =
       deeper: string[];
     }
   | ({ kind: 'step' } & Step)
-  | { kind: 'steps'; steps: Step[] };
+  /** All of a part's steps, filling `span` weeks from this one. */
+  | { kind: 'steps'; steps: Step[]; span: number };
 
 /** One semester week across every lane, in lane order. */
 export interface WeekRow {
@@ -76,7 +77,7 @@ function partCells(part: Part, modules: readonly Module[]): Cell[] {
     return part.steps.map((step): Cell => ({ kind: 'step', ...step }));
   }
   return [
-    { kind: 'steps', steps: part.steps },
+    { kind: 'steps', steps: part.steps, span },
     ...Array.from({ length: span - 1 }, (): Cell => ({ kind: 'continue' })),
   ];
 }
