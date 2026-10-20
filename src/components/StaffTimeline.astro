@@ -64,7 +64,7 @@ const sections = groups.map(({ role, laneCount, people }) => ({
         {terms.map(({ id, label }) => (
           <th
             scope="col"
-            class:list={['term', { current: id === currentTermId }]}
+            class:list={['term', 'data', { current: id === currentTermId }]}
           >
             {label}
           </th>
@@ -143,8 +143,6 @@ const sections = groups.map(({ role, laneCount, people }) => ({
 
   .term {
     padding-bottom: var(--space-2);
-    color: var(--color-text-subtle);
-    font: var(--weight-medium) var(--text-xs) / 1.6 var(--font-mono);
   }
 
   .term.current {

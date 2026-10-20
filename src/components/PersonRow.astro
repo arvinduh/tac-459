@@ -41,7 +41,7 @@ const lines = caption ? [caption] : positions;
         <span>{line}</span>
       ))}
     </span>
-    {detail && <span class="person-detail">{detail}</span>}
+    {detail && <span class="person-detail data">{detail}</span>}
   </span>
 </a>
 
@@ -98,7 +98,5 @@ const lines = caption ? [caption] : positions;
 
   .person-detail {
     margin-top: var(--space-1);
-    color: var(--color-text-subtle);
-    font-size: var(--text-sm);
   }
 </style>

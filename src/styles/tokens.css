@@ -31,7 +31,7 @@
 }
 
 :root {
-  /* One family for everything; mono only for codes and numerals. */
+  /* Inter is the voice; mono marks data. See docs/design.md. */
   --font-sans: 'Inter Variable', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
   --weight-regular: 400;

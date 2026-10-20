@@ -97,11 +97,20 @@ img {
   font-weight: var(--weight-medium);
 }
 
-/* Ordinals and week numbers: the one place mono appears in body content. */
+/*
+ * Data: codes, counts, times, places and term names. Mono marks text a
+ * reader looks up rather than reads, so it never carries a sentence.
+ */
+.data,
 .numeral {
-  color: var(--color-brand);
+  color: var(--color-text-subtle);
   font: var(--weight-medium) var(--text-xs) / 1.6 var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* Ordinals and week numbers: data that marks order, so it takes Cardinal. */
+.numeral {
+  color: var(--color-brand);
 }
 
 /*

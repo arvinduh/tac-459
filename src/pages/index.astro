@@ -56,7 +56,7 @@ const meetings = term.meetings.map(formatSession);
     <p class="eyebrow">{site.tagline}</p>
     <h1 class="hero-title">{site.title}</h1>
     <p class="hero-lede">{overview.lede}</p>
-    <ul class="plain-list hero-meta">
+    <ul class="plain-list hero-meta data">
       <li>{term.label}</li>
       {meetings.map((meeting) => (
         <li>{meeting}</li>
@@ -150,8 +150,6 @@ const meetings = term.meetings.map(formatSession);
     flex-wrap: wrap;
     gap: var(--space-1) var(--space-6);
     margin-top: var(--space-4);
-    color: var(--color-text-subtle);
-    font-size: var(--text-sm);
   }
 
   .sections {
