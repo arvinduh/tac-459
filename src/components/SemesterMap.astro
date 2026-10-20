@@ -1,0 +1,581 @@
+---
+/**
+ * The semester as one map: a column per week, a lane per part of the
+ * course, and a shape for every module and step, each opening its detail.
+ *
+ * The map reads at a glance: when each part runs and how they overlap.
+ * Hovering a shape names it; pressing it opens a sheet with the module's
+ * weekly topics or the step's description. Sheets are native popovers, so
+ * they need no script, close on Escape or a click outside, and keep their
+ * words in the page for search engines. It is a table, as the staff
+ * timeline is: weeks are columns and colspan carries each shape's length,
+ * so the whole semester fits any screen without positional styles.
+ */
+import type { Segment } from '../lib/lanes';
+import { formatWeeks } from '../lib/term';
+
+interface Part {
+  id: string;
+  title: string;
+  weeks: { from: number; to: number };
+}
+
+interface Props {
+  last: number;
+  lanes: Array<{ part: Part; segments: Segment[] }>;
+}
+
+const { last, lanes } = Astro.props;
+const weeks = Array.from({ length: last }, (_, index) => index + 1);
+
+interface Sheet {
+  id: string;
+  eyebrow: string;
+  /** The shape's hover label: when, then what. */
+  tip: string;
+  title: string;
+  text?: string;
+  topics?: Extract<Segment, { kind: 'module' }>['weeks'];
+}
+
+/** Every shape in a lane, with the sheet it opens and its place in time. */
+function shapes(
+  part: Part,
+  segments: Segment[],
+): Array<{ segment: Segment; end: boolean; sheets: Sheet[] }> {
+  let week = 1;
+  return segments.map((segment) => {
+    const from = week;
+    week += segment.span;
+    const to = week - 1;
+    // Tooltips near the right edge open leftward, so they stay on screen.
+    const end = from > last / 2;
+    switch (segment.kind) {
+      case 'gap':
+        return { segment, end, sheets: [] };
+      case 'module':
+        return {
+          segment,
+          end,
+          sheets: [
+            {
+              id: `module-${segment.number}`,
+              eyebrow: `Module ${segment.number} · ${formatWeeks({ from, to })}`,
+              tip: `${formatWeeks({ from, to })} · ${segment.title}`,
+              title: segment.title,
+              topics: segment.weeks,
+            },
+          ],
+        };
+      case 'step':
+        return {
+          segment,
+          end,
+          sheets: [
+            {
+              id: `${part.id}-step-${segment.number}`,
+              eyebrow: `Week ${segment.week} · ${part.title}`,
+              tip: `Week ${segment.week} · ${segment.step.title}`,
+              title: segment.step.title,
+              text: segment.step.text,
+            },
+          ],
+        };
+      default:
+        return {
+          segment,
+          end,
+          sheets: segment.steps.map(({ title, text }, index) => ({
+            id: `${part.id}-step-${index + 1}`,
+            eyebrow: `${formatWeeks({ from, to })} · ${part.title}`,
+            tip: `${formatWeeks({ from, to })} · ${title}`,
+            title,
+            text,
+          })),
+        };
+    }
+  });
+}
+
+const rows = lanes.map(({ part, segments }) => ({
+  part,
+  shapes: shapes(part, segments),
+}));
+const sheets = rows.flatMap(({ shapes }) =>
+  shapes.flatMap(({ sheets }) => sheets),
+);
+---
+
+<div class="map reveal">
+  <p class="map-hint">Select any module or step to open its detail.</p>
+  <table class="map-table">
+    <caption class="visually-hidden">The semester week by week</caption>
+    <colgroup>
+      <col span={last} />
+    </colgroup>
+    <thead>
+      <tr>
+        {weeks.map((week) => (
+          <th scope="col" class="week data">
+            <span class="visually-hidden">Week</span>
+            {week}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    {rows.map(({ part, shapes }) => (
+      <tbody class={`lane lane-${part.id}`}>
+        <tr>
+          {part.weeks.from > 1 && <td colspan={part.weeks.from - 1} />}
+          <th
+            scope="rowgroup"
+            colspan={last - part.weeks.from + 1}
+            class="lane-label"
+          >
+            <a href={`#${part.id}`}>{part.title}</a>
+            <span class="data">{formatWeeks(part.weeks)}</span>
+          </th>
+        </tr>
+        <tr>
+          {shapes.map(({ segment, sheets, end }) => (
+            <td colspan={segment.span > 1 ? segment.span : undefined}>
+              {segment.kind === 'module' && sheets[0] && (
+                <button
+                  type="button"
+                  class:list={['shape', 'module', { end }]}
+                  popovertarget={sheets[0].id}
+                >
+                  <span class="shape-number numeral">{segment.number}</span>
+                  <span class="shape-title">{segment.title}</span>
+                  <span class="tip" aria-hidden="true">
+                    {sheets[0].tip}
+                  </span>
+                </button>
+              )}
+              {segment.kind !== 'module' && segment.kind !== 'gap' && (
+                <span class="steps">
+                  {sheets.map(({ id, title, tip }, index) => (
+                    <button
+                      type="button"
+                      class:list={['shape', 'step', { end }]}
+                      popovertarget={id}
+                    >
+                      <span class="shape-number numeral">
+                        {segment.kind === 'step' ? segment.number : index + 1}
+                      </span>
+                      <span class="visually-hidden">{title}</span>
+                      <span class="tip" aria-hidden="true">
+                        {tip}
+                      </span>
+                    </button>
+                  ))}
+                </span>
+              )}
+            </td>
+          ))}
+        </tr>
+      </tbody>
+    ))}
+  </table>
+</div>
+
+{sheets.map(({ id, eyebrow, title, text, topics }) => (
+  <div class="sheet" id={id} popover>
+    <div class="sheet-head">
+      <p class="numeral">{eyebrow}</p>
+      <button
+        type="button"
+        class="sheet-close"
+        popovertarget={id}
+        popovertargetaction="hide"
+        aria-label="Close"
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M3 3l10 10M13 3L3 13" />
+        </svg>
+      </button>
+    </div>
+    <h2 class="sheet-title">{title}</h2>
+    {text && <p class="sheet-text">{text}</p>}
+    {topics && (
+      <ol class="plain-list sheet-weeks">
+        {topics.map(({ week, title, core, deeper }) => (
+          <li class="sheet-week">
+            <p class="data">Week {week}</p>
+            <h3 class="sheet-week-title">{title}</h3>
+            <ul class="plain-list topics">
+              {core.map((topic) => (
+                <li>{topic}</li>
+              ))}
+            </ul>
+            {deeper.length > 0 && (
+              <ul class="plain-list topics deeper">
+                {deeper.map((topic) => (
+                  <li>{topic}</li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ol>
+    )}
+  </div>
+))}
+
+<style>
+  .map {
+    padding: var(--space-8) var(--space-6) var(--space-6);
+    border-radius: var(--radius-tile);
+    background: var(--color-surface);
+  }
+
+  .map-hint {
+    margin-bottom: var(--space-6);
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
+  }
+
+  /* Fixed layout gives every week the same width from the colgroup. */
+  .map-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 3px 0;
+    table-layout: fixed;
+  }
+
+  .map-table th,
+  .map-table td {
+    padding: 0;
+    font-weight: var(--weight-regular);
+    text-align: left;
+  }
+
+  /* Each part's color, as fills: paper for the curriculum, Gold for the
+     company overview, Cardinal for the capstone. */
+  .lane {
+    --ring: var(--color-rule-strong);
+    --fill: var(--color-bg);
+    --fill-hover: var(--color-rule);
+  }
+
+  .lane-company-overview {
+    --ring: transparent;
+    --fill: color-mix(in srgb, var(--color-accent) 30%, var(--color-bg));
+    --fill-hover: color-mix(in srgb, var(--color-accent) 55%, var(--color-bg));
+  }
+
+  .lane-capstone {
+    --ring: transparent;
+    --fill: color-mix(in srgb, var(--color-brand) 9%, var(--color-bg));
+    --fill-hover: color-mix(in srgb, var(--color-brand) 18%, var(--color-bg));
+  }
+
+  /* Each week opens with a tick, as each term does on the staff timeline. */
+  .week {
+    padding: 0 0 var(--space-3) var(--space-1);
+    border-left: 1px solid var(--color-rule-strong);
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+
+  .lane-label {
+    padding: var(--space-6) 0 var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .lane-label a {
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+  }
+
+  .lane-label a:hover {
+    color: var(--color-brand);
+  }
+
+  .lane-label .data {
+    margin-left: var(--space-2);
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+
+  /* Shapes: soft fills in the part's color. */
+  .shape {
+    display: flex;
+    position: relative;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-3);
+    border: 0;
+    border-radius: calc(2 * var(--radius));
+    background: var(--fill);
+    box-shadow: inset 0 0 0 1px var(--ring);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-xs);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .shape:hover {
+    background: var(--fill-hover);
+  }
+
+  .shape:active {
+    transform: scale(0.97);
+  }
+
+  .shape-number {
+    flex: none;
+  }
+
+  /* A module's name, cut to the space its weeks give it. */
+  .shape-title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    hyphens: auto;
+    line-height: 1.3;
+  }
+
+  .steps {
+    display: flex;
+    gap: 3px;
+  }
+
+  .step {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  /* The name and weeks above a shape, on hover or keyboard focus. */
+  .tip {
+    position: absolute;
+    bottom: calc(100% + var(--space-2));
+    left: 0;
+    z-index: 1;
+    width: max-content;
+    max-width: 18rem;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius);
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition:
+      opacity var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .end .tip {
+    right: 0;
+    left: auto;
+  }
+
+  @media (hover: hover) {
+    .shape:is(:hover, :focus-visible) .tip {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Phones: the whole semester still fits; shapes keep just their number. */
+  @media (width < 48rem) {
+    .map {
+      margin-inline: calc(-1 * var(--gutter) / 2);
+      padding: var(--space-6) var(--space-2) var(--space-4);
+      border-radius: calc(var(--radius-tile) / 2);
+    }
+
+    .map-table {
+      border-spacing: 2px 0;
+    }
+
+    .week {
+      padding-left: 2px;
+      font-size: 0.625rem;
+    }
+
+    .shape {
+      justify-content: center;
+      min-height: 2.75rem;
+      padding: 0;
+    }
+
+    .shape-title {
+      display: none;
+    }
+
+    .steps {
+      gap: 2px;
+    }
+  }
+
+  /* Sheets: a card centered over a dimmed page; on phones, from below. */
+  .sheet {
+    width: min(36rem, 100% - 2 * var(--gutter));
+    max-height: min(85svh, 48rem);
+    margin: auto;
+    padding: var(--space-6) var(--space-8) var(--space-8);
+    overflow: auto;
+    border: 0;
+    border-radius: var(--radius-tile);
+    background: var(--color-bg);
+    box-shadow:
+      0 0 0 1px var(--color-rule-strong),
+      var(--shadow-overlay);
+    color: var(--color-text);
+    opacity: 0;
+    overscroll-behavior: contain;
+    transform: translateY(1rem) scale(0.98);
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out),
+      overlay var(--duration-base) allow-discrete,
+      display var(--duration-base) allow-discrete;
+  }
+
+  .sheet:popover-open {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .sheet:popover-open {
+      opacity: 0;
+      transform: translateY(1rem) scale(0.98);
+    }
+  }
+
+  .sheet::backdrop {
+    background: transparent;
+    transition:
+      background-color var(--duration-base) var(--ease-out),
+      overlay var(--duration-base) allow-discrete,
+      display var(--duration-base) allow-discrete;
+  }
+
+  .sheet:popover-open::backdrop {
+    background: var(--color-scrim);
+  }
+
+  @starting-style {
+    .sheet:popover-open::backdrop {
+      background: transparent;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+  }
+
+  .sheet-close {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-right: calc(-1 * var(--space-3));
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background-color var(--duration-fast) var(--ease-out);
+  }
+
+  .sheet-close:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .sheet-close svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentcolor;
+    stroke-linecap: round;
+    stroke-width: 1.75;
+  }
+
+  .sheet-title {
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .sheet-text {
+    margin-top: var(--space-4);
+    color: var(--color-text-muted);
+  }
+
+  .sheet-weeks {
+    display: grid;
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+  }
+
+  .sheet-week {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .sheet-week .data {
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+  }
+
+  .sheet-week-title {
+    font-size: var(--text-base);
+    line-height: 1.3;
+  }
+
+  .topics {
+    display: grid;
+    gap: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.45;
+  }
+
+  .deeper {
+    margin-top: var(--space-2);
+    color: var(--color-text-subtle);
+  }
+
+  @media (width < 48rem) {
+    .sheet {
+      width: 100%;
+      max-width: none;
+      max-height: 85svh;
+      margin: auto 0 0;
+      padding: var(--space-4) var(--gutter) var(--space-8);
+      border-radius: var(--radius-tile) var(--radius-tile) 0 0;
+      transform: translateY(100%);
+    }
+
+    .sheet:popover-open {
+      transform: none;
+    }
+
+    @starting-style {
+      .sheet:popover-open {
+        transform: translateY(100%);
+      }
+    }
+  }
+</style>
