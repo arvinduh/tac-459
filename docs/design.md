@@ -78,12 +78,15 @@ what it introduces. Nothing is centered.
 
 The home page is the headline, a short blurb and the term's facts (linked to the
 USC Schedule of Classes, the map and Google Calendar), then the semester as a
-scroll story: four panels on the left (the week each part begins, then demo
-day), each a mono week label, a one-line promise linking to that part on the
-Course page and the part's summary, beside one pinned drawing on a quiet band to
-the right. The drawing is a team's app window; it changes once per panel, so
-each panel has one movement. On phones the drawing pins under the header and the
-words pass beneath it. The people teaching close the page.
+scroll story. Its drawing, a team's app window on a rounded tile, opens at the
+content's full width under the headline, then shrinks into one half of the page
+as the first panel arrives. Four panels follow (the week each part begins, then
+demo day), each a mono week label, a one-line promise linking to that part on
+the Course page and the part's summary; panel and drawing swap halves each time,
+so the eye moves across the page as well as down it. The drawing changes once
+per panel, so each panel has one movement. On phones the tile pins under the
+header at full width and the words pass beneath it. The people teaching close
+the page.
 
 The site has two levels of detail and no more. Home tells the story; the Course
 page is the reference: each part's span and long description, then one table of
@@ -112,16 +115,18 @@ to their full-size file, with a zoom cursor as the only cue.
 Short and quiet, and only opacity, transform or clipping, so it stays smooth on
 phones. Content rises in on load and between pages; rows and cards marked
 `reveal` rise in as they scroll into view; timeline bars draw in from their
-first term. On the home page the story's drawing follows the panels: the model's
-layers light from the bottom up, the camera pulls back to the companies around
-the team's window, zooms in as the model shrinks into the app's corner and the
-chat appears, and pulls back once more to past teams' products. Scenes hold
-while a panel fills the window and change between panels. The page pins the
-drawing but never locks or snaps the scroll, which would fight trackpads, phone
-momentum and the keyboard. It is pure scroll timeline, so nothing runs while the
-page is still; without one, or under reduced motion, the drawing is left out and
-the panels read as a list. Durations come from tokens, and reduced-motion
-settings collapse them all to an instant.
+first term. On the home page the story's drawing follows the panels: it settles
+into its half as the model's layers light from the bottom up, the camera pulls
+back to the companies around the team's window, zooms in as the model shrinks
+into the app's corner and the chat appears, and pulls back once more to past
+teams' products. Scenes hold while a panel fills the window and change between
+panels. The page pins the drawing but never locks or snaps the scroll, which
+would fight trackpads, phone momentum and the keyboard. It is pure scroll
+timeline, so nothing runs while the page is still. Few parts move, and each
+keeps its own layer, painted once at full size and only scaled down after, so
+scrolling never repaints the drawing; without a scroll timeline, or under
+reduced motion, the drawing is left out and the panels read as a list. Durations
+come from tokens, and reduced-motion settings collapse them all to an instant.
 
 Scroll-driven rules use longhand properties: the CSS minifier folds `animation`
 and `animation-timeline` into one shorthand that browsers reject.
