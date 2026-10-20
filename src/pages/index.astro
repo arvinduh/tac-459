@@ -5,14 +5,29 @@
  * Every value comes from site.yaml, the current term and the curriculum, so
  * the page rolls forward with the term file and needs no edits itself.
  */
+import UpNext from '../components/UpNext.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCurrentTerm, getModules, getSite } from '../lib/course';
+import {
+  getCurrentTerm,
+  getDeliverableTitles,
+  getModules,
+  getSite,
+} from '../lib/course';
 import { href } from '../lib/paths';
-import { formatClock } from '../lib/term';
+import { dueKey, formatClock, formatDue } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
 const modules = await getModules();
+const titles = await getDeliverableTitles();
+
+const deadlines = term.due
+  .map(({ deliverable, date, time }) => ({
+    key: dueKey(date, time),
+    title: titles.get(deliverable.id) ?? deliverable.id,
+    when: formatDue(date, time),
+  }))
+  .toSorted((a, b) => a.key.localeCompare(b.key));
 
 const meetings = term.meetings.map(
   ({ days, start, end, location }) =>
@@ -31,24 +46,27 @@ const outline = modules.map(({ title, weeks }, index) => {
 <BaseLayout>
   <section class="hero">
     <div class="page-width hero-body">
-      <p class="hero-eyebrow">
-        {site.courseCode} · {term.label}
-      </p>
-      <h1 class="hero-title">{site.title}</h1>
-      <p class="hero-lede">{site.description}</p>
-      <ul class="hero-meetings">
-        {meetings.map((meeting) => (
-          <li>{meeting}</li>
-        ))}
-      </ul>
-      <div class="hero-actions">
-        <a class="button button-primary" href={href('/schedule/')}>
-          See the schedule
-        </a>
-        <a class="button button-quiet" href={href('/team/')}>
-          Meet the team
-        </a>
+      <div class="hero-copy">
+        <p class="hero-eyebrow">
+          {site.courseCode} · {term.label}
+        </p>
+        <h1 class="hero-title">{site.title}</h1>
+        <p class="hero-lede">{site.description}</p>
+        <ul class="hero-meetings">
+          {meetings.map((meeting) => (
+            <li>{meeting}</li>
+          ))}
+        </ul>
+        <div class="hero-actions">
+          <a class="button button-primary" href={href('/schedule/')}>
+            See the schedule
+          </a>
+          <a class="button button-quiet" href={href('/team/')}>
+            Meet the team
+          </a>
+        </div>
       </div>
+      <UpNext timeZone={site.timeZone} limit={3} items={deadlines} />
     </div>
   </section>
 
@@ -86,26 +104,44 @@ const outline = modules.map(({ title, weeks }, index) => {
 
   .hero-body {
     display: grid;
-    gap: var(--space-6);
-    justify-items: start;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+    align-items: end;
+    gap: var(--space-12);
     padding-block: var(--space-16) calc(var(--space-16) * 1.5);
   }
 
+  @media (width < 56rem) {
+    .hero-body {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: var(--space-6);
+    justify-items: start;
+  }
+
   /* Children rise in one after another; reduced motion makes this instant. */
-  .hero-body > * {
+  .hero-copy > *,
+  .hero-body > :global(up-next) {
     animation: rise var(--duration-slow) var(--ease-out) both;
   }
 
-  .hero-body > :nth-child(2) {
+  .hero-copy > :nth-child(2) {
     animation-delay: 60ms;
   }
 
-  .hero-body > :nth-child(3) {
+  .hero-copy > :nth-child(3) {
     animation-delay: 120ms;
   }
 
-  .hero-body > :nth-child(n + 4) {
+  .hero-copy > :nth-child(n + 4) {
     animation-delay: 180ms;
+  }
+
+  .hero-body > :global(up-next) {
+    animation-delay: 240ms;
   }
 
   .hero-eyebrow {
