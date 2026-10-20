@@ -2,12 +2,12 @@
 /**
  * The AI capstone product: the nine-week build from idea to launch pitch.
  */
+import NextPage from '../components/NextPage.astro';
 import PageHeader from '../components/PageHeader.astro';
 import Section from '../components/Section.astro';
 import StepList from '../components/StepList.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getComponent } from '../lib/course';
-import { href } from '../lib/paths';
 
 const { title, timing, summary, detail, steps } =
   await getComponent('capstone');
@@ -17,15 +17,10 @@ const { title, timing, summary, detail, steps } =
   <PageHeader eyebrow={timing} title={title} lede={detail} />
   <Section id="roadmap" label="Roadmap">
     <StepList steps={steps} />
-    <p class="next-link">
-      <a href={href('/projects/')}>See what past teams built</a>
-    </p>
   </Section>
+  <NextPage
+    path="/projects/"
+    title="Past projects"
+    text="What past teams built in these nine weeks, with screenshots and links."
+  />
 </BaseLayout>
-
-<style>
-  .next-link {
-    margin-top: var(--space-12);
-    font-weight: var(--weight-medium);
-  }
-</style>

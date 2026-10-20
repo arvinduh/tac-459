@@ -1,0 +1,89 @@
+---
+/**
+ * The closing step of a page: one large link to the page that follows it
+ * in the course, so a reader always has an obvious way onward.
+ */
+import { href } from '../lib/paths';
+import Arrow from './Arrow.astro';
+
+interface Props {
+  path: string;
+  title: string;
+  /** One sentence on what the next page holds. */
+  text: string;
+}
+
+const { path, title, text } = Astro.props;
+---
+
+<nav class="page-width next-page" aria-label="Next page">
+  <a class="next-link" href={href(path)}>
+    <span class="next-label">Next</span>
+    <span class="next-body">
+      <span class="next-title">
+        {title}
+        <Arrow />
+      </span>
+      <span class="next-text">{text}</span>
+    </span>
+  </a>
+</nav>
+
+<style>
+  .next-page {
+    margin-top: var(--space-section);
+  }
+
+  /* The same two columns as a page section: label left, body right. */
+  .next-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    align-items: baseline;
+    gap: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-rule);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  @media (width < 48rem) {
+    .next-link {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+    }
+  }
+
+  .next-body {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .next-label {
+    color: var(--color-brand);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+  }
+
+  .next-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-size: var(--text-xl);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-heading);
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .next-link:hover .next-title {
+    color: var(--color-brand);
+  }
+
+  .next-title :global(.arrow) {
+    color: var(--color-brand);
+  }
+
+  .next-text {
+    max-width: var(--prose-max);
+    color: var(--color-text-muted);
+  }
+</style>

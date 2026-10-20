@@ -5,6 +5,7 @@
  * Week numbers run on across modules. Each week lists its core topics; the
  * deeper topics sit in a native disclosure so the page stays scannable.
  */
+import NextPage from '../components/NextPage.astro';
 import PageHeader from '../components/PageHeader.astro';
 import Section from '../components/Section.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -12,6 +13,7 @@ import { getComponent, getModules } from '../lib/course';
 
 const { title, timing, summary, detail } = await getComponent('curriculum');
 const modules = await getModules();
+const next = await getComponent('company-overview');
 
 // Week numbers run on across modules.
 let nextWeek = 1;
@@ -61,6 +63,7 @@ const numbered = modules.map((module) => {
       </Section>
     ))}
   </div>
+  <NextPage path={`/${next.id}/`} title={next.title} text={next.summary} />
 </BaseLayout>
 
 <style>
