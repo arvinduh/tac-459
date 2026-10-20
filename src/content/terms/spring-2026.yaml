@@ -1,0 +1,9 @@
+# Everything that changes per term, and nothing else.
+label: Spring 2026
+meetings: []
+classPhoto: ./spring-2026.webp
+staff:
+  - { person: allen-bolourchi, role: instructor }
+  - { person: reza-jafarkhani, role: instructor }
+  - { person: dylan-chen, role: learningAssistant }
+  - { person: arvin-duh, role: learningAssistant }

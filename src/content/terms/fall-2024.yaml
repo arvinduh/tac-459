@@ -1,0 +1,9 @@
+# Everything that changes per term, and nothing else.
+label: Fall 2024
+meetings:
+  - { days: [Mon], start: '17:00', end: '20:20', location: SOS B4 }
+classPhoto: ./fall-2024.webp
+staff:
+  - { person: allen-bolourchi, role: instructor }
+  - { person: rajeev-singh, role: learningAssistant }
+  - { person: nitin-sai-bommi, role: learningAssistant }

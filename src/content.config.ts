@@ -110,23 +110,28 @@ const overview = defineCollection({
 /** One small file per term holding only what changes term to term. */
 const terms = defineCollection({
   loader: glob({ pattern: '*.yaml', base: 'src/content/terms' }),
-  schema: z.object({
-    label: z.string(),
-    meetings: z.array(
-      z.object({
-        days: z.array(weekday).min(1),
-        start: clock,
-        end: clock,
-        location: z.string(),
-      }),
-    ),
-    staff: z.array(
-      z.object({
-        person: reference('people'),
-        role: z.enum(['instructor', 'learningAssistant']),
-      }),
-    ),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      label: z.string(),
+      /** Whole-class photo, kept beside the term file. */
+      classPhoto: image().optional(),
+      meetings: z
+        .array(
+          z.object({
+            days: z.array(weekday).min(1),
+            start: clock,
+            end: clock,
+            location: z.string(),
+          }),
+        )
+        .default([]),
+      staff: z.array(
+        z.object({
+          person: reference('people'),
+          role: z.enum(['instructor', 'learningAssistant']),
+        }),
+      ),
+    }),
 });
 
 export const collections = {
