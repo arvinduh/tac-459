@@ -34,23 +34,14 @@ const { path, title, text } = Astro.props;
     margin-top: var(--space-section);
   }
 
-  /* The same two columns as a page section: label left, body right. */
+  /* Label above the title, on the same left edge as every section. */
   .next-link {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
-    align-items: baseline;
-    gap: var(--space-8);
+    gap: var(--space-3);
     padding-top: var(--space-8);
     border-top: 1px solid var(--color-rule);
     color: var(--color-text);
     text-decoration: none;
-  }
-
-  @media (width < 48rem) {
-    .next-link {
-      grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-3);
-    }
   }
 
   .next-body {

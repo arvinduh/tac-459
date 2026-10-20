@@ -43,19 +43,14 @@ const { courseCode, title } = Astro.props;
 
   /* The rule sits inside the gutters so it lines up with the content. */
   .footer-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
-    gap: var(--space-6) var(--space-8);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-6) var(--space-12);
     padding-block: var(--space-8) var(--space-12);
     border-top: 1px solid var(--color-rule);
     color: var(--color-text-subtle);
     font-size: var(--text-sm);
-  }
-
-  @media (width < 48rem) {
-    .footer-grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
   }
 
   .footer-id {

@@ -141,24 +141,18 @@ const hasDetails = contacts.length > 0 || Boolean(person.body?.trim());
   }
 
   /* Same two-column grid as every page section. */
+  /* Contacts in one row above the bio, both on the page's left edge. */
   .person-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
     gap: var(--space-8);
     padding-top: var(--space-8);
     border-top: 1px solid var(--color-rule);
   }
 
-  @media (width < 48rem) {
-    .person-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
   .contact-list {
-    display: grid;
-    align-content: start;
-    gap: var(--space-2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -169,7 +163,6 @@ const hasDetails = contacts.length > 0 || Boolean(person.body?.trim());
   }
 
   .prose {
-    grid-column: -2;
     display: grid;
     gap: var(--space-4);
     max-width: var(--prose-max);

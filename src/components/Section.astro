@@ -1,10 +1,10 @@
 ---
 /**
- * A titled band of a page on the site's two-column editorial grid.
+ * A titled band of a page: a hairline, the section's heading, then its
+ * content, all starting on the page's one left edge.
  *
- * The narrow column holds the section's heading; the wide column holds the
- * slot, and the heading stays in view while the slot scrolls past. Below
- * the grid breakpoint the heading stacks on top.
+ * Headings sit above their content rather than in a side column, so a
+ * heading and what it introduces always line up.
  */
 interface Props {
   /** Anchor for in-page links; also derives the heading's id. */
@@ -12,61 +12,36 @@ interface Props {
   label: string;
   /** Short mono tag above the label, such as 'Module 2'. */
   numeral?: string;
-  /** Stacks the label above the body so wide content gets the full width. */
-  stacked?: boolean;
 }
 
-const { id, label, numeral, stacked = false } = Astro.props;
+const { id, label, numeral } = Astro.props;
 const headingId = `${id}-heading`;
 ---
 
 <section class="page-width" id={id} aria-labelledby={headingId}>
-  <div class:list={['section-grid', { stacked }]}>
+  <div class="section-rule">
     <h2 class="section-label" id={headingId}>
       {numeral && <span class="numeral">{numeral}</span>}
       {label}
     </h2>
-    <div class="section-body">
+    <div>
       <slot />
     </div>
   </div>
 </section>
 
 <style>
-  .section-grid {
+  .section-rule {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
     gap: var(--space-8);
     padding-top: var(--space-8);
     border-top: 1px solid var(--color-rule);
   }
 
-  .section-grid.stacked {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  @media (width < 48rem) {
-    .section-grid {
-      grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-6);
-    }
-  }
-
   .section-label {
     display: grid;
-    align-content: start;
     gap: var(--space-2);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    letter-spacing: 0;
-  }
-
-  /* On wide screens the label rides along while its long section scrolls. */
-  @media (width >= 48rem) {
-    .section-grid:not(.stacked) .section-label {
-      position: sticky;
-      top: calc(var(--header-height) + var(--space-8));
-      align-self: start;
-    }
+    max-width: var(--prose-max);
+    font-size: var(--text-xl);
   }
 </style>
