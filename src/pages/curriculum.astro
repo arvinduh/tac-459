@@ -2,8 +2,9 @@
 /**
  * The technical curriculum: five modules of weekly topics in teaching order.
  *
- * Week numbers run on across modules. Each week lists its core topics; the
- * deeper topics sit in a native disclosure so the page stays scannable.
+ * Week numbers run on across modules. An index of modules opens the page.
+ * Each week shows its core topics beside the deeper ones, so everything is
+ * visible at once and the two kinds read apart by column and tone.
  */
 import NextPage from '../components/NextPage.astro';
 import PageHeader from '../components/PageHeader.astro';
@@ -22,11 +23,32 @@ const numbered = modules.map((module) => {
   nextWeek += module.weeks.length;
   return { ...module, firstWeek };
 });
+const pad = (week: number) => String(week).padStart(2, '0');
+/** Names a module's weeks, e.g. 'Weeks 03–05' or 'Week 06'. */
+function weekRange(first: number, count: number) {
+  const last = first + count - 1;
+  return count > 1 ? `Weeks ${pad(first)}–${pad(last)}` : `Week ${pad(first)}`;
+}
 ---
 
 <BaseLayout title={title} description={summary}>
   <PageHeader eyebrow={timing} title={title} lede={detail} />
   <div class="modules">
+    <Section id="modules" label="Modules">
+      <ol class="plain-list">
+        {numbered.map((module, index) => (
+          <li class="numbered-row module-row">
+            <span class="numeral">{pad(index + 1)}</span>
+            <a class="module-link" href={`#module-${index + 1}`}>
+              {module.title}
+            </a>
+            <span class="data">
+              {weekRange(module.firstWeek, module.weeks.length)}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </Section>
     {numbered.map((module, moduleIndex) => (
       <Section
         id={`module-${moduleIndex + 1}`}
@@ -37,25 +59,30 @@ const numbered = modules.map((module) => {
           {module.weeks.map(({ title, core, deeper }, weekIndex) => (
             <li class="numbered-row">
               <span class="numeral">
-                Week {String(module.firstWeek + weekIndex).padStart(2, '0')}
+                Week {pad(module.firstWeek + weekIndex)}
               </span>
               <div class="week-body">
                 <h3 class="week-title">{title}</h3>
-                <ul class="topic-list">
-                  {core.map((topic) => (
-                    <li>{topic}</li>
-                  ))}
-                </ul>
-                {deeper.length > 0 && (
-                  <details class="deeper">
-                    <summary>Deeper topics</summary>
-                    <ul class="topic-list">
-                      {deeper.map((topic) => (
+                <div class="topics">
+                  <div class="topic-group">
+                    <h4 class="topic-heading">Core</h4>
+                    <ul class="plain-list topic-list">
+                      {core.map((topic) => (
                         <li>{topic}</li>
                       ))}
                     </ul>
-                  </details>
-                )}
+                  </div>
+                  {deeper.length > 0 && (
+                    <div class="topic-group deeper">
+                      <h4 class="topic-heading">Going deeper</h4>
+                      <ul class="plain-list topic-list">
+                        {deeper.map((topic) => (
+                          <li>{topic}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             </li>
           ))}
@@ -72,42 +99,92 @@ const numbered = modules.map((module) => {
     gap: var(--space-section);
   }
 
+  /* Index rows: numeral, module name, then its weeks at the far end. */
+  .module-row {
+    grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    padding-block: var(--space-4);
+  }
+
+  .module-row > .numeral {
+    padding-top: 0;
+  }
+
+  .module-link {
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+  }
+
+  .module-link:hover {
+    color: var(--color-brand);
+  }
+
+  @media (width < 36rem) {
+    .module-row {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+    }
+
+    .module-row > .data {
+      grid-column: 2;
+    }
+  }
+
   .week-body {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
 
   .week-title {
     font-size: var(--text-lg);
   }
 
+  /* Core and deeper topics side by side; deeper stacks below on phones. */
+  .topics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: var(--space-6) var(--space-8);
+  }
+
+  .topic-group {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+  }
+
+  .topic-heading {
+    margin: 0;
+    color: var(--color-text-subtle);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.02em;
+  }
+
   .topic-list {
     display: grid;
-    gap: var(--space-1);
-    margin: 0;
-    padding-left: 1.1em;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-  }
-
-  .topic-list ::marker {
-    color: var(--color-text-subtle);
-  }
-
-  .deeper summary {
-    width: fit-content;
-    color: var(--color-text-subtle);
-    font-size: var(--text-sm);
-    font-weight: var(--weight-medium);
-    cursor: pointer;
-    transition: color var(--duration-fast) var(--ease-out);
-  }
-
-  .deeper summary:hover {
+    gap: var(--space-2);
     color: var(--color-text);
+    font-size: var(--text-sm);
+    line-height: 1.45;
   }
 
-  .deeper[open] summary {
-    margin-bottom: var(--space-2);
+  .deeper .topic-list {
+    color: var(--color-text-muted);
+  }
+
+  /* A short rule marks each topic without the weight of a bullet. */
+  .topic-list li {
+    position: relative;
+    padding-left: var(--space-4);
+  }
+
+  .topic-list li::before {
+    position: absolute;
+    top: 0.7em;
+    left: 0;
+    width: 0.5rem;
+    height: 1px;
+    background: var(--color-rule-strong);
+    content: '';
   }
 </style>
