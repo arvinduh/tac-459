@@ -4,6 +4,7 @@
  * term's class photo.
  */
 import { Image } from 'astro:assets';
+import FullSize from '../../components/FullSize.astro';
 import PageHeader from '../../components/PageHeader.astro';
 import ProjectGrid from '../../components/ProjectGrid.astro';
 import Section from '../../components/Section.astro';
@@ -32,12 +33,14 @@ const capstoneWeeks = weeks.to - weeks.from + 1;
         <div class="term-body">
           {classPhoto && (
             <figure class="class-photo">
-              <Image
-                src={classPhoto}
-                alt={`The ${label} ${site.courseCode} class`}
-                widths={[800, 1600]}
-                sizes="(width < 48rem) 100vw, 52rem"
-              />
+              <FullSize src={classPhoto} label={`The ${label} class photo`}>
+                <Image
+                  src={classPhoto}
+                  alt={`The ${label} ${site.courseCode} class`}
+                  widths={[800, 1600]}
+                  sizes="(width < 48rem) 100vw, 52rem"
+                />
+              </FullSize>
               <figcaption>The {label} class</figcaption>
             </figure>
           )}

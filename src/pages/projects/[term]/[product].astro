@@ -4,6 +4,7 @@
  * links under the title, who built it and its screenshots.
  */
 import { Image } from 'astro:assets';
+import FullSize from '../../../components/FullSize.astro';
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import Arrow from '../../../components/Arrow.astro';
 import BackLink from '../../../components/BackLink.astro';
@@ -62,15 +63,17 @@ const linkList = [
     </header>
 
     <div class="page-width">
-      <Image
-        class="shot"
-        src={cover}
-        alt={`Screenshot of ${title}`}
-        widths={[800, 1600, 2400]}
-        sizes="(width < 70rem) 100vw, 64rem"
-        loading="eager"
-        transition:name={`cover-${project.id.replace('/', '-')}`}
-      />
+      <FullSize src={cover} label={`Screenshot of ${title}`}>
+        <Image
+          class="shot"
+          src={cover}
+          alt={`Screenshot of ${title}`}
+          widths={[800, 1600, 2400]}
+          sizes="(width < 70rem) 100vw, 64rem"
+          loading="eager"
+          transition:name={`cover-${project.id.replace('/', '-')}`}
+        />
+      </FullSize>
     </div>
 
     <Section id="about" label="About">
@@ -93,13 +96,15 @@ const linkList = [
       <Section id="screenshots" label="Screenshots">
         <div class="gallery">
           {rest.map((image, index) => (
-            <Image
-              class="shot"
-              src={image}
-              alt={`Screenshot ${index + 2} of ${title}`}
-              widths={[800, 1600]}
-              sizes="(width < 48rem) 100vw, 52rem"
-            />
+            <FullSize src={image} label={`Screenshot ${index + 2} of ${title}`}>
+              <Image
+                class="shot"
+                src={image}
+                alt={`Screenshot ${index + 2} of ${title}`}
+                widths={[800, 1600]}
+                sizes="(width < 48rem) 100vw, 52rem"
+              />
+            </FullSize>
           ))}
         </div>
       </Section>
