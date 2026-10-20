@@ -45,3 +45,11 @@ export function weekOf(
 export function dueKey(date: Date, time?: string): string {
   return `${isoDay(date)}T${time ?? END_OF_DAY}`;
 }
+
+/** Formats 'HH:MM' for people, e.g. '13:50' as '1:50 pm'. */
+export function formatClock(clock: string): string {
+  const [hours = 0, minutes = 0] = clock.split(':').map(Number);
+  const suffix = hours < 12 ? 'am' : 'pm';
+  const twelve = hours % 12 || 12;
+  return `${twelve}:${String(minutes).padStart(2, '0')} ${suffix}`;
+}

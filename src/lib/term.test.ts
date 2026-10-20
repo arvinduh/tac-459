@@ -1,7 +1,7 @@
 /** Unit tests for term calendar math. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { dueKey, formatDay, isoDay, weekOf } from './term.ts';
+import { dueKey, formatClock, formatDay, isoDay, weekOf } from './term.ts';
 
 const START = new Date('2026-08-24');
 
@@ -26,4 +26,10 @@ test('dueKey defaults to end of day and sorts in time order', () => {
   assert.equal(dueKey(day), '2026-11-02T23:59');
   assert.ok(dueKey(day, '12:00') < dueKey(day));
   assert.ok(dueKey(day) < dueKey(new Date('2026-11-03'), '00:00'));
+});
+
+test('formatClock uses a 12-hour clock', () => {
+  assert.equal(formatClock('00:05'), '12:05 am');
+  assert.equal(formatClock('12:00'), '12:00 pm');
+  assert.equal(formatClock('13:50'), '1:50 pm');
 });
