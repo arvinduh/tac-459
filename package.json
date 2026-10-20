@@ -11,7 +11,9 @@
     "preview": "astro preview",
     "check": "prettier --check . && astro check",
     "format": "prettier --write .",
-    "test": "node --test 'src/**/*.test.ts'"
+    "test": "node --test 'src/**/*.test.ts' 'scripts/**/*.test.ts'",
+    "images": "node scripts/images.ts",
+    "new": "node scripts/new.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.4",
@@ -25,6 +27,7 @@
     "@types/node": "22.20.5",
     "prettier": "3.9.10",
     "prettier-plugin-astro": "1.1.1",
+    "sharp": "0.35.5",
     "typescript": "6.0.3"
   }
 }
