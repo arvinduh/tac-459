@@ -52,14 +52,6 @@ const course = courseSchema({
   })),
 });
 
-// The lede splits around its highlighted phrase, when it has one.
-const { lede, highlight } = overview;
-const mark = highlight ? lede.indexOf(highlight) : -1;
-const ledeParts =
-  highlight && mark >= 0
-    ? [lede.slice(0, mark), highlight, lede.slice(mark + highlight.length)]
-    : [lede];
-
 const facts = [
   { label: 'Term', value: term.label },
   ...term.meetings.flatMap((meeting) => [
@@ -74,11 +66,7 @@ const facts = [
   <header class="page-width hero">
     <p class="eyebrow">{site.tagline}</p>
     <h1 class="hero-title">{site.title}</h1>
-    <p class="hero-lede">
-      {ledeParts[0]}
-      {ledeParts[1] && <mark class="highlight">{ledeParts[1]}</mark>}
-      {ledeParts[2]}
-    </p>
+    <p class="hero-lede">{overview.lede}</p>
     <div class="hero-actions">
       <a class="button" href={href('/curriculum/')}>
         Explore the curriculum
@@ -191,27 +179,6 @@ const facts = [
     color: var(--color-text-muted);
     font-size: var(--text-lg);
     line-height: 1.55;
-  }
-
-  /*
-   * The lede's key phrase gets a Gold marker that sweeps in once the hero
-   * has risen; the ink stays on top, so contrast is unchanged.
-   */
-  .highlight {
-    padding-inline: 0.1em;
-    background: linear-gradient(
-        transparent 60%,
-        color-mix(in srgb, var(--color-accent) 55%, transparent) 60%
-      )
-      no-repeat 0 0 / 0% 100%;
-    color: var(--color-text);
-    animation: sweep var(--duration-slow) var(--ease-out) 700ms forwards;
-  }
-
-  @keyframes sweep {
-    to {
-      background-size: 100% 100%;
-    }
   }
 
   .hero-actions {
