@@ -1,10 +1,11 @@
 ---
 /**
- * One past product: what it does, how it was built, its public links, who
- * built it and its screenshots.
+ * One past product: what it does, how it was built, its public links as
+ * buttons under the title, who built it and its screenshots.
  */
 import { Image } from 'astro:assets';
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
+import Arrow from '../../../components/Arrow.astro';
 import BackLink from '../../../components/BackLink.astro';
 import Section from '../../../components/Section.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -47,6 +48,19 @@ const linkList = [
       <p class="eyebrow">{termEntry.data.label}</p>
       <h1 class="project-title">{title}</h1>
       <p class="project-lede">{summary}</p>
+      {linkList.length > 0 && (
+        <div class="project-actions">
+          {linkList.map(({ label, url }, index) => (
+            <a
+              class:list={['button', { 'button-quiet': index > 0 }]}
+              href={url}
+            >
+              {label}
+              <Arrow />
+            </a>
+          ))}
+        </div>
+      )}
     </header>
 
     <div class="page-width">
@@ -66,15 +80,6 @@ const linkList = [
         <p>{description}</p>
         <h2>How it was built</h2>
         <p>{built}</p>
-        {linkList.length > 0 && (
-          <ul class="plain-list link-list">
-            {linkList.map(({ label, url }) => (
-              <li>
-                <a href={url}>{label}</a>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </Section>
 
@@ -131,6 +136,13 @@ const linkList = [
     letter-spacing: var(--tracking-display);
   }
 
+  .project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
   .project-lede {
     max-width: var(--prose-max);
     color: var(--color-text-muted);
@@ -157,14 +169,6 @@ const linkList = [
 
   .prose p {
     color: var(--color-text-muted);
-  }
-
-  .link-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-6);
-    margin-top: var(--space-2);
-    font-weight: var(--weight-medium);
   }
 
   .team-list {
