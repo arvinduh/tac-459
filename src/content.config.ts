@@ -120,12 +120,14 @@ const overview = defineCollection({
   }),
 });
 
-/** One small file per term holding only what changes term to term. */
+/**
+ * One small file per term holding only what changes term to term. The file
+ * name is the term id, such as fall-2026, and its display name derives from it.
+ */
 const terms = defineCollection({
   loader: glob({ pattern: '*.yaml', base: 'src/content/terms' }),
   schema: ({ image }) =>
     z.object({
-      label: z.string(),
       /** Whole-class photo, kept beside the term file. */
       classPhoto: image().optional(),
       meetings: z.array(session).default([]),

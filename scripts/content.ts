@@ -15,12 +15,6 @@ export function slugify(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
-/** Turns a term id into its label, e.g. 'spring-2027' → 'Spring 2027'. */
-export function termLabel(id: string): string {
-  const [season = '', year = ''] = id.split('-');
-  return `${season.charAt(0).toUpperCase()}${season.slice(1)} ${year}`;
-}
-
 /** Points every './from' reference in a content file at './to' instead. */
 export function rewriteReference(text: string, from: string, to: string) {
   const escaped = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

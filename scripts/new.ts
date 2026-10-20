@@ -13,7 +13,7 @@
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { termRank } from '../src/lib/term.ts';
-import { slugify, termLabel } from './content.ts';
+import { slugify } from './content.ts';
 
 const CONTENT = 'src/content';
 const [kind, ...args] = process.argv.slice(2);
@@ -92,10 +92,7 @@ async function newTerm(id: string) {
   if (!current) throw new Error('site.yaml has no currentTerm');
   const from = join(CONTENT, 'terms', `${current}.yaml`);
   const text = await readFile(from, 'utf8');
-  await create(
-    join(CONTENT, 'terms', `${id}.yaml`),
-    text.replace(/^label: .*$/m, `label: ${termLabel(id)}`),
-  );
+  await create(join(CONTENT, 'terms', `${id}.yaml`), text);
   console.log(
     `Next: update meetings, staff and office hours in it, then set ` +
       `currentTerm: ${id} in ${join(CONTENT, 'site.yaml')}.`,

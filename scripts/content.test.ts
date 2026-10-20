@@ -1,16 +1,12 @@
 /** Unit tests for the content script helpers. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { rewriteReference, slugify, termLabel } from './content.ts';
+import { rewriteReference, slugify } from './content.ts';
 
 test('slugify makes ascii kebab-case ids', () => {
   assert.equal(slugify('Jane Doe'), 'jane-doe');
   assert.equal(slugify('  José  Núñez '), 'jose-nunez');
   assert.equal(slugify('IMG_1234 2'), 'img-1234-2');
-});
-
-test('termLabel capitalizes the season', () => {
-  assert.equal(termLabel('spring-2027'), 'Spring 2027');
 });
 
 test('rewriteReference updates plain, quoted and listed paths', () => {

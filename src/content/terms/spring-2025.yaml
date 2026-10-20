@@ -1,5 +1,4 @@
 # Everything that changes per term, and nothing else.
-label: Spring 2025
 meetings:
   - { days: [Mon], start: '17:00', end: '20:20', location: KAP 160 }
 classPhoto: ./spring-2025.webp

@@ -9,6 +9,7 @@ import Arrow from '../../../components/Arrow.astro';
 import BackLink from '../../../components/BackLink.astro';
 import Section from '../../../components/Section.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { termLabel } from '../../../lib/term';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -45,7 +46,7 @@ const linkList = [
   <article class="project">
     <header class="page-width project-header">
       <BackLink path="/projects/" label="Projects" />
-      <p class="eyebrow">{termEntry.data.label}</p>
+      <p class="eyebrow">{termLabel(termEntry.id)}</p>
       <h1 class="project-title">{title}</h1>
       <p class="project-lede">{summary}</p>
       {linkList.length > 0 && (

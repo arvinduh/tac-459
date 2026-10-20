@@ -7,7 +7,7 @@
  */
 import { getCollection, getEntry } from 'astro:content';
 import { placeInLanes } from './tenure';
-import { termRank } from './term';
+import { termLabel, termRank } from './term';
 
 /** Returns the validated contents of site.yaml. */
 export async function getSite() {
@@ -16,12 +16,12 @@ export async function getSite() {
   return site.data;
 }
 
-/** Returns the term that site.yaml names as current. */
+/** Returns the term that site.yaml names as current, with its id and name. */
 export async function getCurrentTerm() {
   const { currentTerm } = await getSite();
   const term = await getEntry(currentTerm);
   if (!term) throw new Error(`Term '${currentTerm.id}' is missing`);
-  return term.data;
+  return { ...term.data, id: term.id, label: termLabel(term.id) };
 }
 
 /** Returns the curriculum's modules in teaching order. */
@@ -74,7 +74,7 @@ export async function getProjectTerms() {
   return terms
     .map(({ id, data }) => ({
       id,
-      label: data.label,
+      label: termLabel(id),
       classPhoto: data.classPhoto,
       projects: projects.filter((project) => project.data.term.id === id),
     }))
@@ -117,7 +117,7 @@ export async function getStaffTimeline() {
     }),
   );
   return {
-    terms: terms.map(({ id, data }) => ({ id, label: data.label })),
+    terms: terms.map(({ id }) => ({ id, label: termLabel(id) })),
     groups,
   };
 }
