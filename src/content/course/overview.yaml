@@ -12,6 +12,8 @@ components:
   - id: curriculum
     title: Technical foundations
     timing: Throughout the semester
+    # Semester weeks this part spans, for the home page's semester map.
+    weeks: { from: 1, to: 15 }
     summary: >-
       How generative AI works and how frontier models are built, adapted and
       evaluated: transformers and attention, prompting, retrieval, fine-tuning
@@ -27,6 +29,7 @@ components:
   - id: company-overview
     title: AI company overview
     timing: Midsemester
+    weeks: { from: 8, to: 11 }
     summary: >-
       Teams study an emerging AI company backed by Y Combinator or a leading
       venture firm, analyzing its product, technology, customers and market,
@@ -58,6 +61,7 @@ components:
   - id: capstone
     title: AI capstone product
     timing: Final nine weeks
+    weeks: { from: 8, to: 16 }
     summary: >-
       Teams take a product from idea to a shared MVP, through multiple
       prototypes, to a complete application built on frontier-model APIs, ending

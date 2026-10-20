@@ -96,6 +96,10 @@ const overview = defineCollection({
           id: z.enum(['curriculum', 'company-overview', 'capstone']),
           title: z.string(),
           timing: z.string(),
+          /** Semester weeks the part spans, first and last inclusive. */
+          weeks: z
+            .object({ from: z.int().min(1), to: z.int().min(1) })
+            .refine(({ from, to }) => from <= to, 'weeks.from is after to'),
           /** Short form for the home page. */
           summary: z.string(),
           /** Long form that opens the component's own page. */

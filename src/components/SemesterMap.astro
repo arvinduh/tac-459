@@ -1,0 +1,157 @@
+---
+/**
+ * The semester at a glance: the course's parts as bars over its weeks, so a
+ * visitor sees how the work is spread before reading any of it.
+ *
+ * It is a table: columns are weeks and colspan carries each part's span,
+ * so no positional styles are needed. Each part is a row group holding its
+ * name and timing over its bar; pointing at one part fades the
+ * others, and its name links to its page. Bars draw in as the map scrolls
+ * into view.
+ */
+import type { CollectionEntry } from 'astro:content';
+import { href } from '../lib/paths';
+import Arrow from './Arrow.astro';
+
+interface Props {
+  parts: CollectionEntry<'overview'>['data']['components'];
+}
+
+const { parts } = Astro.props;
+const total = Math.max(...parts.map(({ weeks }) => weeks.to));
+const weekNumbers = Array.from({ length: total }, (_, index) => index + 1);
+---
+
+<table class="semester">
+  <caption class="visually-hidden">
+    {`How the semester's ${total} weeks divide between the course's parts`}
+  </caption>
+  <colgroup>
+    <col span={total} />
+  </colgroup>
+  <thead>
+    <tr>
+      {weekNumbers.map((week) => (
+        <th scope="col" class="week data">
+          {week}
+        </th>
+      ))}
+    </tr>
+  </thead>
+  {parts.map(({ id, title, timing, weeks }) => (
+    <tbody class="part">
+      <tr>
+        <th scope="rowgroup" colspan={total} class="part-head">
+          <a class="part-title" href={href(`/${id}/`)}>
+            {title}
+            <Arrow />
+          </a>
+          <span class="part-when data">
+            Weeks {weeks.from}–{weeks.to} · {timing}
+          </span>
+        </th>
+      </tr>
+      <tr class="part-track" aria-hidden="true">
+        {weeks.from > 1 && <td colspan={weeks.from - 1} />}
+        <td colspan={weeks.to - weeks.from + 1}>
+          <span class="bar" />
+        </td>
+        {weeks.to < total && <td colspan={total - weeks.to} />}
+      </tr>
+    </tbody>
+  ))}
+</table>
+
+<style>
+  .semester {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .semester th,
+  .semester td {
+    padding: 0;
+    font-weight: var(--weight-regular);
+    text-align: left;
+  }
+
+  /* On phones every other week number is enough to read the scale. */
+  @media (width < 36rem) {
+    .week:nth-child(even) {
+      visibility: hidden;
+    }
+  }
+
+  /* Qualified to outrank the cell reset above. */
+  .semester .part-head {
+    padding-top: var(--space-8);
+  }
+
+  .part-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    color: var(--color-text);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-heading);
+    text-decoration: none;
+  }
+
+  .part-title :global(.arrow) {
+    color: var(--color-brand);
+  }
+
+  .part-when {
+    display: block;
+    margin-top: var(--space-1);
+  }
+
+  /* Every week shows as a faint track; the part's span is solid. */
+  .part-track td {
+    padding-block: var(--space-3) 0;
+    background: linear-gradient(var(--color-rule), var(--color-rule)) no-repeat
+      0 calc(var(--space-3) + 0.25rem - 0.5px) / 100% 1px;
+  }
+
+  .bar {
+    display: block;
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--color-brand);
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .part {
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  /* Pointing at one part brings it forward by fading the rest. */
+  .semester:has(.part:hover) .part:not(:hover) {
+    opacity: 0.35;
+  }
+
+  @supports (animation-timeline: view()) {
+    @media screen and (prefers-reduced-motion: no-preference) {
+      /* Longhands only; see .reveal in base.css. */
+      .bar {
+        animation-name: draw;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: view();
+        animation-range: entry 20% cover 40%;
+      }
+    }
+  }
+
+  @keyframes draw {
+    from {
+      clip-path: inset(0 100% 0 0 round 0.25rem);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0 round 0.25rem);
+    }
+  }
+</style>
