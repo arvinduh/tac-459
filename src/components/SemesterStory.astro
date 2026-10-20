@@ -1,0 +1,627 @@
+---
+/**
+ * The semester told on scroll: one pinned drawing that changes as each part
+ * of the course scrolls past beside it.
+ *
+ * The drawing is one app window, the product a team builds. It fills with
+ * a model whose layers light in turn, pulls back to show the companies
+ * around it, zooms in as the model becomes the app's engine, then pulls
+ * back again to the products past teams shipped. Every move is a transform
+ * or a fade driven by CSS scroll timelines, so nothing runs while the page
+ * is still. The words beside it are ordinary headings and paragraphs; the
+ * drawing is decoration. Without scroll timelines, or under reduced motion,
+ * the drawing is left out and the words read as a plain list.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Arrow from './Arrow.astro';
+
+interface Panel {
+  week: number;
+  /** Mono tag after the week, such as the part's name. */
+  label: string;
+  title: string;
+  text: string;
+  href: string;
+}
+
+interface Props {
+  /** One per scene, in order: models, companies, the build, the launch. */
+  panels: Panel[];
+  /** Cover screenshots of past products, shown in the last scene. */
+  covers: ImageMetadata[];
+}
+
+const { panels, covers } = Astro.props;
+
+// The other windows sit in a ring of eight around the team's own.
+const RING = [
+  [-1, -1],
+  [0, -1],
+  [1, -1],
+  [-1, 0],
+  [1, 0],
+  [-1, 1],
+  [0, 1],
+  [1, 1],
+] as const;
+const ROWS = 4;
+const CELLS = 6;
+---
+
+<div class="story">
+  <div class="stage" aria-hidden="true">
+    <div class="frame">
+      <div class="world">
+        {RING.map(([column, row], index) => {
+          const cover = covers[index];
+          return (
+            <div class:list={['window', 'other', `at-${column}-${row}`]}>
+              <span class="logo" />
+              <span class="line" />
+              <span class="line short" />
+              {cover && (
+                <Image
+                  class="shot"
+                  src={cover}
+                  alt=""
+                  widths={[320, 640]}
+                  sizes="14rem"
+                />
+              )}
+            </div>
+          );
+        })}
+        <div class="window own">
+          <span class="bar" />
+          <div class="model">
+            {Array.from({ length: ROWS }, (_, row) => (
+              <div class={`layer layer-${ROWS - row}`}>
+                {Array.from({ length: CELLS }, () => (
+                  <span class="cell" />
+                ))}
+              </div>
+            ))}
+          </div>
+          <span class="bubble bubble-1" />
+          <span class="bubble bubble-2" />
+          <span class="bubble bubble-3" />
+          <span class="input">
+            <span class="send" />
+          </span>
+          <span class="ring" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ol class="plain-list panels">
+    {panels.map(({ week, label, title, text, href }) => (
+      <li class="panel">
+        <div class="panel-text">
+          <p class="panel-week data">
+            Week {week} · {label}
+          </p>
+          <h2 class="panel-title">
+            <a class="arrow-link panel-link" href={href}>
+              {title}
+              <Arrow />
+            </a>
+          </h2>
+          <p class="panel-summary">{text}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .story {
+    --panel: 100svh;
+
+    timeline-scope: --story;
+  }
+
+  .panels {
+    width: min(100% - 2 * var(--gutter), var(--content-max));
+    margin-inline: auto;
+  }
+
+  .panel {
+    padding-block: var(--space-section) 0;
+  }
+
+  .panel-text {
+    display: grid;
+    gap: var(--space-3);
+    max-width: 30rem;
+  }
+
+  .panel-week {
+    color: var(--color-brand);
+  }
+
+  .panel-title {
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .panel-link {
+    display: inline;
+    color: inherit;
+    font-weight: inherit;
+  }
+
+  .panel-link:is(:hover, :focus-visible) {
+    color: var(--color-brand);
+  }
+
+  .panel-link :global(.arrow) {
+    width: 0.4em;
+    height: 0.4em;
+    margin-left: 0.15em;
+    color: var(--color-brand);
+  }
+
+  .panel-summary {
+    color: var(--color-text-muted);
+  }
+
+  /* Without scroll timelines the words stand alone as a list. */
+  .stage {
+    display: none;
+  }
+
+  @supports (animation-timeline: view()) and (timeline-scope: --story) {
+    @media screen and (prefers-reduced-motion: no-preference) {
+      /* The words start on the page's left edge; the drawing runs to the
+         window's right edge. */
+      .story {
+        display: grid;
+        grid-template-columns:
+          max(var(--gutter), (100% - var(--content-max)) / 2)
+          minmax(0, 1fr) minmax(0, 1fr);
+        margin-top: var(--space-section);
+      }
+
+      /* The drawing holds the right half while the panels pass. */
+      .stage {
+        display: grid;
+        position: sticky;
+        top: 0;
+        grid-row: 1;
+        grid-column: 3;
+        align-self: start;
+        place-items: center;
+        height: var(--panel);
+        padding: calc(var(--header-height) + var(--space-8)) var(--gutter)
+          var(--space-8);
+        background: var(--color-surface);
+      }
+
+      .panels {
+        grid-row: 1;
+        grid-column: 2;
+        width: auto;
+        margin: 0;
+        padding-right: var(--space-12);
+        view-timeline-name: --story;
+        view-timeline-axis: block;
+      }
+
+      .panel {
+        display: grid;
+        align-content: center;
+        min-height: var(--panel);
+        padding: 0;
+        animation-name: focus;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: view();
+        animation-range: cover 0% cover 100%;
+      }
+    }
+  }
+
+  /* Phones: the drawing pins to the top, the words pass under it. */
+  @supports (animation-timeline: view()) and (timeline-scope: --story) {
+    @media screen and (prefers-reduced-motion: no-preference) and (width < 48rem) {
+      .story {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .stage {
+        z-index: 1;
+        top: calc(var(--header-height) - 1px);
+        grid-column: 1;
+        align-self: start;
+        height: 46svh;
+        padding: var(--space-6) var(--gutter);
+      }
+
+      .panels {
+        grid-column: 1;
+        padding-inline: var(--gutter);
+      }
+
+      .panel {
+        align-content: end;
+        padding-bottom: var(--space-12);
+      }
+    }
+  }
+
+  @keyframes focus {
+    0%,
+    100% {
+      opacity: 0.15;
+    }
+
+    35%,
+    65% {
+      opacity: 1;
+    }
+  }
+
+  /*
+   * The drawing, in percentages of a square frame. The team's window is
+   * centered; the others sit one step away in each direction, out of the
+   * frame until the camera pulls back.
+   */
+  .frame {
+    position: relative;
+    width: min(100%, 100cqh);
+    aspect-ratio: 1;
+  }
+
+  /* The other windows run off the band's edges rather than a frame's. */
+  .stage {
+    overflow: clip;
+    container-type: size;
+  }
+
+  .world {
+    position: absolute;
+    inset: 0;
+  }
+
+  .window {
+    position: absolute;
+    top: 25%;
+    left: 18%;
+    width: 64%;
+    height: 50%;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    box-shadow:
+      0 0 0 1px var(--color-rule-strong),
+      var(--shadow-raised);
+  }
+
+  /* One step is 74% of the frame across and 62% down, in window sizes. */
+  .other {
+    translate: calc(var(--column) * 115.6%) calc(var(--row) * 124%);
+  }
+
+  .at--1--1 {
+    --column: -1;
+    --row: -1;
+  }
+
+  .at-0--1 {
+    --column: 0;
+    --row: -1;
+  }
+
+  .at-1--1 {
+    --column: 1;
+    --row: -1;
+  }
+
+  .at--1-0 {
+    --column: -1;
+    --row: 0;
+  }
+
+  .at-1-0 {
+    --column: 1;
+    --row: 0;
+  }
+
+  .at--1-1 {
+    --column: -1;
+    --row: 1;
+  }
+
+  .at-0-1 {
+    --column: 0;
+    --row: 1;
+  }
+
+  .at-1-1 {
+    --column: 1;
+    --row: 1;
+  }
+
+  .logo {
+    position: absolute;
+    top: 14%;
+    left: 8%;
+    width: 14%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-rule-strong);
+  }
+
+  .line {
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    width: 70%;
+    height: 9%;
+    border-radius: 2px;
+    background: var(--color-rule);
+  }
+
+  .line.short {
+    top: 66%;
+    width: 46%;
+  }
+
+  .shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    opacity: 0;
+  }
+
+  .bar {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 12%;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .model {
+    position: absolute;
+    top: 22%;
+    left: 15%;
+    display: grid;
+    gap: 7%;
+    width: 70%;
+    height: 66%;
+    transform-origin: 0 0;
+  }
+
+  .layer {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3%;
+  }
+
+  .cell {
+    border-radius: 2px;
+    background: var(--color-rule-strong);
+  }
+
+  .bubble {
+    position: absolute;
+    height: 11%;
+    border-radius: 999px;
+    opacity: 0;
+  }
+
+  .bubble-1 {
+    top: 22%;
+    left: 6%;
+    width: 50%;
+    background: var(--color-surface);
+  }
+
+  .bubble-2 {
+    top: 38%;
+    right: 6%;
+    width: 44%;
+    background: color-mix(in srgb, var(--color-brand) 14%, var(--color-bg));
+  }
+
+  .bubble-3 {
+    top: 54%;
+    left: 6%;
+    width: 36%;
+    background: var(--color-surface);
+  }
+
+  .input {
+    position: absolute;
+    right: 6%;
+    bottom: 8%;
+    left: 6%;
+    height: 13%;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px var(--color-rule-strong);
+    opacity: 0;
+  }
+
+  .send {
+    position: absolute;
+    top: 18%;
+    right: 2%;
+    height: 64%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px var(--color-brand);
+    opacity: 0;
+  }
+
+  /*
+   * One timeline for the whole drawing: the panels' passage. Each panel
+   * fills the window at 20%, 40%, 60% and 80% of it; scenes hold around
+   * those points and change between them. Longhands only; see .reveal.
+   */
+  .world,
+  .model,
+  .cell,
+  .bubble,
+  .input,
+  .ring,
+  .shot {
+    animation-fill-mode: both;
+    animation-timing-function: linear;
+    animation-timeline: --story;
+  }
+
+  .world {
+    animation-name: camera;
+    animation-range: cover 0% cover 100%;
+  }
+
+  .model {
+    animation-name: engine;
+    animation-range: cover 45% cover 55%;
+  }
+
+  /* A forward pass: the layers light from the bottom up as it arrives. */
+  .cell {
+    animation-name: light;
+  }
+
+  .layer-1 .cell {
+    animation-range: cover 6% cover 10%;
+  }
+
+  .layer-2 .cell {
+    animation-range: cover 10% cover 14%;
+  }
+
+  .layer-3 .cell {
+    animation-range: cover 14% cover 18%;
+  }
+
+  .layer-4 .cell {
+    animation-name: light-out;
+    animation-range: cover 18% cover 22%;
+  }
+
+  .bubble,
+  .input {
+    animation-name: appear;
+  }
+
+  .bubble-1 {
+    animation-range: cover 51% cover 55%;
+  }
+
+  .bubble-2 {
+    animation-range: cover 54% cover 58%;
+  }
+
+  .bubble-3 {
+    animation-range: cover 57% cover 61%;
+  }
+
+  .input {
+    animation-range: cover 48% cover 53%;
+  }
+
+  .ring {
+    animation-name: own;
+    animation-range: cover 0% cover 100%;
+  }
+
+  .shot {
+    animation-name: fade-in;
+    animation-range: cover 66% cover 74%;
+  }
+
+  @keyframes camera {
+    0%,
+    25% {
+      transform: none;
+    }
+
+    35%,
+    45% {
+      transform: scale(0.42);
+    }
+
+    55%,
+    65% {
+      transform: none;
+    }
+
+    75%,
+    100% {
+      transform: scale(0.42);
+    }
+  }
+
+  /* The model shrinks into the app's corner and becomes its engine. */
+  @keyframes engine {
+    to {
+      transform: translate(-17%, -30%) scale(0.12);
+    }
+  }
+
+  @keyframes light {
+    to {
+      background-color: color-mix(
+        in srgb,
+        var(--color-text-subtle) 70%,
+        var(--color-bg)
+      );
+    }
+  }
+
+  @keyframes light-out {
+    to {
+      background-color: var(--color-brand);
+    }
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: translateY(30%);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* The team's window is outlined whenever the camera pulls back. */
+  @keyframes own {
+    0%,
+    25%,
+    55%,
+    65% {
+      opacity: 0;
+    }
+
+    35%,
+    45%,
+    75%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+</style>
