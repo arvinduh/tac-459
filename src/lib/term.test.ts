@@ -1,7 +1,15 @@
 /** Unit tests for time formatting and term order. */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { formatClock, formatSession, formatTimes, termRank } from './term.ts';
+import {
+  formatClock,
+  formatSession,
+  formatTimes,
+  mapUrl,
+  scheduleUrl,
+  termLabel,
+  termRank,
+} from './term.ts';
 
 test('formatClock uses a 12-hour clock', () => {
   assert.equal(formatClock('00:05'), '12:05 am');
@@ -32,4 +40,26 @@ test('formatSession joins days, times and place', () => {
     formatSession({ ...slot, location: 'KAP 160' }),
     'Mon & Wed 12:00 pm–1:50 pm · KAP 160',
   );
+});
+
+test('termLabel capitalizes the season', () => {
+  assert.equal(termLabel('fall-2026'), 'Fall 2026');
+  assert.equal(termLabel('spring-2024'), 'Spring 2024');
+});
+
+test('scheduleUrl uses USC term numbers', () => {
+  assert.equal(
+    scheduleUrl('fall-2026', 'TAC 459'),
+    'https://classes.usc.edu/term/20263/catalogue/course/tac459',
+  );
+  assert.match(scheduleUrl('spring-2027', 'TAC 459'), /term\/20271\//);
+});
+
+test('mapUrl links known buildings only', () => {
+  const buildings = { KAP: 'Kaprielian Hall' };
+  assert.equal(
+    mapUrl('KAP 160', buildings),
+    'https://www.google.com/maps/search/?api=1&query=Kaprielian%20Hall%2C%20University%20of%20Southern%20California',
+  );
+  assert.equal(mapUrl('Zoom', buildings), undefined);
 });
