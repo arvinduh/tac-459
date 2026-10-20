@@ -24,3 +24,40 @@ modules:
           - Co-occurrence Matrix in Text Analysis
           - Feature Extraction from Text
           - Basic Overview of Word Embeddings
+  - title:
+      Fundamentals of Generative AI, Transformers, and Machine Learning for NLP
+    weeks:
+      - title: Fundamentals of Machine Learning for NLP and Metrics
+        due: [assignment-2]
+        core:
+          - Training, Validation, and Test Sets in Model Development
+          - Overfitting and Underfitting in NLP
+          - Introduction to Python ML Libraries
+        deeper:
+          - Supervised Learning and Unsupervised Learning - Key Algorithms for
+            NLP
+          - Evaluation Metrics for NLP Models
+          - Cross-Validation Techniques
+      - title: Neural Networks and Deep Learning in NLP
+        due: [assignment-3]
+        core:
+          - Neural Networks and Deep Learning in NLP
+          - Activation Functions and Network Topologies
+          - Backpropagation and Gradient Descent
+          - Challenges in Deep Learning for NLP
+        deeper:
+          - CNNs and RNNs for NLP
+          - 'Advanced RNNs: LSTM and GRU'
+          - Sequence Modeling in NLP
+          - Case Studies in Deep Learning for NLP
+      - title: Transformer Models and Attention Mechanisms
+        due: [assignment-4]
+        core:
+          - Transformer Models and Attention Mechanisms
+          - Understanding the Transformer Architecture
+          - Overview of BERT, GPT, and Transformer Variants
+        deeper:
+          - Concepts of Self-Attention and Positional Encoding
+          - Applications of Transformer Models in NLP
+          - Training Transformer Models for NLP Tasks
+          - Challenges and Solutions with Transformer Models
