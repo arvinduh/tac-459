@@ -6,6 +6,7 @@
  * in one place.
  */
 import { getCollection, getEntry } from 'astro:content';
+import { placeInLanes } from './tenure';
 import { termRank } from './term';
 
 /** Returns the validated contents of site.yaml. */
@@ -81,35 +82,42 @@ export async function getProjectTerms() {
     .sort((a, b) => termRank(b.id) - termRank(a.id));
 }
 
+const ROLES = ['instructor', 'learningAssistant'] as const;
+
 /**
- * Returns everyone who taught a past term but not the current one, with the
- * labels of the terms they taught, most recently active first.
+ * Returns every term in calendar order and, per role, each person's place
+ * on the tenure timeline: a lane and the unbroken runs of terms they served.
  */
-export async function getPastStaff() {
-  const { currentTerm } = await getSite();
+export async function getStaffTimeline() {
   const terms = (await getCollection('terms')).sort(
-    (a, b) => termRank(b.id) - termRank(a.id),
+    (a, b) => termRank(a.id) - termRank(b.id),
   );
-  const current = terms.find(({ id }) => id === currentTerm.id);
-  const currentIds = new Set(
-    current?.data.staff.map(({ person }) => person.id),
-  );
-  const pastTerms = new Map<string, string[]>();
-  for (const { id, data } of terms) {
-    if (id === currentTerm.id) continue;
-    for (const { person } of data.staff) {
-      if (currentIds.has(person.id)) continue;
-      pastTerms.set(person.id, [
-        ...(pastTerms.get(person.id) ?? []),
-        data.label,
-      ]);
-    }
-  }
-  return Promise.all(
-    [...pastTerms].map(async ([id, labels]) => {
-      const person = await getEntry('people', id);
-      if (!person) throw new Error(`Person '${id}' is missing`);
-      return { person, terms: labels };
+  const groups = await Promise.all(
+    ROLES.map(async (role) => {
+      const served = new Map<string, number[]>();
+      terms.forEach(({ data }, index) => {
+        for (const member of data.staff) {
+          if (member.role !== role) continue;
+          const id = member.person.id;
+          served.set(id, [...(served.get(id) ?? []), index]);
+        }
+      });
+      const placements = placeInLanes(
+        [...served].map(([id, indices]) => ({ id, terms: indices })),
+      );
+      const people = await Promise.all(
+        placements.map(async ({ id, lane, runs }) => {
+          const person = await getEntry('people', id);
+          if (!person) throw new Error(`Person '${id}' is missing`);
+          return { person, lane, runs };
+        }),
+      );
+      const laneCount = Math.max(0, ...placements.map(({ lane }) => lane + 1));
+      return { role, laneCount, people };
     }),
   );
+  return {
+    terms: terms.map(({ id, data }) => ({ id, label: data.label })),
+    groups,
+  };
 }

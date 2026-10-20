@@ -11,14 +11,16 @@ interface Props {
   label: string;
   /** Short mono tag above the label, such as 'Module 2'. */
   numeral?: string;
+  /** Stacks the label above the body so wide content gets the full width. */
+  stacked?: boolean;
 }
 
-const { id, label, numeral } = Astro.props;
+const { id, label, numeral, stacked = false } = Astro.props;
 const headingId = `${id}-heading`;
 ---
 
 <section class="page-width" id={id} aria-labelledby={headingId}>
-  <div class="section-grid">
+  <div class:list={['section-grid', { stacked }]}>
     <h2 class="section-label" id={headingId}>
       {numeral && <span class="numeral">{numeral}</span>}
       {label}
@@ -38,9 +40,13 @@ const headingId = `${id}-heading`;
     border-top: 1px solid var(--color-rule);
   }
 
+  .section-grid.stacked {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   @media (width < 48rem) {
     .section-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--space-6);
     }
   }

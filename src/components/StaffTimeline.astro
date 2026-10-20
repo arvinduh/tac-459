@@ -1,0 +1,194 @@
+---
+/**
+ * Who taught which terms: one column per term, one row per lane, a bar per
+ * unbroken run of terms.
+ *
+ * It is a table because it is tabular data: column headers name the terms
+ * and colspan carries each run's length, so no positional styles are needed.
+ * People who never overlap share a lane, so each role takes only as many
+ * rows as its busiest term. Wide timelines scroll sideways, opening at the
+ * newest term, and role labels and names stay in view while they scroll.
+ */
+import { getStaffTimeline } from '../lib/course';
+import { href } from '../lib/paths';
+
+interface Props {
+  /** Term to mark as current. */
+  currentTermId: string;
+}
+
+const { currentTermId } = Astro.props;
+const { terms, groups } = await getStaffTimeline();
+
+const LABELS = {
+  instructor: 'Instructors',
+  learningAssistant: 'Learning assistants',
+};
+
+type Person = (typeof groups)[number]['people'][number]['person'];
+type Cell = { span: number; person?: Person };
+
+/** One lane's cells, left to right: a bar where a run starts, else a gap. */
+function laneCells(people: (typeof groups)[number]['people'], lane: number) {
+  const starts = new Map<number, Cell>();
+  for (const { person, runs } of people.filter((p) => p.lane === lane)) {
+    for (const [first, last] of runs) {
+      starts.set(first, { person, span: last - first + 1 });
+    }
+  }
+  const cells: Cell[] = [];
+  for (let index = 0; index < terms.length;) {
+    const cell = starts.get(index) ?? { span: 1 };
+    cells.push(cell);
+    index += cell.span;
+  }
+  return cells;
+}
+
+const sections = groups.map(({ role, laneCount, people }) => ({
+  role,
+  lanes: Array.from({ length: laneCount }, (_, lane) =>
+    laneCells(people, lane),
+  ),
+}));
+---
+
+<div class="timeline-scroll" data-timeline>
+  <table class="timeline">
+    <caption class="visually-hidden">Teaching staff by term</caption>
+    <colgroup>
+      <col class="term-col" span={terms.length} />
+    </colgroup>
+    <thead>
+      <tr>
+        {terms.map(({ id, label }) => (
+          <th
+            scope="col"
+            class:list={['term', { current: id === currentTermId }]}
+          >
+            {label}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    {sections.map(({ role, lanes }) => (
+      <tbody class={`group group-${role}`}>
+        <tr>
+          <th scope="rowgroup" colspan={terms.length} class="group-label">
+            <span class="sticky-text">{LABELS[role]}</span>
+          </th>
+        </tr>
+        {lanes.map((cells) => (
+          <tr>
+            {cells.map(({ span, person }) => (
+              <td colspan={span > 1 ? span : undefined}>
+                {person && (
+                  <a
+                    class="bar"
+                    href={href(`/team/${person.id}/`)}
+                    title={person.data.name}
+                  >
+                    <span class="sticky-text">{person.data.name}</span>
+                  </a>
+                )}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    ))}
+  </table>
+</div>
+
+<script>
+  // Open each timeline at its newest term; reruns after client navigation.
+  document.addEventListener('astro:page-load', () => {
+    for (const scroller of document.querySelectorAll('[data-timeline]')) {
+      scroller.scrollLeft = scroller.scrollWidth;
+    }
+  });
+</script>
+
+<style>
+  .timeline-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  /*
+   * Fixed layout sizes columns from the colgroup alone: every term gets the
+   * same width, the table fills the page, and it scrolls once the terms
+   * outgrow it.
+   */
+  .timeline {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 var(--space-1);
+    table-layout: fixed;
+  }
+
+  /* Wide enough for a full name in a one-term bar. */
+  .term-col {
+    width: 10.5rem;
+  }
+
+  .timeline td,
+  .timeline th {
+    padding: 0 var(--space-1);
+    font-weight: var(--weight-regular);
+    text-align: left;
+  }
+
+  .term {
+    padding-bottom: var(--space-2);
+    color: var(--color-text-subtle);
+    font: var(--weight-medium) var(--text-xs) / 1.6 var(--font-mono);
+  }
+
+  .term.current {
+    color: var(--color-brand);
+  }
+
+  .group-label {
+    padding-block: var(--space-4) var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  /* Labels and names slide along their row so they never scroll away. */
+  .sticky-text {
+    position: sticky;
+    left: var(--space-2);
+  }
+
+  /* Names never widen a column; the colgroup alone sets the grid. */
+  .bar {
+    display: block;
+    contain: inline-size;
+    overflow: clip;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: filter var(--duration-fast) var(--ease-out);
+  }
+
+  .bar:hover {
+    filter: brightness(1.08);
+  }
+
+  .group-instructor .bar {
+    background: var(--color-brand);
+    color: var(--color-bg);
+  }
+
+  .group-learningAssistant .bar {
+    background: var(--color-accent);
+    color: var(--color-text);
+  }
+</style>

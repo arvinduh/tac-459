@@ -1,25 +1,19 @@
 ---
 /**
- * This term's teaching team, grouped by role, then everyone who taught
- * before; each person links to their own page.
+ * This term's teaching team, grouped by role, then a timeline of everyone
+ * who has taught the course; each person links to their own page.
  */
 import PageHeader from '../../components/PageHeader.astro';
 import PersonRow from '../../components/PersonRow.astro';
 import Section from '../../components/Section.astro';
+import StaffTimeline from '../../components/StaffTimeline.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import {
-  getCurrentStaff,
-  getCurrentTerm,
-  getPastStaff,
-  getSite,
-} from '../../lib/course';
-import { href } from '../../lib/paths';
+import { getCurrentStaff, getCurrentTerm, getSite } from '../../lib/course';
 import { formatSession } from '../../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
 const staff = await getCurrentStaff();
-const pastStaff = await getPastStaff();
 
 const groups = [
   { id: 'instructors', role: 'instructor', label: 'Instructors' },
@@ -59,18 +53,9 @@ const description = `The ${term.label} instructors and learning assistants of ${
         </ul>
       </Section>
     ))}
-    {pastStaff.length > 0 && (
-      <Section id="past-staff" label="Past staff">
-        <ul class="plain-list past-list">
-          {pastStaff.map(({ person, terms }) => (
-            <li class="past-row">
-              <a href={href(`/team/${person.id}/`)}>{person.data.name}</a>
-              <span class="past-terms">{terms.join(', ')}</span>
-            </li>
-          ))}
-        </ul>
-      </Section>
-    )}
+    <Section id="over-the-years" label="Over the years" stacked>
+      <StaffTimeline currentTermId={site.currentTerm.id} />
+    </Section>
   </div>
 </BaseLayout>
 
@@ -86,32 +71,5 @@ const description = `The ${term.label} instructors and learning assistants of ${
 
   .person-list > li:first-child :global(.person-row) {
     padding-top: 0;
-  }
-
-  .past-list {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .past-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-1) var(--space-6);
-  }
-
-  .past-row a {
-    color: var(--color-text);
-    font-weight: var(--weight-medium);
-    text-decoration-color: var(--color-rule);
-  }
-
-  .past-row a:hover {
-    text-decoration-color: var(--color-accent);
-  }
-
-  .past-terms {
-    color: var(--color-text-subtle);
-    font-size: var(--text-sm);
   }
 </style>
