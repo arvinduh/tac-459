@@ -78,4 +78,53 @@ const curriculum = defineCollection({
   }),
 });
 
-export const collections = { site, people, deliverables, curriculum };
+/** A calendar day; YAML parses an unquoted 2026-08-24 to UTC midnight. */
+const calendarDay = z.date();
+/** Wall-clock time in the course time zone, e.g. '13:50'. */
+const clock = z.iso.time({ precision: -1 });
+const weekday = z.enum(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+
+/** One small file per term holding only what changes term to term. */
+const terms = defineCollection({
+  loader: glob({ pattern: '*.yaml', base: 'src/content/terms' }),
+  schema: z.object({
+    label: z.string(),
+    startDate: calendarDay,
+    meetings: z.array(
+      z.object({
+        days: z.array(weekday).min(1),
+        start: clock,
+        end: clock,
+        location: z.string(),
+      }),
+    ),
+    staff: z.array(
+      z.object({
+        person: reference('people'),
+        role: z.enum(['instructor', 'learningAssistant']),
+      }),
+    ),
+    officeHours: z.array(
+      z.object({
+        person: reference('people'),
+        hours: z.object({ day: weekday, start: clock, end: clock }).optional(),
+        where: z.array(z.string()).default([]),
+      }),
+    ),
+    due: z.array(
+      z.object({
+        deliverable: reference('deliverables'),
+        date: calendarDay,
+        time: clock.optional(),
+      }),
+    ),
+  }),
+});
+
+export const collections = {
+  site,
+  people,
+  deliverables,
+  curriculum,
+  terms,
+};
