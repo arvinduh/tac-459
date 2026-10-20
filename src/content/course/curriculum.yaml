@@ -100,3 +100,52 @@ modules:
           - Neural Machine Translation (NMT) models
           - Challenges and Evaluation Metrics for MT
           - Practical Implementation of MT Systems
+  - title: Techniques in Speech and NLP
+    weeks:
+      - title: Advanced Topics in Machine Learning and NLP
+        due: [assignment-7]
+        core:
+          - Advanced Topics in Machine Learning and NLP
+          - Strategies for Addressing Data Imbalance
+          - Utilizing Pre-Trained NLP Models
+        deeper:
+          - Deep Transfer Learning in NLP
+          - Model Interpretability and Explainability in NLP
+          - Advanced Optimization Techniques in NLP
+          - Case Studies of Advanced ML in NLP
+      - title: Named Entity Recognition, Information Retrieval and Search
+        due: [assignment-8]
+        core:
+          - Named Entity Recognition, Information Retrieval and Search
+          - Fundamentals of Information Retrieval
+          - Deep Dive into TF-IDF and Co-occurrence Matrix
+          - Evaluation Metrics in Information Retrieval
+        deeper:
+          - Advanced Techniques in NER
+          - Contextual NER and Its Applications
+          - Search Engines and Indexing Techniques
+          - Case Studies and Real-World Applications
+      - title: Advanced Machine Translation and Summarization
+        due: [assignment-9]
+        core:
+          - Advanced Machine Translation and Summarization
+          - Text Summarization
+          - Extractive vs. Abstractive Summarization
+          - Challenges in Summarization
+        deeper:
+          - Advanced Techniques in Machine Translation
+          - Handling Low-Resource Languages in MT
+          - Evaluation of Summarization Techniques
+          - Current Trends in MT and Summarization
+      - title: Speech Processing and Conversational AI
+        due: [assignment-10]
+        core:
+          - Speech Processing and Conversational AI
+          - Basics of Speech Recognition
+          - Evaluating Dialogue Systems in Conversational AI
+          - Natural Language Understanding in Conversational AI
+        deeper:
+          - Challenges in Automatic Speech Recognition (ASR)
+          - Design and Development of Conversational Agents
+          - Multimodal Interaction in Conversational AI
+          - Case Studies in Speech Processing and Conversational AI
