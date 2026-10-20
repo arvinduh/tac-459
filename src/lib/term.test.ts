@@ -6,6 +6,7 @@ import {
   formatClock,
   formatSession,
   formatTimes,
+  formatWeeks,
   mapUrl,
   nextTermId,
   rolloverReminder,
@@ -18,6 +19,11 @@ test('formatClock uses a 12-hour clock', () => {
   assert.equal(formatClock('00:05'), '12:05 am');
   assert.equal(formatClock('12:00'), '12:00 pm');
   assert.equal(formatClock('13:50'), '1:50 pm');
+});
+
+test('formatWeeks names one week or a span', () => {
+  assert.equal(formatWeeks({ from: 8, to: 16 }), 'Weeks 8–16');
+  assert.equal(formatWeeks({ from: 5, to: 5 }), 'Week 5');
 });
 
 test('termRank orders terms by calendar', () => {

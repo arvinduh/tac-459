@@ -16,6 +16,11 @@ interface Session {
   location: string;
 }
 
+/** Names a span of semester weeks, e.g. 'Weeks 8–16' or 'Week 5'. */
+export function formatWeeks({ from, to }: { from: number; to: number }) {
+  return from === to ? `Week ${from}` : `Weeks ${from}–${to}`;
+}
+
 /** Formats when a weekly slot meets, e.g. 'Mon & Wed 12:00 pm–1:50 pm'. */
 export function formatTimes({ days, start, end }: Omit<Session, 'location'>) {
   return `${days.join(' & ')} ${formatClock(start)}–${formatClock(end)}`;
