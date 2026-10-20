@@ -3,15 +3,12 @@
 # in search results and links, and `detail` opens the component's own page.
 # The promise at the top of the home page, as one short sentence.
 headline: Build a generative AI product in one semester.
-lede: >-
-  Learn how frontier models work, study the companies building on them, and ship
-  an AI product of your own.
 components:
   - id: curriculum
     title: Technical foundations
     timing: Throughout the semester
     promise: Learn how frontier models work.
-    # Semester weeks this part spans, for the home page's semester map.
+    # Semester weeks this part spans; the home page puts its stop at `from`.
     weeks: { from: 1, to: 15 }
     summary: >-
       How generative AI works and how frontier models are built, adapted and

@@ -33,8 +33,6 @@
   --color-brand: var(--cardinal-600);
   --color-brand-hover: var(--cardinal-700);
   --color-accent: var(--gold-400);
-  /* Darkens the foot of an image so paper-colored words read on it. */
-  --color-scrim: rgb(26 25 24 / 0.72);
   --color-focus: var(--cardinal-600);
 }
 

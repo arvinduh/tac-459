@@ -88,8 +88,6 @@ const overview = defineCollection({
   schema: z.object({
     /** The promise that opens the home page, one short sentence. */
     headline: z.string(),
-    /** One-sentence pitch under the headline. */
-    lede: z.string(),
     components: z
       .array(
         z.object({

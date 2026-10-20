@@ -1,20 +1,17 @@
 ---
 /**
- * The home page: the course told as a short story for prospective students.
+ * The home page: the course's promise, then the semester as one line.
  *
- * Each band answers one question a visitor asks, in this order, with a
- * picture first: what will I make (the product wall), is it real (counts),
- * what does it take (the semester map), who teaches it (faces and a class
- * photo), and where next (links into the detail pages). Every value comes
- * from content files, and every detail lives on its own page.
+ * Below the headline, a single line runs down the margin through the week
+ * each part begins and on to demo day; scrolling fills it in. The people
+ * teaching it close the page. Every value comes from content files, and
+ * every detail lives on its own page.
  */
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
 import Arrow from '../components/Arrow.astro';
 import PersonRow from '../components/PersonRow.astro';
-import ProductWall from '../components/ProductWall.astro';
 import Section from '../components/Section.astro';
-import SemesterMap from '../components/SemesterMap.astro';
+import SemesterPath from '../components/SemesterPath.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {
   getCurrentStaff,
@@ -25,7 +22,7 @@ import {
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
-import { formatSession, termRank } from '../lib/term';
+import { formatSession } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
@@ -40,18 +37,30 @@ const ROLE_NAMES = {
 const projectTerms = await getProjectTerms();
 const projects = projectTerms.flatMap((entry) => entry.projects);
 const classPhoto = projectTerms.find((entry) => entry.classPhoto);
-const terms = (await getCollection('terms')).sort(
-  (a, b) => termRank(a.id) - termRank(b.id),
-);
-const weeks = Math.max(...overview.components.map(({ weeks }) => weeks.to));
 
-const stats = [
-  { value: projects.length, label: 'products shipped by student teams' },
-  {
-    value: terms.length,
-    label: `terms taught since ${terms[0]?.data.label ?? term.label}`,
-  },
-  { value: weeks, label: 'weeks from first lecture to launch pitch' },
+// One stop where each part begins, then demo day at the capstone's end.
+const parts = overview.components.toSorted(
+  (a, b) => a.weeks.from - b.weeks.from,
+);
+const capstone = overview.components.find(({ id }) => id === 'capstone');
+const finale = capstone?.steps?.at(-1);
+const stops = [
+  ...parts.map(({ id, title, promise, weeks }) => ({
+    week: weeks.from,
+    label: title,
+    title: promise,
+    href: href(`/${id}/`),
+  })),
+  ...(capstone && finale
+    ? [
+        {
+          week: capstone.weeks.to,
+          label: finale.title,
+          title: `${projects.length} products launched so far.`,
+          href: href('/projects/'),
+        },
+      ]
+    : []),
 ];
 
 const absolute = (path: string) => new URL(href(path), Astro.site).href;
@@ -75,54 +84,25 @@ const course = courseSchema({
       {site.courseCode} · {site.title}
     </p>
     <h1 class="hero-title">{overview.headline}</h1>
-    <p class="hero-lede">{overview.lede}</p>
-    <div class="link-row">
-      <a class="arrow-link" href={href('/curriculum/')}>
-        Explore the curriculum
-        <Arrow />
-      </a>
-      <a class="arrow-link" href={href('/projects/')}>
-        See every product
-        <Arrow />
-      </a>
-    </div>
+    <p class="data">
+      {site.tagline} · {term.label}
+      {term.meetings.map((meeting) => ` · ${formatSession(meeting)}`)}
+    </p>
   </header>
 
-  <ProductWall projects={projects} />
+  <SemesterPath stops={stops} />
 
   <div class="sections">
-    <section class="page-width" aria-label="By the numbers">
-      <dl class="stats">
-        {stats.map(({ value, label }) => (
-          <div class="stat reveal">
-            <dt class="visually-hidden">{label}</dt>
-            <dd class="stat-value">{value}</dd>
-            <dd class="stat-label" aria-hidden="true">
-              {label}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <p class="term-line data">
-        {site.tagline} · {term.label}
-        {term.meetings.map((meeting) => ` · ${formatSession(meeting)}`)}
-      </p>
-    </section>
-
-    <Section id="semester" label="One semester, three parts">
-      <SemesterMap parts={overview.components} />
-    </Section>
-
     <Section id="team" label={`Taught in ${term.label} by`}>
       <ul class="plain-list team-grid">
         {staff.map(({ person, role }) => (
-          <li class="reveal">
+          <li>
             <PersonRow person={person} caption={ROLE_NAMES[role]} />
           </li>
         ))}
       </ul>
       {classPhoto?.classPhoto && (
-        <figure class="class-photo reveal">
+        <figure class="class-photo">
           <Image
             src={classPhoto.classPhoto}
             alt={`The ${classPhoto.label} class of ${site.courseCode}`}
@@ -139,26 +119,6 @@ const course = courseSchema({
         </a>
       </p>
     </Section>
-
-    <section class="page-width closing" aria-labelledby="closing-heading">
-      <h2 class="closing-title" id="closing-heading">
-        See what you would build.
-      </h2>
-      <div class="link-row">
-        <a class="arrow-link" href={href('/curriculum/')}>
-          The curriculum, week by week
-          <Arrow />
-        </a>
-        <a class="arrow-link" href={href('/capstone/')}>
-          The nine-week capstone
-          <Arrow />
-        </a>
-        <a class="arrow-link" href={href('/projects/')}>
-          All {projects.length} student products
-          <Arrow />
-        </a>
-      </div>
-    </section>
   </div>
 </BaseLayout>
 
@@ -166,7 +126,7 @@ const course = courseSchema({
   .hero {
     display: grid;
     gap: var(--space-6);
-    padding-block: var(--space-16) var(--space-12);
+    padding-block: var(--space-16) var(--space-section);
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
@@ -182,10 +142,6 @@ const course = courseSchema({
     animation-delay: 120ms;
   }
 
-  .hero > :nth-child(4) {
-    animation-delay: 180ms;
-  }
-
   .hero-title {
     max-width: 14ch;
     font-size: var(--text-display);
@@ -193,59 +149,8 @@ const course = courseSchema({
     letter-spacing: var(--tracking-display);
   }
 
-  .hero-lede {
-    max-width: var(--prose-max);
-    color: var(--color-text-muted);
-    font-size: var(--text-lg);
-    line-height: 1.55;
-  }
-
-  .link-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3) var(--space-8);
-  }
-
   .sections {
-    display: grid;
-    gap: var(--space-section);
     margin-top: var(--space-section);
-  }
-
-  /* Big figures, each with what it counts underneath. */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4) var(--space-8);
-    margin: 0;
-  }
-
-  .stat dd {
-    margin: 0;
-  }
-
-  .stat-value {
-    font-size: var(--text-display);
-    font-weight: var(--weight-semibold);
-    font-variant-numeric: tabular-nums;
-    line-height: 1;
-    letter-spacing: var(--tracking-display);
-  }
-
-  .stat-label {
-    max-width: 16rem;
-    margin-top: var(--space-3);
-    color: var(--color-text-muted);
-  }
-
-  @media (width < 36rem) {
-    .stat-label {
-      font-size: var(--text-sm);
-    }
-  }
-
-  .term-line {
-    margin-top: var(--space-12);
   }
 
   .team-grid {
@@ -269,17 +174,5 @@ const course = courseSchema({
 
   .more-link {
     margin-top: var(--space-8);
-  }
-
-  .closing {
-    display: grid;
-    gap: var(--space-8);
-  }
-
-  .closing-title {
-    max-width: 14ch;
-    font-size: var(--text-title);
-    line-height: 1.05;
-    letter-spacing: var(--tracking-display);
   }
 </style>
