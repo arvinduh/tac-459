@@ -1,0 +1,227 @@
+---
+/**
+ * One person's page: portrait, roles, contact links and full bio.
+ *
+ * Every person ever on staff gets a page, so past staff keep a stable URL.
+ * Office hours show only while the person is on the current term's staff.
+ */
+import { Image } from 'astro:assets';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCurrentStaff } from '../../lib/course';
+import { href } from '../../lib/paths';
+
+interface Props {
+  person: CollectionEntry<'people'>;
+}
+
+export async function getStaticPaths() {
+  const people = await getCollection('people');
+  return people.map((person) => ({
+    params: { id: person.id },
+    props: { person },
+  }));
+}
+
+const { person } = Astro.props;
+const { name, honorific, positions, email, links, photo } = person.data;
+const displayName = honorific ? `${honorific} ${name}` : name;
+const { Content } = await render(person);
+const staff = await getCurrentStaff();
+const officeHours = staff.find(
+  (member) => member.person.id === person.id,
+)?.officeHours;
+
+const contacts = [
+  email && { label: 'Email', url: `mailto:${email}` },
+  links.linkedin && { label: 'LinkedIn', url: links.linkedin },
+  links.viterbi && { label: 'Viterbi profile', url: links.viterbi },
+].filter((contact) => typeof contact === 'object');
+---
+
+<BaseLayout title={name} description={positions.join(' · ')}>
+  <article class="page-width person">
+    <a class="back-link" href={href('/team/')}>
+      ← Team
+    </a>
+    <header class="person-header">
+      <Image
+        class="person-photo"
+        src={photo}
+        alt={`Portrait of ${name}`}
+        width={384}
+        height={384}
+        loading="eager"
+        transition:name={`photo-${person.id}`}
+      />
+      <div class="person-heading">
+        <h1 class="person-name" transition:name={`name-${person.id}`}>
+          {displayName}
+        </h1>
+        <ul class="person-positions">
+          {positions.map((position) => (
+            <li>{position}</li>
+          ))}
+        </ul>
+        {contacts.length > 0 && (
+          <ul class="contact-list">
+            {contacts.map(({ label, url }) => (
+              <li>
+                <a class="contact-link" href={url}>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </header>
+
+    <div class="person-content">
+      <div class="prose">
+        <Content />
+      </div>
+      {officeHours && (
+        <aside class="hours-card" aria-label="Office hours">
+          <p class="hours-label">Office hours</p>
+          <p>{officeHours}</p>
+        </aside>
+      )}
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .person {
+    display: grid;
+    gap: var(--space-12);
+    padding-block: var(--space-12) 0;
+  }
+
+  .back-link {
+    width: fit-content;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .person-header {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+    align-items: center;
+    gap: var(--space-12);
+  }
+
+  @media (width < 40rem) {
+    .person-header {
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+  }
+
+  .person-photo {
+    width: 12rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-surface-sunken);
+    box-shadow:
+      0 0 0 4px var(--color-bg),
+      0 0 0 6px var(--color-accent);
+    object-fit: cover;
+  }
+
+  .person-heading {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .person-heading > * {
+    animation: rise var(--duration-slow) var(--ease-out) both;
+  }
+
+  .person-name {
+    font: var(--text-display) / 1.05 var(--font-display);
+  }
+
+  .person-positions {
+    margin: 0;
+    padding: 0;
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    list-style: none;
+    animation-delay: 60ms;
+  }
+
+  .contact-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    animation-delay: 120ms;
+  }
+
+  .contact-link {
+    display: block;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .contact-link:hover {
+    border-color: var(--color-brand);
+  }
+
+  .person-content {
+    display: grid;
+    grid-template-columns: minmax(0, var(--prose-max)) minmax(0, 18rem);
+    justify-content: space-between;
+    align-items: start;
+    gap: var(--space-12);
+  }
+
+  @media (width < 56rem) {
+    .person-content {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .prose {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .prose :global(h2) {
+    margin-top: var(--space-6);
+    font: var(--text-xl) / 1.2 var(--font-display);
+  }
+
+  .prose :global(ul) {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding-left: var(--space-6);
+  }
+
+  .hours-card {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    border: 1px solid var(--color-highlight-border);
+    border-radius: var(--radius-md);
+    background: var(--color-highlight-bg);
+  }
+
+  .hours-label {
+    color: var(--color-highlight-text);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>
