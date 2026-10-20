@@ -97,6 +97,8 @@ const overview = defineCollection({
           id: z.enum(['curriculum', 'company-overview', 'capstone']),
           title: z.string(),
           timing: z.string(),
+          /** The part as one short promise, shown at its stop on the home page. */
+          promise: z.string(),
           /** Semester weeks the part spans, first and last inclusive. */
           weeks: z
             .object({ from: z.int().min(1), to: z.int().min(1) })

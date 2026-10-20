@@ -10,6 +10,7 @@ components:
   - id: curriculum
     title: Technical foundations
     timing: Throughout the semester
+    promise: Learn how frontier models work.
     # Semester weeks this part spans, for the home page's semester map.
     weeks: { from: 1, to: 15 }
     summary: >-
@@ -27,6 +28,7 @@ components:
   - id: company-overview
     title: AI company overview
     timing: Midsemester
+    promise: Study the companies building on them.
     weeks: { from: 5, to: 8 }
     summary: >-
       Teams study an emerging AI company backed by Y Combinator or a leading
@@ -59,6 +61,7 @@ components:
   - id: capstone
     title: AI capstone product
     timing: Final nine weeks
+    promise: Ship an AI product of your own.
     weeks: { from: 8, to: 16 }
     summary: >-
       Teams take a product from idea to a shared MVP, through multiple
