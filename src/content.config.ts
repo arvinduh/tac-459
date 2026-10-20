@@ -21,6 +21,14 @@ const site = defineCollection({
     title: z.string(),
     tagline: z.string(),
     description: z.string().max(160),
+    /** Term the site shows; past terms stay for the archive. */
+    currentTerm: reference('terms'),
+    /** IANA zone that class times and due dates are written in. */
+    timeZone: z
+      .string()
+      .refine((zone) => Intl.supportedValuesOf('timeZone').includes(zone), {
+        message: 'Use an IANA zone such as America/Los_Angeles',
+      }),
     googleSiteVerification: z.array(z.string()),
     indexable: z.boolean(),
   }),
