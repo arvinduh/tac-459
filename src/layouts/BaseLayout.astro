@@ -7,10 +7,10 @@ import '@fontsource-variable/inter';
 import '@fontsource/libre-caslon-display/latin-400.css';
 import '../styles/tokens.css';
 import '../styles/base.css';
-import { getEntry } from 'astro:content';
 import { ClientRouter } from 'astro:transitions';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import { getSite } from '../lib/course';
 
 interface Props {
   /** Page name for the tab title; omitted on the home page. */
@@ -18,10 +18,9 @@ interface Props {
   description?: string;
 }
 
-const site = await getEntry('site', 'site');
-if (!site) throw new Error('src/content/site.yaml is missing');
-const { courseCode, title: courseTitle, tagline } = site.data;
-const { title, description = site.data.description } = Astro.props;
+const site = await getSite();
+const { courseCode, title: courseTitle, tagline } = site;
+const { title, description = site.description } = Astro.props;
 const fullTitle = title
   ? `${title} · ${courseCode}`
   : `${courseCode} · ${courseTitle}`;
@@ -35,8 +34,8 @@ const fullTitle = title
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
-    {!site.data.indexable && <meta name="robots" content="noindex" />}
-    {site.data.googleSiteVerification.map((token) => (
+    {!site.indexable && <meta name="robots" content="noindex" />}
+    {site.googleSiteVerification.map((token) => (
       <meta name="google-site-verification" content={token} />
     ))}
     <ClientRouter />
