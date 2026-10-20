@@ -1,251 +1,237 @@
 ---
 /**
- * Landing page: what the course is, when it meets, and how it unfolds.
+ * The course overview, written for prospective students.
  *
- * Every value comes from site.yaml, the current term and the curriculum, so
- * the page rolls forward with the term file and needs no edits itself.
+ * One page in four parts: what the course is, how it is structured, what
+ * it covers week to week, and who teaches it. Every value comes from
+ * content files, so the page rolls forward with the term file.
  */
+import PersonRow from '../components/PersonRow.astro';
+import Section from '../components/Section.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getCurrentTerm, getModules, getSite } from '../lib/course';
-import { href } from '../lib/paths';
+import {
+  getCurrentStaff,
+  getCurrentTerm,
+  getModules,
+  getOverview,
+  getSite,
+} from '../lib/course';
 import { formatClock } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
+const overview = await getOverview();
 const modules = await getModules();
+const staff = await getCurrentStaff();
 
 const meetings = term.meetings.map(
   ({ days, start, end, location }) =>
-    `${days.join(' & ')} · ${formatClock(start)}–${formatClock(end)} · ${location}`,
+    `${days.join(' & ')}, ${formatClock(start)}–${formatClock(end)} · ${location}`,
 );
 
-// Week numbers run across modules, so each module starts where the last ended.
-let firstWeek = 1;
-const outline = modules.map(({ title, weeks }, index) => {
-  const span = { first: firstWeek, last: firstWeek + weeks.length - 1 };
-  firstWeek = span.last + 1;
-  return { number: index + 1, title, ...span };
-});
+const teamGroups = [
+  { role: 'instructor', heading: 'Instructors' },
+  { role: 'learningAssistant', heading: 'Learning assistants' },
+].map(({ role, heading }) => ({
+  heading,
+  members: staff.filter((member) => member.role === role),
+}));
 ---
 
 <BaseLayout>
-  <section class="hero">
-    <div class="page-width hero-body">
-      <div class="hero-copy">
-        <p class="hero-eyebrow">
-          {site.courseCode} · {term.label}
-        </p>
-        <h1 class="hero-title">{site.title}</h1>
-        <p class="hero-lede">{site.description}</p>
-        <ul class="hero-meetings">
-          {meetings.map((meeting) => (
-            <li>{meeting}</li>
-          ))}
-        </ul>
-        <div class="hero-actions">
-          <a class="button button-quiet" href={href('/team/')}>
-            Meet the team
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="page-width outline" aria-labelledby="outline-heading">
-    <h2 id="outline-heading" class="section-title">
-      {outline.length} modules, one product
-    </h2>
-    <ol class="module-list">
-      {outline.map(({ number, title, first, last }) => (
-        <li>
-          <div class="module-card">
-            <span class="module-number">{String(number).padStart(2, '0')}</span>
-            <span class="module-title">{title}</span>
-            <span class="module-weeks">
-              Weeks {first}–{last}
-            </span>
-          </div>
-        </li>
+  <header class="page-width hero">
+    <p class="hero-eyebrow">{site.tagline}</p>
+    <h1 class="hero-title">{site.title}</h1>
+    <p class="hero-lede">{overview.lede}</p>
+    <ul class="hero-meta">
+      <li>{term.label}</li>
+      {meetings.map((meeting) => (
+        <li>{meeting}</li>
       ))}
-    </ol>
-  </section>
+    </ul>
+  </header>
+
+  <div class="sections">
+    <Section id="course" number={1} label="Course">
+      <p class="intro">{overview.intro}</p>
+      <ol class="row-list">
+        {overview.components.map(({ title, timing, summary }) => (
+          <li class="component">
+            <p class="row-meta">{timing}</p>
+            <h3 class="row-title">{title}</h3>
+            <p class="row-text">{summary}</p>
+          </li>
+        ))}
+      </ol>
+    </Section>
+
+    <Section id="curriculum" number={2} label="Curriculum">
+      <ol class="row-list">
+        {modules.map(({ title, weeks }, index) => (
+          <li class="module">
+            <span class="module-number">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <div class="module-body">
+              <h3 class="row-title">{title}</h3>
+              <ul class="topic-list">
+                {weeks.map((week) => (
+                  <li>{week.title}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </Section>
+
+    <Section id="team" number={3} label="Team">
+      <div class="team">
+        {teamGroups.map(({ heading, members }) => (
+          <div class="team-group">
+            <h3 class="row-meta">{heading}</h3>
+            <ul class="row-list">
+              {members.map(({ person }) => (
+                <li>
+                  <PersonRow person={person} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </Section>
+  </div>
 </BaseLayout>
 
 <style>
   .hero {
-    background:
-      radial-gradient(
-        60rem 30rem at 85% -10%,
-        color-mix(in srgb, var(--color-accent) 22%, transparent),
-        transparent 70%
-      ),
-      var(--color-inverse-bg);
-    color: var(--color-on-brand);
-  }
-
-  .hero-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
-    align-items: end;
-    gap: var(--space-12);
-    padding-block: var(--space-16) calc(var(--space-16) * 1.5);
-  }
-
-  @media (width < 56rem) {
-    .hero-body {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .hero-copy {
     display: grid;
     gap: var(--space-6);
-    justify-items: start;
+    padding-block: var(--space-section);
   }
 
-  /* Children rise in one after another; reduced motion makes this instant. */
-  .hero-copy > *,
-  .hero-body > :global(up-next) {
+  /* Parts rise in one after another; reduced motion makes this instant. */
+  .hero > * {
     animation: rise var(--duration-slow) var(--ease-out) both;
   }
 
-  .hero-copy > :nth-child(2) {
-    animation-delay: 60ms;
+  .hero > :nth-child(2) {
+    animation-delay: 80ms;
   }
 
-  .hero-copy > :nth-child(3) {
-    animation-delay: 120ms;
+  .hero > :nth-child(3) {
+    animation-delay: 160ms;
   }
 
-  .hero-copy > :nth-child(n + 4) {
-    animation-delay: 180ms;
-  }
-
-  .hero-body > :global(up-next) {
+  .hero > :nth-child(4) {
     animation-delay: 240ms;
   }
 
-  .hero-eyebrow {
-    color: var(--color-accent);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  .hero-eyebrow,
+  .hero-meta,
+  .row-meta,
+  .module-number {
+    color: var(--color-text-subtle);
+    font: 400 var(--text-xs) / 1.6 var(--font-mono);
   }
 
   .hero-title {
-    max-width: 18ch;
-    font: var(--text-display) / 1.05 var(--font-serif);
+    max-width: 15ch;
+    font: 300 var(--text-display) / 1 var(--font-serif);
+    letter-spacing: -0.015em;
   }
 
   .hero-lede {
-    max-width: 52ch;
-    opacity: 0.88;
+    max-width: var(--prose-max);
+    color: var(--color-text-muted);
     font-size: var(--text-lg);
+    line-height: 1.5;
   }
 
-  .hero-meetings {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .hero-actions {
+  .hero-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-top: var(--space-2);
+    gap: var(--space-1) var(--space-6);
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .button {
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-pill);
-    font-weight: 600;
-    text-decoration: none;
-    transition:
-      transform var(--duration-fast) var(--ease-out),
-      background-color var(--duration-fast) var(--ease-out);
-  }
-
-  .button:hover {
-    transform: translateY(-1px);
-  }
-
-  .button-primary,
-  .button-primary:hover {
-    background: var(--color-accent);
-    color: var(--color-on-accent);
-  }
-
-  .button-quiet,
-  .button-quiet:hover {
-    box-shadow: inset 0 0 0 1px
-      color-mix(in srgb, var(--color-on-brand) 40%, transparent);
-    color: var(--color-on-brand);
-  }
-
-  .button-quiet:hover {
-    background: color-mix(in srgb, var(--color-on-brand) 10%, transparent);
-  }
-
-  .outline {
+  .sections {
     display: grid;
-    gap: var(--space-8);
-    padding-block: var(--space-16) 0;
+    gap: var(--space-section);
   }
 
-  .section-title {
-    font: var(--text-2xl) / 1.2 var(--font-serif);
+  .intro {
+    max-width: var(--prose-max);
+    margin-bottom: var(--space-12);
+    font: 400 var(--text-xl) / 1.35 var(--font-serif);
   }
 
-  .module-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
-    gap: var(--space-4);
+  .row-list {
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .module-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    height: 100%;
-    padding: var(--space-6);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    box-shadow: var(--shadow-1);
-    color: var(--color-text);
-    text-decoration: none;
-    transition:
-      transform var(--duration-base) var(--ease-out),
-      box-shadow var(--duration-base) var(--ease-out),
-      border-color var(--duration-base) var(--ease-out);
+  .row-list > li + li {
+    border-top: 1px solid var(--color-rule);
   }
 
-  .module-card:hover {
-    border-color: var(--color-highlight-border);
-    box-shadow: var(--shadow-2);
-    color: var(--color-text);
-    transform: translateY(-2px);
+  .component {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-8);
+  }
+
+  .component:first-child,
+  .module:first-child {
+    padding-top: 0;
+  }
+
+  .row-title {
+    font: 400 var(--text-lg) / 1.25 var(--font-serif);
+  }
+
+  .row-text {
+    max-width: var(--prose-max);
+    color: var(--color-text-muted);
+  }
+
+  .module {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-8);
   }
 
   .module-number {
-    color: var(--color-brand);
-    font: var(--text-xl) / 1 var(--font-serif);
+    padding-top: 0.3em;
   }
 
-  .module-title {
-    font-weight: 600;
-    line-height: 1.35;
+  .module-body {
+    display: grid;
+    gap: var(--space-3);
   }
 
-  .module-weeks {
-    margin-top: auto;
+  .topic-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
     color: var(--color-text-muted);
     font-size: var(--text-sm);
+    list-style: none;
+  }
+
+  .team {
+    display: grid;
+    gap: var(--space-12);
+  }
+
+  .team-group {
+    display: grid;
+    gap: var(--space-2);
   }
 </style>
