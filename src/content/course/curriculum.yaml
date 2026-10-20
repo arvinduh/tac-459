@@ -13,7 +13,6 @@ modules:
           - Challenges and Limitations in NLP
       - title: Text Cleaning and Preprocessing
         core:
-          - Text Cleaning and Preprocessing
           - Text Normalization and Tokenization
           - Lemmatization and Stemming
           - Regular Expressions in Text Processing
@@ -38,7 +37,6 @@ modules:
           - Cross-Validation Techniques
       - title: Neural Networks and Deep Learning in NLP
         core:
-          - Neural Networks and Deep Learning in NLP
           - Activation Functions and Network Topologies
           - Backpropagation and Gradient Descent
           - Challenges in Deep Learning for NLP
@@ -49,7 +47,6 @@ modules:
           - Case Studies in Deep Learning for NLP
       - title: Transformer Models and Attention Mechanisms
         core:
-          - Transformer Models and Attention Mechanisms
           - Understanding the Transformer Architecture
           - Overview of BERT, GPT, and Transformer Variants
         deeper:
@@ -61,7 +58,6 @@ modules:
     weeks:
       - title: Syntax, Parsing, Word Embeddings, and POS Tagging
         core:
-          - Syntax, Parsing, Word Embeddings, and POS Tagging
           - Syntax in Natural Language Processing
           - Word2Vec, GloVe, and FastText Embeddings
           - 'Part-of-Speech (POS) Tagging: Importance, Methods, and Tools'
@@ -73,7 +69,6 @@ modules:
           - Vector Database
       - title: Semantic Analysis, Language Models, and Question Answering
         core:
-          - Semantic Analysis, Language Models, and Question Answering
           - Semantic Role Labeling (SRL)
           - Overview of Language Models in NLP
           - Word Sense Disambiguation Techniques
@@ -85,7 +80,6 @@ modules:
           - Challenges in QA and Semantic Analysis
       - title: Text Classification and Machine Translation + Midterm Exam
         core:
-          - MidTerm Exams!!
           - Text Classification and Machine Translation
           - Fundamentals of Text Classification
           - Introduction to Machine Translation
@@ -98,7 +92,6 @@ modules:
     weeks:
       - title: Advanced Topics in Machine Learning and NLP
         core:
-          - Advanced Topics in Machine Learning and NLP
           - Strategies for Addressing Data Imbalance
           - Utilizing Pre-Trained NLP Models
         deeper:
@@ -108,7 +101,6 @@ modules:
           - Case Studies of Advanced ML in NLP
       - title: Named Entity Recognition, Information Retrieval and Search
         core:
-          - Named Entity Recognition, Information Retrieval and Search
           - Fundamentals of Information Retrieval
           - Deep Dive into TF-IDF and Co-occurrence Matrix
           - Evaluation Metrics in Information Retrieval
@@ -119,7 +111,6 @@ modules:
           - Case Studies and Real-World Applications
       - title: Advanced Machine Translation and Summarization
         core:
-          - Advanced Machine Translation and Summarization
           - Text Summarization
           - Extractive vs. Abstractive Summarization
           - Challenges in Summarization
@@ -130,7 +121,6 @@ modules:
           - Current Trends in MT and Summarization
       - title: Speech Processing and Conversational AI
         core:
-          - Speech Processing and Conversational AI
           - Basics of Speech Recognition
           - Evaluating Dialogue Systems in Conversational AI
           - Natural Language Understanding in Conversational AI
@@ -144,8 +134,6 @@ modules:
       - title:
           Generative AI, Products, Techniques, APIs, and Ethical Considerations
         core:
-          - 'Generative AI, Products, Techniques, APIs, and Ethical
-            Considerations'
           - Generative Models in NLP (ChatGPT, BARD, Gemini, Llama)
           - 'Business Intelligence, Marketing, Analytics, and Brand Analysis Use
             Cases'
@@ -162,7 +150,6 @@ modules:
             Governance in AI'
       - title: Training and Fine-Tuning LLMs, Hugging Face, LangChain, and RAG
         core:
-          - Training and Fine-Tuning LLMs, Hugging Face, LangChain, and RAG
           - Fine Tuning LLMs, Best Practices and Challenges
           - Overview and Practical Use of Hugging Face in NLP Based Products
           - Utilizing LangChain and Llama for Customized Language Models
@@ -177,8 +164,6 @@ modules:
       - title:
           Course Review, Future Trends, and Project Presentations + Final Exam
         core:
-          - 'Course Review, Future Trends, and Project Presentations + Final
-            Exam'
           - Recap of Key NLP and Generative AI Concepts
           - Resources for Advanced Learning
           - Closing Remarks and Course Evaluation
