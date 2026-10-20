@@ -138,5 +138,14 @@ const fullTitle = title
       <slot />
     </main>
     <SiteFooter courseCode={courseCode} title={courseTitle} />
+    <script>
+      // A page transition is cancelled when the window resizes mid-way, as a
+      // phone's address bar does. The new page still loads; only the
+      // animation is skipped. Astro leaves that rejection unhandled, which
+      // logs an error, so mark it as expected here.
+      document.addEventListener('astro:before-swap', (event) => {
+        event.viewTransition.ready.catch(() => {});
+      });
+    </script>
   </body>
 </html>
