@@ -1,0 +1,40 @@
+/*
+ * Design tokens: the only file allowed to hold raw design values.
+ *
+ * Primitives are the USC brand colors (Cardinal #900, Gold #fc0) plus a warm
+ * neutral ramp. Components never read primitives; they read the semantic
+ * tokens below, so a theme change is a change to this file alone.
+ */
+:root {
+  --cardinal-600: #900;
+  --cardinal-700: #7a0000;
+  --cardinal-800: #5c0000;
+  --gold-50: #fff9e0;
+  --gold-300: #ffd84d;
+  --gold-400: #fc0;
+  --gold-800: #594700;
+  --neutral-0: #fff;
+  --neutral-25: #fcfbf9;
+  --neutral-50: #f7f5f2;
+  --neutral-200: #e3dfd9;
+  --neutral-600: #5c564f;
+  --neutral-900: #1a1715;
+
+  --color-bg: var(--neutral-25);
+  --color-surface: var(--neutral-0);
+  --color-surface-sunken: var(--neutral-50);
+  --color-border: var(--neutral-200);
+  --color-text: var(--neutral-900);
+  --color-text-muted: var(--neutral-600);
+  --color-brand: var(--cardinal-600);
+  --color-brand-hover: var(--cardinal-700);
+  --color-on-brand: var(--neutral-0);
+  /* Gold is a fill and accent only: 1.5:1 as text on light surfaces. */
+  --color-accent: var(--gold-400);
+  --color-on-accent: var(--neutral-900);
+  --color-highlight-bg: var(--gold-50);
+  --color-highlight-border: var(--gold-300);
+  --color-highlight-text: var(--gold-800);
+  --color-focus: var(--cardinal-600);
+  --color-inverse-bg: var(--cardinal-800);
+}
