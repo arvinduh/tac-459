@@ -134,9 +134,16 @@ const terms = defineCollection({
     }),
 });
 
-/** Products past teams built: one folder per product, under its term. */
+/**
+ * Products past teams built: one folder per product, under its term, holding
+ * index.yaml and the screenshots. The id is '<term>/<product>'.
+ */
 const projects = defineCollection({
-  loader: glob({ pattern: '*/*/index.md', base: 'src/content/projects' }),
+  loader: glob({
+    pattern: '*/*/index.yaml',
+    base: 'src/content/projects',
+    generateId: ({ entry }) => entry.split('/').slice(0, 2).join('/'),
+  }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -144,6 +151,15 @@ const projects = defineCollection({
       team: z.array(z.string()).min(1),
       /** One sentence for cards and the meta description. */
       summary: z.string().max(160),
+      /** What the product does, for its own page. */
+      description: z.string(),
+      /** How the team built it. */
+      built: z.string(),
+      /** Public links, each shown only when present. */
+      links: z
+        .object({ demo: z.url(), code: z.url(), video: z.url() })
+        .partial()
+        .default({}),
       /** Screenshots; the first is the cover. */
       images: z.tuple([image()], image()),
     }),

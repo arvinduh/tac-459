@@ -1,0 +1,20 @@
+title: 'AI Lecture Assistant: RAG-Driven Avatar for Interactive Course Q&A'
+term: fall-2024
+summary:
+  A RAG-driven, lip-synced avatar that answers course questions in real time
+  with a synthesized voice.
+description:
+  A virtual AI assistant that answers course-related questions in real time
+  using Retrieval-Augmented Generation (RAG) and an interactive avatar.
+built:
+  It uses LLMs for text-based Q&A, voice synthesis for audio responses, and
+  lip-syncing for realistic avatar interactions to enhance student engagement.
+team:
+  - Emma Guo
+  - Elizabeth Phillips
+  - Jason Liu
+  - Hongkun Gong
+images:
+  - ./1.webp
+  - ./2.webp
+  - ./3.webp

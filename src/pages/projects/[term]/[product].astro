@@ -1,15 +1,10 @@
 ---
 /**
- * One past product: what it does, how it was built, who built it and its
- * screenshots.
+ * One past product: what it does, how it was built, its public links, who
+ * built it and its screenshots.
  */
 import { Image } from 'astro:assets';
-import {
-  getCollection,
-  getEntry,
-  render,
-  type CollectionEntry,
-} from 'astro:content';
+import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
 import BackLink from '../../../components/BackLink.astro';
 import Section from '../../../components/Section.astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -27,11 +22,17 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props;
-const { title, term, team, summary, images } = project.data;
+const { title, term, team, summary, description, built, links, images } =
+  project.data;
 const termEntry = await getEntry(term);
 if (!termEntry) throw new Error(`Term '${term.id}' is missing`);
-const { Content } = await render(project);
 const [cover, ...rest] = images;
+
+const linkList = [
+  links.demo && { label: 'Live demo', url: links.demo },
+  links.code && { label: 'Source code', url: links.code },
+  links.video && { label: 'Video', url: links.video },
+].filter((link) => typeof link === 'object');
 ---
 
 <BaseLayout
@@ -62,7 +63,18 @@ const [cover, ...rest] = images;
 
     <Section id="about" label="About">
       <div class="prose">
-        <Content />
+        <p>{description}</p>
+        <h2>How it was built</h2>
+        <p>{built}</p>
+        {linkList.length > 0 && (
+          <ul class="plain-list link-list">
+            {linkList.map(({ label, url }) => (
+              <li>
+                <a href={url}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </Section>
 
@@ -138,13 +150,21 @@ const [cover, ...rest] = images;
     max-width: var(--prose-max);
   }
 
-  .prose :global(h2) {
+  .prose h2 {
     margin-top: var(--space-4);
     font-size: var(--text-base);
   }
 
-  .prose :global(p) {
+  .prose p {
     color: var(--color-text-muted);
+  }
+
+  .link-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin-top: var(--space-2);
+    font-weight: var(--weight-medium);
   }
 
   .team-list {
