@@ -1,10 +1,9 @@
 ---
 /**
- * The course overview, written for prospective students.
+ * The home page: the course pitch for prospective students.
  *
- * One page in four parts: what the course is, how it is structured, what
- * it covers week to week, and who teaches it. Every value comes from
- * content files, so the page rolls forward with the term file.
+ * It summarizes each part of the site and links into it, so every detail
+ * lives on exactly one page. Every value comes from content files.
  */
 import PersonRow from '../components/PersonRow.astro';
 import Section from '../components/Section.astro';
@@ -12,38 +11,31 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import {
   getCurrentStaff,
   getCurrentTerm,
-  getModules,
   getOverview,
   getSite,
 } from '../lib/course';
+import { href } from '../lib/paths';
 import { formatClock } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
 const overview = await getOverview();
-const modules = await getModules();
-const staff = await getCurrentStaff();
+const instructors = (await getCurrentStaff()).filter(
+  ({ role }) => role === 'instructor',
+);
 
 const meetings = term.meetings.map(
   ({ days, start, end, location }) =>
-    `${days.join(' & ')}, ${formatClock(start)}–${formatClock(end)} · ${location}`,
+    `${days.join(' & ')} ${formatClock(start)}–${formatClock(end)} · ${location}`,
 );
-
-const teamGroups = [
-  { role: 'instructor', heading: 'Instructors' },
-  { role: 'learningAssistant', heading: 'Learning assistants' },
-].map(({ role, heading }) => ({
-  heading,
-  members: staff.filter((member) => member.role === role),
-}));
 ---
 
 <BaseLayout>
   <header class="page-width hero">
-    <p class="hero-eyebrow">{site.tagline}</p>
+    <p class="eyebrow">{site.tagline}</p>
     <h1 class="hero-title">{site.title}</h1>
     <p class="hero-lede">{overview.lede}</p>
-    <ul class="hero-meta">
+    <ul class="plain-list hero-meta">
       <li>{term.label}</li>
       {meetings.map((meeting) => (
         <li>{meeting}</li>
@@ -52,54 +44,35 @@ const teamGroups = [
   </header>
 
   <div class="sections">
-    <Section id="course" number={1} label="Course">
+    <Section id="course" label="The course">
       <p class="intro">{overview.intro}</p>
-      <ol class="row-list">
-        {overview.components.map(({ title, timing, summary }) => (
-          <li class="component">
-            <p class="row-meta">{timing}</p>
-            <h3 class="row-title">{title}</h3>
-            <p class="row-text">{summary}</p>
-          </li>
-        ))}
-      </ol>
-    </Section>
-
-    <Section id="curriculum" number={2} label="Curriculum">
-      <ol class="row-list">
-        {modules.map(({ title, weeks }, index) => (
-          <li class="module">
-            <span class="module-number">
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            <div class="module-body">
-              <h3 class="row-title">{title}</h3>
-              <ul class="topic-list">
-                {weeks.map((week) => (
-                  <li>{week.title}</li>
-                ))}
-              </ul>
+      <ol class="plain-list component-list">
+        {overview.components.map(({ id, title, timing, summary }, index) => (
+          <li class="numbered-row">
+            <span class="numeral">{String(index + 1).padStart(2, '0')}</span>
+            <div class="component-body">
+              <h3 class="component-title">
+                <a href={href(`/${id}/`)}>{title}</a>
+              </h3>
+              <p class="component-timing">{timing}</p>
+              <p class="component-summary">{summary}</p>
             </div>
           </li>
         ))}
       </ol>
     </Section>
 
-    <Section id="team" number={3} label="Team">
-      <div class="team">
-        {teamGroups.map(({ heading, members }) => (
-          <div class="team-group">
-            <h3 class="row-meta">{heading}</h3>
-            <ul class="row-list">
-              {members.map(({ person }) => (
-                <li>
-                  <PersonRow person={person} />
-                </li>
-              ))}
-            </ul>
-          </div>
+    <Section id="instructors" label="Instructors">
+      <ul class="plain-list person-list">
+        {instructors.map(({ person }) => (
+          <li>
+            <PersonRow person={person} />
+          </li>
         ))}
-      </div>
+      </ul>
+      <p class="more-link">
+        <a href={href('/team/')}>Meet the whole team</a>
+      </p>
     </Section>
   </div>
 </BaseLayout>
@@ -117,45 +90,38 @@ const teamGroups = [
   }
 
   .hero > :nth-child(2) {
-    animation-delay: 80ms;
+    animation-delay: 60ms;
   }
 
   .hero > :nth-child(3) {
-    animation-delay: 160ms;
+    animation-delay: 120ms;
   }
 
   .hero > :nth-child(4) {
-    animation-delay: 240ms;
-  }
-
-  .hero-eyebrow,
-  .hero-meta,
-  .row-meta,
-  .module-number {
-    color: var(--color-text-subtle);
-    font: 400 var(--text-xs) / 1.6 var(--font-mono);
+    animation-delay: 180ms;
   }
 
   .hero-title {
-    max-width: 15ch;
-    font: 300 var(--text-display) / 1 var(--font-serif);
-    letter-spacing: -0.015em;
+    max-width: 16ch;
+    font-size: var(--text-display);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
   }
 
   .hero-lede {
     max-width: var(--prose-max);
     color: var(--color-text-muted);
     font-size: var(--text-lg);
-    line-height: 1.5;
+    line-height: 1.55;
   }
 
   .hero-meta {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1) var(--space-6);
-    margin: var(--space-6) 0 0;
-    padding: 0;
-    list-style: none;
+    margin-top: var(--space-4);
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
   }
 
   .sections {
@@ -166,72 +132,56 @@ const teamGroups = [
   .intro {
     max-width: var(--prose-max);
     margin-bottom: var(--space-12);
-    font: 400 var(--text-xl) / 1.35 var(--font-serif);
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+    line-height: 1.4;
+    letter-spacing: var(--tracking-heading);
   }
 
-  .row-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .row-list > li + li {
+  .person-list > li + li {
     border-top: 1px solid var(--color-rule);
   }
 
-  .component {
+  .component-body {
     display: grid;
     gap: var(--space-2);
-    padding-block: var(--space-8);
   }
 
-  .component:first-child,
-  .module:first-child {
-    padding-top: 0;
+  .component-title {
+    font-size: var(--text-lg);
   }
 
-  .row-title {
-    font: 400 var(--text-lg) / 1.25 var(--font-serif);
+  .component-title a {
+    color: var(--color-text);
+    text-decoration: none;
   }
 
-  .row-text {
+  .component-title a::after {
+    color: var(--color-brand);
+    content: ' →';
+    transition: margin var(--duration-fast) var(--ease-out);
+  }
+
+  .component-title a:hover::after {
+    margin-left: 0.2em;
+  }
+
+  .component-timing {
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
+  }
+
+  .component-summary {
     max-width: var(--prose-max);
     color: var(--color-text-muted);
   }
 
-  .module {
-    display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr);
-    gap: var(--space-4);
-    padding-block: var(--space-8);
+  .person-list > li:first-child :global(.person-row) {
+    padding-top: 0;
   }
 
-  .module-number {
-    padding-top: 0.3em;
-  }
-
-  .module-body {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .topic-list {
-    display: grid;
-    gap: var(--space-1);
-    margin: 0;
-    padding: 0;
-    color: var(--color-text-muted);
-    font-size: var(--text-sm);
-    list-style: none;
-  }
-
-  .team {
-    display: grid;
-    gap: var(--space-12);
-  }
-
-  .team-group {
-    display: grid;
-    gap: var(--space-2);
+  .more-link {
+    margin-top: var(--space-8);
+    font-weight: var(--weight-medium);
   }
 </style>

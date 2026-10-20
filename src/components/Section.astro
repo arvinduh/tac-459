@@ -1,25 +1,26 @@
 ---
 /**
- * A numbered home page section on the site's two-column editorial grid.
+ * A titled band of a page on the site's two-column editorial grid.
  *
- * The label column holds the number and name in mono; the content column
- * holds the slot. Below the grid breakpoint the label stacks on top.
+ * The narrow column holds the section's heading; the wide column holds the
+ * slot. Below the grid breakpoint the heading stacks on top.
  */
 interface Props {
-  /** Anchor the header's section links point at. */
+  /** Anchor for in-page links; also derives the heading's id. */
   id: string;
-  number: number;
   label: string;
+  /** Short mono tag above the label, such as 'Module 2'. */
+  numeral?: string;
 }
 
-const { id, number, label } = Astro.props;
+const { id, label, numeral } = Astro.props;
 const headingId = `${id}-heading`;
 ---
 
 <section class="page-width" id={id} aria-labelledby={headingId}>
   <div class="section-grid">
     <h2 class="section-label" id={headingId}>
-      <span class="section-number">{String(number).padStart(2, '0')}</span>
+      {numeral && <span class="numeral">{numeral}</span>}
       {label}
     </h2>
     <div class="section-body">
@@ -45,13 +46,11 @@ const headingId = `${id}-heading`;
   }
 
   .section-label {
-    display: flex;
-    gap: var(--space-3);
-    color: var(--color-text-subtle);
-    font: 400 var(--text-xs) / 1.6 var(--font-mono);
-  }
-
-  .section-number {
-    color: var(--color-text);
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    letter-spacing: 0;
   }
 </style>
