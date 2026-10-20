@@ -1,13 +1,12 @@
 ---
 /**
- * The site's navigation: a Cardinal dot fixed in the top-right corner that
- * opens a panel with a circular reveal, blurring the page behind it.
+ * The site's navigation: inline links on wide screens, a sheet on phones.
  *
- * Built on the native Popover API, so opening, light dismiss (a tap outside
- * or Esc) and focus return need no JavaScript, and the links stay in the
- * HTML for crawlers. The close button sits exactly where the dot was, so the
- * dot appears to open and close the panel itself. Each link carries a short
- * note drawn from content, so the menu also previews the site.
+ * One list serves both. On phones it is a native popover opened by the
+ * Menu button, so light dismiss, Esc and focus return need no JavaScript;
+ * from the wide breakpoint up the same element shows inline and the button
+ * hides. The links stay in the HTML for crawlers either way. In the sheet
+ * each link adds a short note drawn from content, previewing the page.
  */
 import {
   getComponent,
@@ -15,6 +14,7 @@ import {
   getModules,
   getProjectTerms,
 } from '../lib/course';
+import { NAV_LINKS, isCurrentPath } from '../lib/nav';
 import { href } from '../lib/paths';
 
 const [modules, company, capstone, projectTerms, term] = await Promise.all([
@@ -30,263 +30,143 @@ const products = projectTerms.reduce(
   0,
 );
 
-const LINKS = [
-  { label: 'Home', path: '/', note: 'Overview' },
-  { label: 'Curriculum', path: '/curriculum/', note: `${weeks} weeks` },
-  {
-    label: 'Company overview',
-    path: '/company-overview/',
-    note: company.timing,
-  },
-  { label: 'Capstone', path: '/capstone/', note: capstone.timing },
-  { label: 'Projects', path: '/projects/', note: `${products} products` },
-  { label: 'Team', path: '/team/', note: term.label },
-];
+const NOTES: Record<(typeof NAV_LINKS)[number]['path'], string> = {
+  '/curriculum/': `${weeks} weeks`,
+  '/company-overview/': company.timing,
+  '/capstone/': capstone.timing,
+  '/projects/': `${products} products`,
+  '/team/': term.label,
+};
 
 const here = Astro.url.pathname;
-// Home matches only itself; every other page also owns its children.
-const isCurrent = (path: string) =>
-  path === '/' ? here === href('/') : here.startsWith(href(path));
 ---
 
 <button
-  class="menu-dot menu-open"
+  class="menu-toggle"
   type="button"
   popovertarget="site-menu"
-  aria-label="Open menu"
+  aria-label="Menu"
 >
-  <span class="bars"></span>
+  <span class="toggle-bars" aria-hidden="true"></span>
 </button>
 
 <nav class="menu" id="site-menu" popover aria-label="Site">
-  <div class="menu-card">
-    <button
-      class="menu-dot menu-close"
-      type="button"
-      popovertarget="site-menu"
-      popovertargetaction="hide"
-      aria-label="Close menu"
-    >
-      <span class="bars"></span>
-    </button>
-    <ul class="plain-list menu-list">
-      {LINKS.map(({ label, path, note }) => (
-        <li>
-          <a
-            href={href(path)}
-            aria-current={isCurrent(path) ? 'page' : undefined}
-          >
-            <span class="menu-label">{label}</span>
-            <span class="menu-note data">{note}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  </div>
+  <ul class="plain-list menu-list">
+    {NAV_LINKS.map(({ label, path }) => (
+      <li>
+        <a
+          href={href(path)}
+          aria-current={isCurrentPath(here, path) ? 'page' : undefined}
+        >
+          <span class="menu-label">{label}</span>
+          <span class="menu-note data">{NOTES[path]}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
 </nav>
 
 <style>
-  .menu-dot {
+  /* Phones: the toggle shows and the list is a sheet below the header. */
+  .menu-toggle {
     display: grid;
     place-items: center;
-    width: var(--menu-dot);
-    height: var(--menu-dot);
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-right: calc(-1 * var(--space-2));
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: var(--color-brand);
-    color: var(--color-bg);
+    background: none;
+    color: var(--color-text);
     cursor: pointer;
-    transition: transform var(--duration-base) var(--ease-out);
   }
 
-  /* Both pin to the content's right edge, not the window's. */
-  .menu-open,
-  .menu {
-    --menu-right: max(
-      var(--gutter),
-      calc((100% - var(--content-max)) / 2 + var(--gutter))
-    );
-  }
-
-  .menu-open {
-    position: fixed;
-    top: var(--space-6);
-    right: var(--menu-right);
-    z-index: 20;
-    box-shadow: var(--shadow-float);
-  }
-
-  .menu-dot:active {
-    transform: scale(0.94);
-  }
-
-  /* Two lines; the lower rests shorter and stretches out on hover. */
-  .bars {
+  /* Two lines that cross into a close mark while the sheet is open. */
+  .toggle-bars {
     position: relative;
-    width: 1.1rem;
-    height: 0.55rem;
+    width: 1.125rem;
+    height: 0.5rem;
   }
 
-  .bars::before,
-  .bars::after {
+  .toggle-bars::before,
+  .toggle-bars::after {
     position: absolute;
-    right: 0;
     left: 0;
+    width: 100%;
     height: 1.5px;
     border-radius: 1px;
     background: currentcolor;
     content: '';
-    transition:
-      transform var(--duration-base) var(--ease-out),
-      right var(--duration-base) var(--ease-out);
+    transition: transform var(--duration-base) var(--ease-out);
   }
 
-  .bars::before {
+  .toggle-bars::before {
     top: 0;
   }
 
-  .bars::after {
-    right: 40%;
+  .toggle-bars::after {
     bottom: 0;
   }
 
-  @media (hover: hover) {
-    .menu-open:hover {
-      transform: scale(1.06);
-    }
-
-    .menu-open:hover .bars::after {
-      right: 0;
-    }
+  :global(.site-header:has(.menu:popover-open)) .toggle-bars::before {
+    transform: translateY(calc(0.25rem - 0.75px)) rotate(45deg);
   }
 
-  /* Inside the panel the same lines cross into a close mark. */
-  .menu-close .bars::after {
-    right: 0;
-    transform: translateY(-0.26rem) rotate(-45deg);
-  }
-
-  .menu-close .bars::before {
-    transform: translateY(0.26rem) rotate(45deg);
+  :global(.site-header:has(.menu:popover-open)) .toggle-bars::after {
+    transform: translateY(calc(-0.25rem + 0.75px)) rotate(-45deg);
   }
 
   /*
-   * The popover is a transparent frame pinned to the dot; the card inside
-   * grows out of the dot in a circle, Cardinal turning to paper, while the
-   * links rise in one after another.
+   * The sheet fills the screen below the header and fades in while its
+   * links settle a few pixels; only opacity and transform animate, so it
+   * stays smooth on phones. The page behind does not scroll while open.
    */
   .menu {
     position: fixed;
-    inset: var(--space-6) var(--menu-right) auto auto;
-    width: min(22rem, calc(100vw - 2 * var(--gutter)));
+    inset: var(--header-height) 0 0;
+    width: auto;
+    height: auto;
     margin: 0;
-    padding: 0;
+    padding: var(--space-4) var(--gutter) var(--space-12);
     border: 0;
-    background: none;
-    overflow: visible;
-    filter: drop-shadow(0 18px 40px rgb(26 25 24 / 0.18));
-    transition:
-      overlay var(--duration-slow) allow-discrete,
-      display var(--duration-slow) allow-discrete;
-  }
-
-  .menu-card {
-    --r: calc(var(--menu-dot) / 2);
-    position: relative;
-    padding: calc(var(--menu-dot) + var(--space-2)) var(--space-6)
-      var(--space-6);
-    border-radius: var(--radius-panel);
-    background: var(--color-brand);
-    clip-path: circle(var(--r) at calc(100% - var(--r)) var(--r));
-    transition:
-      clip-path var(--duration-slow) var(--ease-out),
-      background-color var(--duration-base) ease;
-  }
-
-  .menu:popover-open .menu-card {
     background: var(--color-bg);
-    clip-path: circle(150% at calc(100% - var(--r)) var(--r));
-  }
-
-  @starting-style {
-    .menu:popover-open .menu-card {
-      background: var(--color-brand);
-      clip-path: circle(var(--r) at calc(100% - var(--r)) var(--r));
-    }
-  }
-
-  .menu-close {
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
-
-  .menu::backdrop {
-    background: var(--color-backdrop);
+    color: var(--color-text);
     opacity: 0;
-    backdrop-filter: blur(var(--backdrop-blur));
     transition:
-      opacity var(--duration-base) ease,
-      overlay var(--duration-slow) allow-discrete,
-      display var(--duration-slow) allow-discrete;
+      opacity var(--duration-fast) ease,
+      overlay var(--duration-base) allow-discrete,
+      display var(--duration-base) allow-discrete;
   }
 
-  .menu:popover-open::backdrop {
+  .menu:popover-open {
     opacity: 1;
+    transition-duration: var(--duration-base);
   }
 
   @starting-style {
-    .menu:popover-open::backdrop {
+    .menu:popover-open {
       opacity: 0;
     }
   }
 
+  :global(html:has(.menu:popover-open)) {
+    overflow: hidden;
+  }
+
   .menu-list li {
-    opacity: 0;
-    transform: translateY(8px);
-    transition:
-      opacity var(--duration-fast) ease,
-      transform var(--duration-fast) ease;
+    transform: translateY(-6px);
+    transition: transform var(--duration-base) var(--ease-out);
   }
 
   .menu:popover-open .menu-list li {
-    opacity: 1;
     transform: none;
-    transition:
-      opacity var(--duration-slow) ease var(--delay, 0ms),
-      transform var(--duration-slow) var(--ease-out) var(--delay, 0ms);
   }
 
   @starting-style {
     .menu:popover-open .menu-list li {
-      opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(-6px);
     }
-  }
-
-  .menu-list li:nth-child(1) {
-    --delay: 120ms;
-  }
-
-  .menu-list li:nth-child(2) {
-    --delay: 160ms;
-  }
-
-  .menu-list li:nth-child(3) {
-    --delay: 200ms;
-  }
-
-  .menu-list li:nth-child(4) {
-    --delay: 240ms;
-  }
-
-  .menu-list li:nth-child(5) {
-    --delay: 280ms;
-  }
-
-  .menu-list li:nth-child(6) {
-    --delay: 320ms;
   }
 
   .menu-list li + li {
@@ -298,36 +178,87 @@ const isCurrent = (path: string) =>
     align-items: baseline;
     justify-content: space-between;
     gap: var(--space-4);
-    padding-block: var(--space-3);
+    padding-block: var(--space-4);
     color: var(--color-text);
     text-decoration: none;
   }
 
   .menu-label {
-    position: relative;
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
     font-weight: var(--weight-semibold);
     letter-spacing: var(--tracking-heading);
-    transition: color var(--duration-fast) var(--ease-out);
   }
 
-  .menu-list a:hover .menu-label {
+  .menu-list a[aria-current='page'] .menu-label {
     color: var(--color-brand);
-  }
-
-  /* The current page gets a small Gold dot before its name. */
-  .menu-list a[aria-current='page'] .menu-label::before {
-    position: absolute;
-    top: calc(50% - 0.2rem);
-    left: -0.9rem;
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background: var(--color-accent);
-    content: '';
   }
 
   .menu-note {
     white-space: nowrap;
+  }
+
+  /*
+   * Wide screens: the popover shows inline as a row of quiet links, and
+   * the current page takes a Cardinal rule under its name.
+   */
+  @media (width >= 52rem) {
+    .menu-toggle {
+      display: none;
+    }
+
+    .menu {
+      display: block;
+      position: static;
+      padding: 0;
+      background: none;
+      opacity: 1;
+    }
+
+    .menu-list {
+      display: flex;
+      gap: var(--space-8);
+    }
+
+    .menu-list li {
+      transform: none;
+    }
+
+    .menu-list li + li {
+      border: 0;
+    }
+
+    .menu-list a {
+      padding-block: var(--space-2);
+      color: var(--color-text-muted);
+      text-decoration: underline 2px transparent;
+      text-underline-offset: 0.6em;
+      transition:
+        color var(--duration-fast) var(--ease-out),
+        text-decoration-color var(--duration-fast) var(--ease-out);
+    }
+
+    .menu-list a:hover {
+      color: var(--color-text);
+      text-decoration-color: var(--color-rule);
+    }
+
+    .menu-list a[aria-current='page'] {
+      color: var(--color-text);
+      text-decoration-color: var(--color-brand);
+    }
+
+    .menu-label {
+      font-size: var(--text-sm);
+      font-weight: var(--weight-medium);
+      letter-spacing: 0;
+    }
+
+    .menu-list a[aria-current='page'] .menu-label {
+      color: inherit;
+    }
+
+    .menu-note {
+      display: none;
+    }
   }
 </style>
