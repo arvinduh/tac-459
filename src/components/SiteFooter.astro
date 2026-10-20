@@ -1,5 +1,11 @@
 ---
-/** One line under a hairline naming the course and its school. */
+/**
+ * The bottom of every page: the course name and school beside the full
+ * page list, so every page is one step from any other.
+ */
+import { NAV_LINKS } from '../lib/nav';
+import { href } from '../lib/paths';
+
 interface Props {
   courseCode: string;
   title: string;
@@ -9,11 +15,24 @@ const { courseCode, title } = Astro.props;
 ---
 
 <footer class="page-width site-footer">
-  <div class="footer-line">
-    <p>
-      {courseCode} · {title}
-    </p>
-    <p>USC Viterbi School of Engineering</p>
+  <div class="footer-grid">
+    <div class="footer-id">
+      <p class="footer-code">{courseCode}</p>
+      <p>{title}</p>
+      <p>USC Viterbi School of Engineering</p>
+    </div>
+    <nav aria-label="Footer">
+      <ul class="plain-list footer-links">
+        <li>
+          <a href={href('/')}>Home</a>
+        </li>
+        {NAV_LINKS.map(({ label, path }) => (
+          <li>
+            <a href={href(path)}>{label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   </div>
 </footer>
 
@@ -23,14 +42,45 @@ const { courseCode, title } = Astro.props;
   }
 
   /* The rule sits inside the gutters so it lines up with the content. */
-  .footer-line {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-2) var(--space-6);
-    padding-block: var(--space-8);
+  .footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--space-6) var(--space-8);
+    padding-block: var(--space-8) var(--space-12);
     border-top: 1px solid var(--color-rule);
     color: var(--color-text-subtle);
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
+  }
+
+  @media (width < 48rem) {
+    .footer-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .footer-id {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .footer-code {
+    color: var(--color-brand);
+    font: var(--weight-semibold) var(--text-xs) / 1.6 var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+  }
+
+  .footer-links a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-text);
   }
 </style>
