@@ -145,8 +145,6 @@ const terms = defineCollection({
       meetings: z.array(session).default([]),
       /** First and last day of classes; required once the term is current. */
       classes: z.object({ start: day, end: day }).optional(),
-      /** Weekdays without class, such as holidays, left out of the calendar. */
-      noClass: z.array(day).default([]),
       staff: z.array(
         z.object({
           person: reference('people'),

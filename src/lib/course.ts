@@ -59,10 +59,9 @@ export async function getClassCalendar(siteUrl: string) {
         : meeting.location,
       from: term.classes.start,
       until: term.classes.end,
-      skip: term.noClass,
     };
   });
-  return { id: term.id, text, series };
+  return { text, series };
 }
 
 /** Returns the curriculum's modules in teaching order. */

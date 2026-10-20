@@ -76,7 +76,6 @@ test('mapUrl links known buildings only', () => {
 test('currentTermProblems accepts a filled-in term', () => {
   const term = {
     classes: { start: '2026-08-24', end: '2026-12-04' },
-    noClass: ['2026-09-07'],
     meetings: [{}],
     staff: [{ role: 'instructor' }],
   };
@@ -86,7 +85,6 @@ test('currentTermProblems accepts a filled-in term', () => {
 test('currentTermProblems catches a term copied forward', () => {
   const copied = {
     classes: { start: '2026-08-24', end: '2026-12-04' },
-    noClass: ['2026-09-07'],
     meetings: [],
     staff: [{ role: 'learningAssistant' }],
   };
@@ -97,7 +95,6 @@ test('currentTermProblems catches a term copied forward', () => {
   ]);
   assert.deepEqual(
     currentTermProblems('fall-2026', {
-      noClass: [],
       meetings: [],
       staff: copied.staff,
     }),

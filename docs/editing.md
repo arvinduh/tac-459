@@ -38,7 +38,6 @@ Schedule of Classes page from it. In the new file, update:
 | Field      | What                                                      |
 | ---------- | --------------------------------------------------------- |
 | `classes`  | First and last day of classes, `{ start: 2027-01-11, … }` |
-| `noClass`  | Class days that are holidays, left out of the calendar    |
 | `meetings` | Days, times and room; a room code such as `KAP 160` links |
 | `staff`    | Who teaches, with any office hours                        |
 
@@ -50,7 +49,7 @@ team timeline and the projects page.
 
 Every Monday a CI run checks the date; three weeks after the last class it fails
 with these steps, so a forgotten rollover cannot sit unnoticed. Everything else
-on the site (the calendar file, week numbers, the term name and links) is
+on the site (the calendar link, week numbers, the term name and links) is
 generated from these fields.
 
 ### Add a person

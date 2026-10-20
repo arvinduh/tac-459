@@ -1,34 +1,12 @@
 /**
- * Builds calendar entries for a term's class meetings: an .ics file any
- * calendar app imports, and a Google Calendar link.
+ * Builds the Google Calendar link that adds a term's class meetings.
  *
- * Both are generated from the term file's meetings and class dates, so a new
- * term's calendar needs no edits here. Pure functions, unit tested directly.
+ * It is generated from the term file's meetings and class dates, so a new
+ * term's link needs no edits here. Pure functions, unit tested directly.
  */
 
 /** The course's time zone; every clock time in term files is local to it. */
 const TIME_ZONE = 'America/Los_Angeles';
-
-/** The zone's US daylight-saving rules (in force since 2007), per RFC 5545. */
-const VTIMEZONE = [
-  'BEGIN:VTIMEZONE',
-  `TZID:${TIME_ZONE}`,
-  'BEGIN:DAYLIGHT',
-  'TZOFFSETFROM:-0800',
-  'TZOFFSETTO:-0700',
-  'TZNAME:PDT',
-  'DTSTART:20070311T020000',
-  'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
-  'END:DAYLIGHT',
-  'BEGIN:STANDARD',
-  'TZOFFSETFROM:-0700',
-  'TZOFFSETTO:-0800',
-  'TZNAME:PST',
-  'DTSTART:20071104T020000',
-  'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
-  'END:STANDARD',
-  'END:VTIMEZONE',
-];
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -42,8 +20,6 @@ export interface MeetingSeries {
   /** First and last day of classes, 'YYYY-MM-DD'. */
   from: string;
   until: string;
-  /** Days without class, such as holidays, 'YYYY-MM-DD'. */
-  skip: string[];
 }
 
 /** What the calendar entry says about itself. */
@@ -64,7 +40,7 @@ export function firstMeeting(from: string, days: string[]): string {
   throw new Error(`No meeting day among ${days.join(', ')}`);
 }
 
-/** Formats a local date and 'HH:MM' as an iCalendar floating date-time. */
+/** Formats a local date and 'HH:MM' as an iCalendar local date-time. */
 function localStamp(date: string, clock: string): string {
   return `${date.replaceAll('-', '')}T${clock.replace(':', '')}00`;
 }
@@ -84,76 +60,9 @@ function rule({ days, until }: MeetingSeries): string {
   return `RRULE:FREQ=WEEKLY;BYDAY=${byDay};UNTIL=${stamp}T075959Z`;
 }
 
-/** Escapes text for an iCalendar property value. */
-function escapeText(text: string): string {
-  return text.replace(/[\\;,]/g, (char) => `\\${char}`).replace(/\n/g, '\\n');
-}
-
-/** Folds a content line to 75 octets, as RFC 5545 requires. */
-function fold(line: string): string {
-  const parts: string[] = [];
-  let rest = line;
-  while (new TextEncoder().encode(rest).length > 75) {
-    let cut = 75;
-    while (new TextEncoder().encode(rest.slice(0, cut)).length > 75) cut -= 1;
-    parts.push(rest.slice(0, cut));
-    rest = ` ${rest.slice(cut)}`;
-  }
-  return [...parts, rest].join('\r\n');
-}
-
-/**
- * Returns an .ics calendar with one repeating event per meeting series.
- *
- * Times carry the course's time zone id, which every major calendar app
- * resolves; holidays are excluded with EXDATE.
- */
-export function buildIcs(
-  id: string,
-  text: EventText,
-  series: MeetingSeries[],
-): string {
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//TAC 459//Course site//EN',
-    'CALSCALE:GREGORIAN',
-    `X-WR-CALNAME:${escapeText(text.title)}`,
-    `X-WR-TIMEZONE:${TIME_ZONE}`,
-    ...VTIMEZONE,
-    ...series.flatMap((meeting, index) => {
-      const first = firstMeeting(meeting.from, meeting.days);
-      const skipped = meeting.skip.map((date) =>
-        localStamp(date, meeting.start),
-      );
-      return [
-        'BEGIN:VEVENT',
-        `UID:${id}-${index + 1}@tac-459`,
-        `DTSTAMP:${meeting.from.replaceAll('-', '')}T000000Z`,
-        `DTSTART;TZID=${TIME_ZONE}:${localStamp(first, meeting.start)}`,
-        `DTEND;TZID=${TIME_ZONE}:${localStamp(first, meeting.end)}`,
-        rule(meeting),
-        ...(skipped.length > 0
-          ? [`EXDATE;TZID=${TIME_ZONE}:${skipped.join(',')}`]
-          : []),
-        `SUMMARY:${escapeText(text.title)}`,
-        `LOCATION:${escapeText(meeting.location)}`,
-        `DESCRIPTION:${escapeText(text.description)}`,
-        `URL:${text.url}`,
-        'END:VEVENT',
-      ];
-    }),
-    'END:VCALENDAR',
-  ];
-  return `${lines.map(fold).join('\r\n')}\r\n`;
-}
-
 /**
  * Returns a link that opens Google Calendar's new-event form, repeating
- * weekly through the last day of classes.
- *
- * Google's form takes the weekly rule but not holidays, so those stay in
- * the .ics file only.
+ * weekly through the last day of classes. The form cannot skip holidays.
  */
 export function googleCalendarUrl(
   text: EventText,

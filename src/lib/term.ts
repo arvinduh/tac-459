@@ -98,7 +98,6 @@ export function mapUrl(
 /** The parts of a term file that a current term must fill in. */
 interface TermFacts {
   classes?: { start: string; end: string } | undefined;
-  noClass: string[];
   meetings: unknown[];
   staff: { role: string }[];
 }
@@ -132,11 +131,6 @@ export function currentTermProblems(id: string, term: TermFacts): string[] {
   }
   if (classes.end < classes.start) {
     problems.push('classes.end is before classes.start');
-  }
-  for (const date of term.noClass) {
-    if (date < classes.start || date > classes.end) {
-      problems.push(`noClass ${date} is outside the class dates`);
-    }
   }
   return problems;
 }
