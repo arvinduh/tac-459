@@ -1,7 +1,7 @@
 ---
 /**
  * One past product: what it does, how it was built, its public links as
- * buttons under the title, who built it and its screenshots.
+ * links under the title, who built it and its screenshots.
  */
 import { Image } from 'astro:assets';
 import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
@@ -50,11 +50,8 @@ const linkList = [
       <p class="project-lede">{summary}</p>
       {linkList.length > 0 && (
         <div class="project-actions">
-          {linkList.map(({ label, url }, index) => (
-            <a
-              class:list={['button', { 'button-quiet': index > 0 }]}
-              href={url}
-            >
+          {linkList.map(({ label, url }) => (
+            <a class="arrow-link" href={url}>
               {label}
               <Arrow />
             </a>
@@ -139,7 +136,7 @@ const linkList = [
   .project-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    gap: var(--space-3) var(--space-8);
     margin-top: var(--space-2);
   }
 

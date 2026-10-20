@@ -12,11 +12,11 @@ tokens (`--color-brand`, `--text-lg`, …), never hex codes or pixel sizes.
 Warm ink on paper carries the content. USC Cardinal and Gold carry the identity
 in a few deliberate places, so they stay meaningful.
 
-| Color           | Role                                                                                                            | Never                       |
-| --------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| Ink on paper    | All reading text, in three strengths: text, muted, subtle                                                       |                             |
-| Cardinal `#900` | Brand and action: header line, wordmark, buttons, links, eyebrows, numerals, current page rule, instructor edge | Page or section backgrounds |
-| Gold `#fc0`     | Highlight: the lede's key phrase, hover underlines, selection, learning assistant edge                          | Text (1.5:1 on paper)       |
+| Color           | Role                                                                                                   | Never                       |
+| --------------- | ------------------------------------------------------------------------------------------------------ | --------------------------- |
+| Ink on paper    | All reading text, in three strengths: text, muted, subtle                                              |                             |
+| Cardinal `#900` | Brand and action: header line, wordmark, links, eyebrows, numerals, current page rule, instructor edge | Page or section backgrounds |
+| Gold `#fc0`     | Highlight: the lede's key phrase, hover underlines, selection, learning assistant edge                 | Text (1.5:1 on paper)       |
 
 A quiet surface (`--color-surface`) fills placeholders and timeline bars; color
 goes on a bar's thin edge, and a warm tint of it marks people still teaching.
@@ -42,8 +42,8 @@ A serif was tried and dropped: on this site it had no job Inter did not already
 do. It earns a place only for a new role, such as quoting students.
 
 **Weights.** 600 for headings and names, the things that title a block or open a
-page. 500 for labels, eyebrows and links that act like buttons. 400 for
-everything else. Bold inside prose (`strong`) is 600. Nothing uses 700.
+page. 500 for labels, eyebrows and links that lead onward. 400 for everything
+else. Bold inside prose (`strong`) is 600. Nothing uses 700.
 
 **Italic.** Not used. Emphasis comes from weight, and Inter's italic is not
 loaded.
@@ -67,15 +67,10 @@ are `h3`. Large type gets tighter tracking (`--tracking-display`,
 
 ## Calls to action
 
-Three kinds, each ending in the same arrow, which grows a shaft on hover:
-
-| Kind         | Class                 | Used for                                    |
-| ------------ | --------------------- | ------------------------------------------- |
-| Solid button | `button`              | A page's main next step; at most one a view |
-| Quiet button | `button button-quiet` | The alternative beside it                   |
-| Arrow link   | `arrow-link`          | Every other link that leads onward          |
-
-Course pages end with a `NextPage` link to the following part of the course.
+There are no buttons. Every link that leads onward is a Cardinal `arrow-link`:
+on hover an underline draws in from the left and the arrow grows a shaft and
+slides forward. Course pages end with a `NextPage` link to the following part of
+the course.
 
 ## Layout
 

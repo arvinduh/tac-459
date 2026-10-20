@@ -68,11 +68,11 @@ const facts = [
     <h1 class="hero-title">{site.title}</h1>
     <p class="hero-lede">{overview.lede}</p>
     <div class="hero-actions">
-      <a class="button" href={href('/curriculum/')}>
+      <a class="arrow-link" href={href('/curriculum/')}>
         Explore the curriculum
         <Arrow />
       </a>
-      <a class="button button-quiet" href={href('/projects/')}>
+      <a class="arrow-link" href={href('/projects/')}>
         See student projects
         <Arrow />
       </a>
@@ -184,7 +184,7 @@ const facts = [
   .hero-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    gap: var(--space-3) var(--space-8);
     margin-top: var(--space-2);
   }
 
