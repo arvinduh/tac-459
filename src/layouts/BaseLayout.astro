@@ -9,6 +9,7 @@ import '../styles/tokens.css';
 import '../styles/base.css';
 import { getEntry } from 'astro:content';
 import { ClientRouter } from 'astro:transitions';
+import SiteHeader from '../components/SiteHeader.astro';
 
 interface Props {
   /** Page name for the tab title; omitted on the home page. */
@@ -40,6 +41,12 @@ const fullTitle = title
     <ClientRouter />
   </head>
   <body>
-    <slot />
+    <a class="skip-link" href="#main-content">
+      Skip to content
+    </a>
+    <SiteHeader courseCode={courseCode} />
+    <main id="main-content">
+      <slot />
+    </main>
   </body>
 </html>
