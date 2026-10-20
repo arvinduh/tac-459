@@ -61,3 +61,42 @@ modules:
           - Applications of Transformer Models in NLP
           - Training Transformer Models for NLP Tasks
           - Challenges and Solutions with Transformer Models
+  - title: Generative AI and Applications
+    weeks:
+      - title: Syntax, Parsing, Word Embeddings, and POS Tagging
+        due: [assignment-5]
+        core:
+          - Syntax, Parsing, Word Embeddings, and POS Tagging
+          - Syntax in Natural Language Processing
+          - Word2Vec, GloVe, and FastText Embeddings
+          - 'Part-of-Speech (POS) Tagging: Importance, Methods, and Tools'
+        deeper:
+          - Dependency and Constituency Parsing
+          - Deep Dive into Word Embeddings
+          - Using Embeddings in NLP Tasks
+          - Practical Parsing, Embedding, and POS Tagging Techniques
+          - Vector Database
+      - title: Semantic Analysis, Language Models, and Question Answering
+        due: [assignment-6]
+        core:
+          - Semantic Analysis, Language Models, and Question Answering
+          - Semantic Role Labeling (SRL)
+          - Overview of Language Models in NLP
+          - Word Sense Disambiguation Techniques
+        deeper:
+          - Knowledge Graphs in Semantic Analysis
+          - Advances in Contextual Embeddings
+          - Introduction to Question Answering System and Utilizing Language
+            Models
+          - Challenges in QA and Semantic Analysis
+      - title: Text Classification and Machine Translation + Midterm Exam
+        core:
+          - MidTerm Exams!!
+          - Text Classification and Machine Translation
+          - Fundamentals of Text Classification
+          - Introduction to Machine Translation
+        deeper:
+          - Techniques and Algorithms for Classification
+          - Neural Machine Translation (NMT) models
+          - Challenges and Evaluation Metrics for MT
+          - Practical Implementation of MT Systems
