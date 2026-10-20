@@ -6,15 +6,18 @@
  * lives on exactly one page. Every value comes from content files.
  */
 import PersonRow from '../components/PersonRow.astro';
+import ProjectGrid from '../components/ProjectGrid.astro';
 import Section from '../components/Section.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {
   getCurrentStaff,
   getCurrentTerm,
   getOverview,
+  getProjectTerms,
   getSite,
 } from '../lib/course';
 import { href } from '../lib/paths';
+import { courseSchema } from '../lib/schema';
 import { formatClock } from '../lib/term';
 
 const site = await getSite();
@@ -24,13 +27,31 @@ const instructors = (await getCurrentStaff()).filter(
   ({ role }) => role === 'instructor',
 );
 
+const latest = (await getProjectTerms()).find(
+  (entry) => entry.projects.length > 0,
+);
+
+const absolute = (path: string) => new URL(href(path), Astro.site).href;
+const course = courseSchema({
+  name: site.title,
+  courseCode: site.courseCode,
+  description: site.description,
+  url: absolute('/'),
+  term: term.label,
+  ...(term.meetings[0] && { location: term.meetings[0].location }),
+  instructors: instructors.map(({ person }) => ({
+    name: person.data.name,
+    url: absolute(`/team/${person.id}/`),
+  })),
+});
+
 const meetings = term.meetings.map(
   ({ days, start, end, location }) =>
     `${days.join(' & ')} ${formatClock(start)}–${formatClock(end)} · ${location}`,
 );
 ---
 
-<BaseLayout>
+<BaseLayout schema={[course]}>
   <header class="page-width hero">
     <p class="eyebrow">{site.tagline}</p>
     <h1 class="hero-title">{site.title}</h1>
@@ -61,6 +82,15 @@ const meetings = term.meetings.map(
         ))}
       </ol>
     </Section>
+
+    {latest && (
+      <Section id="projects" label="Recent projects">
+        <ProjectGrid projects={latest.projects.slice(0, 4)} />
+        <p class="more-link">
+          <a href={href('/projects/')}>See every term's projects</a>
+        </p>
+      </Section>
+    )}
 
     <Section id="instructors" label="Instructors">
       <ul class="plain-list person-list">
