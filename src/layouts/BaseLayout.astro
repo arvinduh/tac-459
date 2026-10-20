@@ -12,6 +12,7 @@ import { ClientRouter } from 'astro:transitions';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { getSite } from '../lib/course';
+import { href } from '../lib/paths';
 
 interface Props {
   /** Page name for the tab title; omitted on the home page. */
@@ -53,6 +54,8 @@ const fullTitle = title
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
+    <link rel="sitemap" href={href('/sitemap-index.xml')} />
     {!site.indexable && <meta name="robots" content="noindex" />}
     {site.googleSiteVerification.map((token) => (
       <meta name="google-site-verification" content={token} />
