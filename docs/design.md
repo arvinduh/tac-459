@@ -89,12 +89,15 @@ header at full width and the words pass beneath it. The people teaching close
 the page.
 
 The site has two levels of detail and no more. Home tells the story; the Course
-page is the reference: each part's span and long description, then one table of
-the semester with a row per week and a lane per part, generated from the course
-files. Lanes carry the staff timeline's edges (ink, Gold, Cardinal), the lane
-names stick under the header, and a part whose steps are not one per week fills
-its span as one cell whose words stay in view. On phones the table reads as a
-list of weeks.
+page is the reference, graphics first. It opens on a map of the semester,
+generated from the course files: a column per week, a lane per part, and a
+numbered shape for every module and step, filled in the part's color (paper for
+the curriculum, Gold for the company overview, Cardinal for the capstone).
+Hovering a shape names it; pressing it opens a sheet with the detail, centered
+on wide screens and rising from the bottom on phones. Sheets are native
+popovers, so they need no script and their words stay in the page for search.
+The whole semester fits a phone without scrolling sideways. Each part's long
+description follows the map.
 
 The header is a solid bar that sticks to the top: inline links on wide screens,
 a full-screen sheet on phones. Nothing blurs; a blur costs a filter pass every
