@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  currentTermProblems,
   formatClock,
   formatSession,
   formatTimes,
@@ -62,4 +63,40 @@ test('mapUrl links known buildings only', () => {
     'https://www.google.com/maps/search/?api=1&query=Kaprielian%20Hall%2C%20University%20of%20Southern%20California',
   );
   assert.equal(mapUrl('Zoom', buildings), undefined);
+});
+
+test('currentTermProblems accepts a filled-in term', () => {
+  const term = {
+    classes: { start: '2026-08-24', end: '2026-12-04' },
+    noClass: ['2026-09-07'],
+    meetings: [{}],
+    staff: [{ role: 'instructor' }],
+  };
+  assert.deepEqual(currentTermProblems('fall-2026', term), []);
+});
+
+test('currentTermProblems catches a term copied forward', () => {
+  const copied = {
+    classes: { start: '2026-08-24', end: '2026-12-04' },
+    noClass: ['2026-09-07'],
+    meetings: [],
+    staff: [{ role: 'learningAssistant' }],
+  };
+  assert.deepEqual(currentTermProblems('spring-2027', copied), [
+    'add its class meetings',
+    'add at least one instructor',
+    'classes.start 2026-08-24 is not in spring-2027',
+  ]);
+  assert.deepEqual(
+    currentTermProblems('fall-2026', {
+      noClass: [],
+      meetings: [],
+      staff: copied.staff,
+    }),
+    [
+      'add its class meetings',
+      'add at least one instructor',
+      'add classes: { start, end }',
+    ],
+  );
 });

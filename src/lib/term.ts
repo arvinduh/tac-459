@@ -82,3 +82,49 @@ export function mapUrl(
   const query = `${building}, University of Southern California`;
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
+
+/** The parts of a term file that a current term must fill in. */
+interface TermFacts {
+  classes?: { start: string; end: string };
+  noClass: string[];
+  meetings: unknown[];
+  staff: { role: string }[];
+}
+
+/** Months a season's classes may start in, 1-based. */
+const START_MONTHS: Record<string, number[]> = {
+  spring: [1, 2],
+  summer: [5, 6],
+  fall: [8, 9],
+};
+
+/**
+ * Lists what a term file still needs before the site can show it as the
+ * current term; an empty list means it is ready.
+ *
+ * Catches a term copied forward without its new dates, meetings or staff,
+ * so the build fails instead of publishing last term's schedule.
+ */
+export function currentTermProblems(id: string, term: TermFacts): string[] {
+  const { season, year } = parseTerm(id);
+  const problems: string[] = [];
+  if (term.meetings.length === 0) problems.push('add its class meetings');
+  if (!term.staff.some(({ role }) => role === 'instructor')) {
+    problems.push('add at least one instructor');
+  }
+  const { classes } = term;
+  if (!classes) return [...problems, 'add classes: { start, end }'];
+  const [startYear, startMonth] = classes.start.split('-').map(Number);
+  if (startYear !== year || !START_MONTHS[season]?.includes(startMonth ?? 0)) {
+    problems.push(`classes.start ${classes.start} is not in ${id}`);
+  }
+  if (classes.end < classes.start) {
+    problems.push('classes.end is before classes.start');
+  }
+  for (const date of term.noClass) {
+    if (date < classes.start || date > classes.end) {
+      problems.push(`noClass ${date} is outside the class dates`);
+    }
+  }
+  return problems;
+}
