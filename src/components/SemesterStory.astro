@@ -1,16 +1,20 @@
 ---
 /**
- * The semester told on scroll: one pinned drawing that changes as each part
- * of the course scrolls past beside it.
+ * The home page's hero and the semester told on scroll, sharing one drawing.
  *
- * The drawing is one app window, the product a team builds. It fills with
- * a model whose layers light in turn, pulls back to show the companies
- * around it, zooms in as the model becomes the app's engine, then pulls
- * back again to the products past teams shipped. Every move is a transform
- * or a fade driven by CSS scroll timelines, so nothing runs while the page
- * is still. The words beside it are ordinary headings and paragraphs; the
- * drawing is decoration. Without scroll timelines, or under reduced motion,
- * the drawing is left out and the words read as a plain list.
+ * The drawing is one app window, the product a team builds, on a rounded
+ * tile. It opens full width under the hero's words, then shrinks into one
+ * half of the page as the first part arrives, and swaps sides with each
+ * part after that while the words take the other half. Inside, the model's
+ * layers light in turn, the camera pulls back to the companies around it,
+ * the model shrinks into the app as its engine, and the camera pulls back
+ * again to products past teams shipped.
+ *
+ * Every move is a transform or a fade on a CSS scroll timeline, and few
+ * elements move, so the browser has little to redo each frame and nothing
+ * runs while the page is still. The words are ordinary headings and
+ * paragraphs; the drawing is decoration. Without scroll timelines, or under
+ * reduced motion, the drawing is left out and the words read as a list.
  */
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
@@ -45,51 +49,52 @@ const RING = [
   [0, 1],
   [1, 1],
 ] as const;
-const ROWS = 4;
-const CELLS = 6;
+const LAYERS = 4;
 ---
 
 <div class="story">
   <div class="stage" aria-hidden="true">
-    <div class="frame">
-      <div class="world">
-        {RING.map(([column, row], index) => {
-          const cover = covers[index];
-          return (
-            <div class:list={['window', 'other', `at-${column}-${row}`]}>
+    <div class="dock">
+      <div class="tile">
+        <div class="world">
+          {RING.map(([column, row]) => (
+            <div class={`slot window at-${column}-${row}`}>
               <span class="logo" />
               <span class="line" />
               <span class="line short" />
-              {cover && (
-                <Image
-                  class="shot"
-                  src={cover}
-                  alt=""
-                  widths={[320, 640]}
-                  sizes="14rem"
-                />
-              )}
             </div>
-          );
-        })}
-        <div class="window own">
-          <span class="bar" />
-          <div class="model">
-            {Array.from({ length: ROWS }, (_, row) => (
-              <div class={`layer layer-${ROWS - row}`}>
-                {Array.from({ length: CELLS }, () => (
-                  <span class="cell" />
-                ))}
-              </div>
-            ))}
+          ))}
+          <div class="covers">
+            {RING.map(([column, row], index) => {
+              const cover = covers[index];
+              return (
+                cover && (
+                  <Image
+                    class={`slot shot at-${column}-${row}`}
+                    src={cover}
+                    alt=""
+                    widths={[320, 640]}
+                    sizes="16rem"
+                  />
+                )
+              );
+            })}
           </div>
-          <span class="bubble bubble-1" />
-          <span class="bubble bubble-2" />
-          <span class="bubble bubble-3" />
-          <span class="input">
-            <span class="send" />
-          </span>
-          <span class="ring" />
+          <div class="slot window own">
+            <span class="bar" />
+            <div class="model">
+              {Array.from({ length: LAYERS }, (_, row) => (
+                <span class={`layer layer-${LAYERS - row}`} />
+              ))}
+            </div>
+            <div class="chat">
+              <span class="bubble bubble-1" />
+              <span class="bubble bubble-2" />
+              <span class="bubble bubble-3" />
+              <span class="input" />
+            </div>
+            <span class="ring" />
+          </div>
         </div>
       </div>
     </div>
@@ -116,12 +121,6 @@ const CELLS = 6;
 </div>
 
 <style>
-  .story {
-    --panel: 100svh;
-
-    timeline-scope: --story;
-  }
-
   .panels {
     width: min(100% - 2 * var(--gutter), var(--content-max));
     margin-inline: auto;
@@ -168,47 +167,38 @@ const CELLS = 6;
     display: none;
   }
 
-  @supports (animation-timeline: view()) and (timeline-scope: --story) {
+  @supports (animation-timeline: view()) {
     @media screen and (prefers-reduced-motion: no-preference) {
-      /* The words start on the page's left edge; the drawing runs to the
-         window's right edge. */
+      /* The story opens on the tile alone, under the hero. Scenes hold
+         there and where each panel fills the window: at 0%, 25%, 50%, 75%
+         and 100% of the story's pinned passage. */
       .story {
-        display: grid;
-        grid-template-columns:
-          max(var(--gutter), (100% - var(--content-max)) / 2)
-          minmax(0, 1fr) minmax(0, 1fr);
-        margin-top: var(--space-section);
+        view-timeline-name: --story;
+        view-timeline-axis: block;
+        view-timeline-inset: 0;
       }
 
-      /* The drawing holds the right half while the panels pass. */
+      /* The stage pins over the panels, which pass on top of it. */
       .stage {
-        display: grid;
+        display: block;
         position: sticky;
         top: 0;
-        grid-row: 1;
-        grid-column: 3;
-        align-self: start;
-        place-items: center;
-        height: var(--panel);
-        padding: calc(var(--header-height) + var(--space-8)) var(--gutter)
-          var(--space-8);
-        background: var(--color-surface);
+        height: 100svh;
+        margin-bottom: -100svh;
+        overflow: clip;
+        pointer-events: none;
+        animation: rise var(--duration-slow) var(--ease-out) 240ms both;
       }
 
       .panels {
-        grid-row: 1;
-        grid-column: 2;
-        width: auto;
-        margin: 0;
-        padding-right: var(--space-12);
-        view-timeline-name: --story;
-        view-timeline-axis: block;
+        padding-top: 100svh;
       }
 
       .panel {
         display: grid;
+        position: relative;
         align-content: center;
-        min-height: var(--panel);
+        min-height: 100svh;
         padding: 0;
         animation-name: focus;
         animation-fill-mode: both;
@@ -216,33 +206,14 @@ const CELLS = 6;
         animation-timeline: view();
         animation-range: cover 0% cover 100%;
       }
-    }
-  }
 
-  /* Phones: the drawing pins to the top, the words pass under it. */
-  @supports (animation-timeline: view()) and (timeline-scope: --story) {
-    @media screen and (prefers-reduced-motion: no-preference) and (width < 48rem) {
-      .story {
-        grid-template-columns: minmax(0, 1fr);
+      /* The words take the half the tile leaves, alternating. */
+      .panel-text {
+        max-width: min(30rem, 50% - var(--space-8));
       }
 
-      .stage {
-        z-index: 1;
-        top: calc(var(--header-height) - 1px);
-        grid-column: 1;
-        align-self: start;
-        height: 46svh;
-        padding: var(--space-6) var(--gutter);
-      }
-
-      .panels {
-        grid-column: 1;
-        padding-inline: var(--gutter);
-      }
-
-      .panel {
-        align-content: end;
-        padding-bottom: var(--space-12);
+      .panel:nth-child(even) .panel-text {
+        margin-left: calc(50% + var(--space-8));
       }
     }
   }
@@ -260,20 +231,21 @@ const CELLS = 6;
   }
 
   /*
-   * The drawing, in percentages of a square frame. The team's window is
-   * centered; the others sit one step away in each direction, out of the
-   * frame until the camera pulls back.
+   * The tile spans the content width under the hero, then half of it: it
+   * scales by half about its center, and the dock slides it a quarter of
+   * the content to either side.
    */
-  .frame {
-    position: relative;
-    width: min(100%, 100cqh);
-    aspect-ratio: 1;
+  .dock {
+    width: min(100% - 2 * var(--gutter), var(--content-max));
+    margin-inline: auto;
   }
 
-  /* The other windows run off the band's edges rather than a frame's. */
-  .stage {
+  .tile {
+    position: relative;
+    aspect-ratio: 5 / 4;
     overflow: clip;
-    container-type: size;
+    border-radius: 28px;
+    background: var(--color-surface);
   }
 
   .world {
@@ -281,23 +253,18 @@ const CELLS = 6;
     inset: 0;
   }
 
-  .window {
+  /*
+   * Every window is the team's own box, moved whole steps across the ring:
+   * a step is the window plus a gap of 16% of the tile, in window sizes.
+   */
+  .slot {
     position: absolute;
-    top: 25%;
-    left: 18%;
-    width: 64%;
-    height: 50%;
-    overflow: hidden;
-    border-radius: var(--radius);
-    background: var(--color-bg);
-    box-shadow:
-      0 0 0 1px var(--color-rule-strong),
-      var(--shadow-raised);
-  }
-
-  /* One step is 74% of the frame across and 62% down, in window sizes. */
-  .other {
-    translate: calc(var(--column) * 115.6%) calc(var(--row) * 124%);
+    top: 12%;
+    left: 10%;
+    width: 80%;
+    height: 76%;
+    border-radius: 12px;
+    translate: calc(var(--column, 0) * 120%) calc(var(--row, 0) * 126.3%);
   }
 
   .at--1--1 {
@@ -340,11 +307,17 @@ const CELLS = 6;
     --row: 1;
   }
 
+  .window {
+    overflow: hidden;
+    background: var(--color-bg);
+    box-shadow: 0 0 0 1px var(--color-rule-strong);
+  }
+
   .logo {
     position: absolute;
     top: 14%;
     left: 8%;
-    width: 14%;
+    width: 12%;
     aspect-ratio: 1;
     border-radius: 50%;
     background: var(--color-rule-strong);
@@ -355,24 +328,25 @@ const CELLS = 6;
     top: 50%;
     left: 8%;
     width: 70%;
-    height: 9%;
-    border-radius: 2px;
+    height: 8%;
+    border-radius: 3px;
     background: var(--color-rule);
   }
 
   .line.short {
-    top: 66%;
+    top: 64%;
     width: 46%;
   }
 
-  .shot {
+  .covers {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
+    opacity: 0;
+  }
+
+  .shot {
     object-fit: cover;
     object-position: top;
-    opacity: 0;
   }
 
   .bar {
@@ -382,241 +356,376 @@ const CELLS = 6;
     border-bottom: 1px solid var(--color-rule);
   }
 
+  /* Six cells a layer, drawn by one gradient rather than six boxes. */
   .model {
     position: absolute;
-    top: 22%;
-    left: 15%;
+    top: 20%;
+    left: 8%;
     display: grid;
-    gap: 7%;
-    width: 70%;
-    height: 66%;
+    gap: 6%;
+    width: 84%;
+    height: 72%;
     transform-origin: 0 0;
   }
 
   .layer {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 3%;
+    --cells: var(--color-rule-strong);
+
+    position: relative;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--cells) 0 14%,
+      transparent 14% 17.2%
+    );
   }
 
-  .cell {
-    border-radius: 2px;
-    background: var(--color-rule-strong);
+  .layer::after {
+    --cells: color-mix(in srgb, var(--color-text-subtle) 70%, var(--color-bg));
+
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--cells) 0 14%,
+      transparent 14% 17.2%
+    );
+    content: '';
+    opacity: 0;
+  }
+
+  .layer-4::after {
+    --cells: var(--color-brand);
+  }
+
+  .chat {
+    position: absolute;
+    inset: 12% 0 0;
+    opacity: 0;
   }
 
   .bubble {
     position: absolute;
     height: 11%;
     border-radius: 999px;
-    opacity: 0;
   }
 
   .bubble-1 {
-    top: 22%;
+    top: 10%;
     left: 6%;
     width: 50%;
     background: var(--color-surface);
   }
 
   .bubble-2 {
-    top: 38%;
+    top: 28%;
     right: 6%;
     width: 44%;
     background: color-mix(in srgb, var(--color-brand) 14%, var(--color-bg));
   }
 
   .bubble-3 {
-    top: 54%;
+    top: 46%;
     left: 6%;
     width: 36%;
     background: var(--color-surface);
   }
 
+  /* The prompt box, with Gold's one fill: the send button. */
   .input {
     position: absolute;
     right: 6%;
-    bottom: 8%;
+    bottom: 9%;
     left: 6%;
-    height: 13%;
+    height: 14%;
     border-radius: 999px;
+    background:
+      radial-gradient(
+        circle at calc(100% - 0.9em) 50%,
+        var(--color-accent) 0.5em,
+        transparent 0.55em
+      ),
+      var(--color-bg);
     box-shadow: inset 0 0 0 1px var(--color-rule-strong);
-    opacity: 0;
-  }
-
-  .send {
-    position: absolute;
-    top: 18%;
-    right: 2%;
-    height: 64%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--color-accent);
   }
 
   .ring {
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    box-shadow: inset 0 0 0 2px var(--color-brand);
+    box-shadow: inset 0 0 0 3px var(--color-brand);
     opacity: 0;
   }
 
+  /* Phones: the tile pins under the header and the words pass below it. */
+  @supports (animation-timeline: view()) {
+    @media screen and (prefers-reduced-motion: no-preference) and (width < 48rem) {
+      .stage {
+        --tile-height: calc((100vw - 2 * var(--gutter)) * 3 / 4);
+
+        z-index: 1;
+        top: calc(var(--header-height) - 1px);
+        height: calc(var(--tile-height) + var(--space-8));
+        margin-bottom: calc(-1 * (var(--tile-height) + var(--space-8)));
+        padding-top: var(--space-4);
+        background: var(--color-bg);
+      }
+
+      .tile {
+        aspect-ratio: 4 / 3;
+        border-radius: 20px;
+      }
+
+      .panel {
+        align-content: end;
+        padding-bottom: var(--space-12);
+      }
+
+      .panel-text,
+      .panel:nth-child(even) .panel-text {
+        max-width: none;
+        margin-left: 0;
+      }
+    }
+  }
+
   /*
-   * One timeline for the whole drawing: the panels' passage. Each panel
-   * fills the window at 20%, 40%, 60% and 80% of it; scenes hold around
-   * those points and change between them. Longhands only; see .reveal.
+   * The moves, all on the story's pinned passage. Longhands only; see
+   * .reveal. Each keyframe eases into the next, so the drawing settles at
+   * every scene instead of sliding on.
    */
-  .world,
-  .model,
-  .cell,
-  .bubble,
-  .input,
-  .ring,
-  .shot {
-    animation-fill-mode: both;
-    animation-timing-function: linear;
-    animation-timeline: --story;
+  @supports (animation-timeline: view()) {
+    @media screen and (prefers-reduced-motion: no-preference) {
+      /* Moving parts keep their own layers, painted once at full size
+         and only scaled down after, never repainted mid-move. */
+      .tile,
+      .dock,
+      .world,
+      .model {
+        will-change: transform;
+      }
+
+      .tile,
+      .dock,
+      .world,
+      .model,
+      .chat,
+      .ring,
+      .covers,
+      .layer::after {
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: --story;
+        animation-range: contain 0% contain 100%;
+      }
+
+      .world {
+        animation-name: camera;
+      }
+
+      .model {
+        animation-name: engine;
+      }
+
+      .chat {
+        animation-name: chat;
+      }
+
+      .ring {
+        animation-name: own;
+      }
+
+      .covers {
+        animation-name: covers;
+      }
+
+      /* A forward pass, bottom layer first, as the tile settles. */
+      .layer-1::after {
+        animation-name: light-1;
+      }
+
+      .layer-2::after {
+        animation-name: light-2;
+      }
+
+      .layer-3::after {
+        animation-name: light-3;
+      }
+
+      .layer-4::after {
+        animation-name: light-4;
+      }
+    }
+
+    /* Phones keep the tile whole and pinned; only wider screens move it. */
+    @media screen and (prefers-reduced-motion: no-preference) and (width >= 48rem) {
+      .tile {
+        animation-name: dock;
+      }
+
+      .dock {
+        animation-name: sides;
+      }
+    }
   }
 
-  .world {
-    animation-name: camera;
-    animation-range: cover 0% cover 100%;
+  /*
+   * From under the header at full width into the right half, centered in
+   * the window below the header. Matching function lists, so the move
+   * interpolates rather than jumps.
+   */
+  @keyframes dock {
+    0%,
+    2% {
+      transform: translate(-25%, var(--header-height)) scale(1);
+      animation-timing-function: var(--ease-in-out);
+    }
+
+    16%,
+    100% {
+      transform: translate(0, calc(50svh + var(--header-height) / 2 - 50%))
+        scale(0.5);
+    }
   }
 
-  .model {
-    animation-name: engine;
-    animation-range: cover 45% cover 55%;
+  @keyframes sides {
+    0%,
+    31%,
+    66%,
+    81% {
+      transform: translateX(25%);
+      animation-timing-function: var(--ease-in-out);
+    }
+
+    41%,
+    56%,
+    91%,
+    100% {
+      transform: translateX(-25%);
+      animation-timing-function: var(--ease-in-out);
+    }
   }
 
-  /* A forward pass: the layers light from the bottom up as it arrives. */
-  .cell {
-    animation-name: light;
-  }
-
-  .layer-1 .cell {
-    animation-range: cover 6% cover 10%;
-  }
-
-  .layer-2 .cell {
-    animation-range: cover 10% cover 14%;
-  }
-
-  .layer-3 .cell {
-    animation-range: cover 14% cover 18%;
-  }
-
-  .layer-4 .cell {
-    animation-name: light-out;
-    animation-range: cover 18% cover 22%;
-  }
-
-  .bubble,
-  .input {
-    animation-name: appear;
-  }
-
-  .bubble-1 {
-    animation-range: cover 51% cover 55%;
-  }
-
-  .bubble-2 {
-    animation-range: cover 54% cover 58%;
-  }
-
-  .bubble-3 {
-    animation-range: cover 57% cover 61%;
-  }
-
-  .input {
-    animation-range: cover 48% cover 53%;
-  }
-
-  .ring {
-    animation-name: own;
-    animation-range: cover 0% cover 100%;
-  }
-
-  .shot {
-    animation-name: fade-in;
-    animation-range: cover 66% cover 74%;
-  }
-
+  /* Pulled back for the companies and again for the launch. */
   @keyframes camera {
     0%,
-    25% {
-      transform: none;
+    31%,
+    66%,
+    81% {
+      transform: scale(1);
+      animation-timing-function: var(--ease-in-out);
     }
 
-    35%,
-    45% {
-      transform: scale(0.42);
-    }
-
-    55%,
-    65% {
-      transform: none;
-    }
-
-    75%,
+    41%,
+    56%,
+    91%,
     100% {
       transform: scale(0.42);
-    }
-  }
-
-  /* The model shrinks into the app's corner and becomes its engine. */
-  @keyframes engine {
-    to {
-      transform: translate(-17%, -30%) scale(0.12);
-    }
-  }
-
-  @keyframes light {
-    to {
-      background-color: color-mix(
-        in srgb,
-        var(--color-text-subtle) 70%,
-        var(--color-bg)
-      );
-    }
-  }
-
-  @keyframes light-out {
-    to {
-      background-color: var(--color-brand);
-    }
-  }
-
-  @keyframes appear {
-    from {
-      opacity: 0;
-      transform: translateY(30%);
-    }
-
-    to {
-      opacity: 1;
-      transform: none;
+      animation-timing-function: var(--ease-in-out);
     }
   }
 
   /* The team's window is outlined whenever the camera pulls back. */
   @keyframes own {
     0%,
-    25%,
-    55%,
-    65% {
+    31%,
+    66%,
+    81% {
       opacity: 0;
     }
 
-    35%,
-    45%,
-    75%,
+    41%,
+    56%,
+    91%,
     100% {
       opacity: 1;
     }
   }
 
-  @keyframes fade-in {
-    to {
+  /* The model shrinks into the app's title bar and becomes its engine. */
+  @keyframes engine {
+    0%,
+    56% {
+      transform: none;
+      animation-timing-function: var(--ease-in-out);
+    }
+
+    66%,
+    100% {
+      transform: translate(-4.8%, -23.6%) scale(0.1);
+    }
+  }
+
+  @keyframes chat {
+    0%,
+    63% {
+      opacity: 0;
+      transform: translateY(6%);
+      animation-timing-function: var(--ease-out);
+    }
+
+    71%,
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes covers {
+    0%,
+    84% {
+      opacity: 0;
+    }
+
+    94%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes light-1 {
+    0%,
+    4% {
+      opacity: 0;
+    }
+
+    8%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes light-2 {
+    0%,
+    7% {
+      opacity: 0;
+    }
+
+    11%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes light-3 {
+    0%,
+    10% {
+      opacity: 0;
+    }
+
+    14%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes light-4 {
+    0%,
+    13% {
+      opacity: 0;
+    }
+
+    17%,
+    100% {
       opacity: 1;
     }
   }

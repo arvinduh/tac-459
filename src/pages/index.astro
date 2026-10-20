@@ -2,8 +2,9 @@
 /**
  * The home page: the course's promise, then the semester as a scroll story.
  *
- * Below the headline, one panel per part of the course, and one for demo
- * day, passes beside a pinned drawing that changes with each. The people
+ * A drawing opens under the headline, then takes one half of the page as
+ * one panel per part of the course, and one for demo day, passes in the
+ * other, changing with each. The people
  * teaching it close the page. Every value comes from content files, and
  * the detail lives on the Course page.
  */
@@ -140,7 +141,7 @@ const course = courseSchema({
   .hero {
     display: grid;
     gap: var(--space-6);
-    padding-block: var(--space-16) var(--space-section);
+    padding-block: var(--space-16) 0;
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
