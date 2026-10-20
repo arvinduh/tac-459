@@ -9,6 +9,7 @@ import '../styles/tokens.css';
 import '../styles/base.css';
 import { getEntry } from 'astro:content';
 import { ClientRouter } from 'astro:transitions';
+import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 
 interface Props {
@@ -19,7 +20,7 @@ interface Props {
 
 const site = await getEntry('site', 'site');
 if (!site) throw new Error('src/content/site.yaml is missing');
-const { courseCode, title: courseTitle } = site.data;
+const { courseCode, title: courseTitle, tagline } = site.data;
 const { title, description = site.data.description } = Astro.props;
 const fullTitle = title
   ? `${title} · ${courseCode}`
@@ -48,5 +49,6 @@ const fullTitle = title
     <main id="main-content">
       <slot />
     </main>
+    <SiteFooter courseCode={courseCode} title={courseTitle} tagline={tagline} />
   </body>
 </html>
