@@ -1,0 +1,250 @@
+---
+/**
+ * Week-by-week schedule: topics from the curriculum, dates from the term.
+ *
+ * Each week carries its date range as data attributes so the browser can
+ * mark the current week without the build knowing today's date.
+ */
+import PageIntro from '../components/PageIntro.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import {
+  getCurrentTerm,
+  getDeliverableTitles,
+  getModules,
+} from '../lib/course';
+import { formatClock, formatDay, isoDay, weekOf } from '../lib/term';
+
+const term = await getCurrentTerm();
+const modules = await getModules();
+const titles = await getDeliverableTitles();
+
+const dueDates = new Map(
+  term.due.map(({ deliverable, date, time }) => [
+    deliverable.id,
+    time ? `${formatDay(date)}, ${formatClock(time)}` : formatDay(date),
+  ]),
+);
+
+// Week numbers run across modules, so each week's index is global.
+let weekIndex = 0;
+const schedule = modules.map(({ title, weeks }, moduleIndex) => ({
+  number: moduleIndex + 1,
+  title,
+  weeks: weeks.map((week) => {
+    const { start, end } = weekOf(term.startDate, weekIndex);
+    weekIndex += 1;
+    return {
+      ...week,
+      number: weekIndex,
+      start: isoDay(start),
+      end: isoDay(end),
+      range: `${formatDay(start)} – ${formatDay(end)}`,
+      due: week.due.map(({ id }) => ({
+        title: titles.get(id) ?? id,
+        when: dueDates.get(id),
+      })),
+    };
+  }),
+}));
+---
+
+<BaseLayout title="Schedule">
+  <PageIntro eyebrow={term.label} title="Schedule">
+    {weekIndex} weeks across {modules.length} modules, from text processing to
+    frontier models.
+  </PageIntro>
+
+  <div class="page-width modules">
+    {schedule.map(({ number, title, weeks }) => (
+      <section
+        id={`module-${number}`}
+        class="module"
+        aria-labelledby={`module-${number}-title`}
+      >
+        <h2 id={`module-${number}-title`} class="module-heading">
+          <span class="module-number">Module {number}</span>
+          {title}
+        </h2>
+        <ol class="week-list">
+          {weeks.map((week) => (
+            <li class="week" data-start={week.start} data-end={week.end}>
+              <div class="week-when">
+                <span class="week-number">Week {week.number}</span>
+                <span class="week-range">{week.range}</span>
+              </div>
+              <div class="week-body">
+                <h3 class="week-title">{week.title}</h3>
+                <ul class="topic-list">
+                  {week.core.map((topic) => (
+                    <li>{topic}</li>
+                  ))}
+                </ul>
+                {week.deeper.length > 0 && (
+                  <details class="deeper">
+                    <summary>Go deeper</summary>
+                    <ul class="topic-list">
+                      {week.deeper.map((topic) => (
+                        <li>{topic}</li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+                {week.due.length > 0 && (
+                  <ul class="due-list" aria-label="Due this week">
+                    {week.due.map(({ title, when }) => (
+                      <li class="due-chip">
+                        {title}
+                        {when && <span class="due-when">Due {when}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .modules {
+    display: grid;
+    gap: var(--space-16);
+  }
+
+  .module {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .module-heading {
+    display: grid;
+    gap: var(--space-1);
+    font: var(--text-2xl) / 1.2 var(--font-display);
+  }
+
+  .module-number {
+    color: var(--color-brand);
+    font: 600 var(--text-sm) / 1.4 var(--font-sans);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .week-list {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .week {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    transition:
+      border-color var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  @media (width < 40rem) {
+    .week {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+  }
+
+  .week-when {
+    display: grid;
+    align-content: start;
+    gap: var(--space-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .week-number {
+    font-weight: 600;
+  }
+
+  .week-range {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .week-body {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .week-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .topic-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-left: var(--space-6);
+    color: var(--color-text-muted);
+  }
+
+  /* Opens smoothly where the browser can animate to auto height. */
+  .deeper {
+    interpolate-size: allow-keywords;
+  }
+
+  .deeper::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height var(--duration-base) var(--ease-out),
+      content-visibility var(--duration-base) allow-discrete;
+  }
+
+  .deeper[open]::details-content {
+    height: auto;
+  }
+
+  .deeper summary {
+    width: fit-content;
+    color: var(--color-brand);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .deeper .topic-list {
+    padding-top: var(--space-2);
+  }
+
+  .due-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .due-chip {
+    display: inline-flex;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-highlight-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-highlight-bg);
+    color: var(--color-highlight-text);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .due-when {
+    font-weight: 400;
+  }
+</style>

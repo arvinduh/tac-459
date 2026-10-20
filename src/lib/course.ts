@@ -5,7 +5,7 @@
  * singleton fails with one clear message and the current term is resolved
  * in one place.
  */
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 /** Returns the validated contents of site.yaml. */
 export async function getSite() {
@@ -29,4 +29,10 @@ export async function getModules() {
     throw new Error('src/content/course/curriculum.yaml is missing');
   }
   return curriculum.data.modules;
+}
+
+/** Returns every deliverable's display title by id. */
+export async function getDeliverableTitles(): Promise<Map<string, string>> {
+  const deliverables = await getCollection('deliverables');
+  return new Map(deliverables.map(({ id, data }) => [id, data.title]));
 }
