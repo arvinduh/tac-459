@@ -2,8 +2,8 @@
 /**
  * A person's round portrait, or their initials when no photo has arrived.
  *
- * Photos show in grayscale so pictures from different sources read as one
- * set. Both forms share a transition name, so the portrait carries over
+ * In lists, photos show in grayscale so pictures from different sources read
+ * as one set; a person's own page shows them in color. Both forms share a transition name, so the portrait carries over
  * between the team list and the person's page.
  */
 import { Image } from 'astro:assets';
@@ -16,9 +16,11 @@ interface Props {
   /** Alt text; leave empty when the name sits right beside the portrait. */
   alt?: string;
   eager?: boolean;
+  /** Full color, for the page where this person is the subject. */
+  color?: boolean;
 }
 
-const { person, size, alt = '', eager } = Astro.props;
+const { person, size, alt = '', eager, color } = Astro.props;
 const { name, photo } = person.data;
 const initials = name
   .split(/\s+/)
@@ -31,7 +33,7 @@ const transition = `photo-${person.id}`;
 
 {photo ? (
   <Image
-    class="portrait"
+    class:list={['portrait', { color }]}
     src={photo}
     alt={alt}
     width={size * 2}
@@ -63,6 +65,10 @@ const transition = `photo-${person.id}`;
     object-fit: cover;
     filter: grayscale(1) contrast(1.05);
     transition: filter var(--duration-slow) var(--ease-in-out);
+  }
+
+  .color {
+    filter: none;
   }
 
   /* An SVG, so the letters scale with the circle at any size. */
