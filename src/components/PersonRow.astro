@@ -1,6 +1,7 @@
 ---
 /**
- * One person as a single row: portrait, name and roles, linking to their page.
+ * One person as a single row: portrait, name, roles and an optional detail
+ * line, linking to their page.
  *
  * Portraits show in grayscale so photos from different sources read as one
  * set. The portrait and name share transition names with the person page.
@@ -11,10 +12,15 @@ import { href } from '../lib/paths';
 
 interface Props {
   person: CollectionEntry<'people'>;
+  /** Replaces the positions under the name, e.g. with a short role. */
+  caption?: string;
+  /** An extra quiet line, such as office hours. */
+  detail?: string;
 }
 
-const { person } = Astro.props;
+const { person, caption, detail } = Astro.props;
 const { name, honorific, positions, photo } = person.data;
+const lines = caption ? [caption] : positions;
 ---
 
 <a class="person-row" href={href(`/team/${person.id}/`)}>
@@ -31,10 +37,11 @@ const { name, honorific, positions, photo } = person.data;
       {honorific ? `${honorific} ${name}` : name}
     </span>
     <span class="person-roles">
-      {positions.map((position) => (
-        <span>{position}</span>
+      {lines.map((line) => (
+        <span>{line}</span>
       ))}
     </span>
+    {detail && <span class="person-detail">{detail}</span>}
   </span>
 </a>
 
@@ -86,6 +93,12 @@ const { name, honorific, positions, photo } = person.data;
   .person-roles {
     display: grid;
     color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .person-detail {
+    margin-top: var(--space-1);
+    color: var(--color-text-subtle);
     font-size: var(--text-sm);
   }
 </style>

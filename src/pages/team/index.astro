@@ -14,6 +14,7 @@ import {
   getSite,
 } from '../../lib/course';
 import { href } from '../../lib/paths';
+import { formatSession } from '../../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
@@ -45,9 +46,14 @@ const description = `The ${term.label} instructors and learning assistants of ${
     {groups.map(({ id, label, members }) => (
       <Section id={id} label={label}>
         <ul class="plain-list person-list">
-          {members.map(({ person }) => (
+          {members.map(({ person, officeHours }) => (
             <li>
-              <PersonRow person={person} />
+              <PersonRow
+                person={person}
+                {...(officeHours && {
+                  detail: `Office hours ${formatSession(officeHours)}`,
+                })}
+              />
             </li>
           ))}
         </ul>

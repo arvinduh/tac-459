@@ -73,6 +73,13 @@ const curriculum = defineCollection({
 /** Wall-clock time in the course time zone, e.g. '13:50'. */
 const clock = z.iso.time({ precision: -1 });
 const weekday = z.enum(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
+/** A weekly slot: class meetings and office hours share this shape. */
+const session = z.object({
+  days: z.array(weekday).min(1),
+  start: clock,
+  end: clock,
+  location: z.string(),
+});
 
 /** The course pitch: an intro and the components the course is built from. */
 const overview = defineCollection({
@@ -115,20 +122,13 @@ const terms = defineCollection({
       label: z.string(),
       /** Whole-class photo, kept beside the term file. */
       classPhoto: image().optional(),
-      meetings: z
-        .array(
-          z.object({
-            days: z.array(weekday).min(1),
-            start: clock,
-            end: clock,
-            location: z.string(),
-          }),
-        )
-        .default([]),
+      meetings: z.array(session).default([]),
       staff: z.array(
         z.object({
           person: reference('people'),
           role: z.enum(['instructor', 'learningAssistant']),
+          /** Weekly office hours; omit when announced elsewhere. */
+          officeHours: session.optional(),
         }),
       ),
     }),

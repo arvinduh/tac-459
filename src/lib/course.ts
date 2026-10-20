@@ -36,10 +36,10 @@ export async function getModules() {
 export async function getCurrentStaff() {
   const term = await getCurrentTerm();
   return Promise.all(
-    term.staff.map(async ({ person, role }) => {
+    term.staff.map(async ({ person, ...duties }) => {
       const entry = await getEntry(person);
       if (!entry) throw new Error(`Person '${person.id}' is missing`);
-      return { role, person: entry };
+      return { ...duties, person: entry };
     }),
   );
 }

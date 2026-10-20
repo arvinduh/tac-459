@@ -4,6 +4,9 @@ meetings:
   - { days: [Mon, Wed], start: '12:00', end: '13:50', location: KAP 160 }
 staff:
   - { person: allen-bolourchi, role: instructor }
-  - { person: reza-jafarkhani, role: instructor }
+  - person: reza-jafarkhani
+    role: instructor
+    officeHours:
+      { days: [Tue], start: '14:30', end: '15:30', location: RRB 211 or Zoom }
   - { person: dylan-chen, role: learningAssistant }
   - { person: arvin-duh, role: learningAssistant }
