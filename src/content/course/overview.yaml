@@ -43,10 +43,11 @@ components:
     steps:
       - title: Select an emerging company
         text: >-
-          Teams of six or seven choose a company at the pre-seed, seed, Series A
-          or Series B stage with an emerging generative AI application. Y
-          Combinator companies are preferred; other choices need the professor's
-          approval.
+          Teams of six, four of which may have seven, choose a company at the
+          pre-seed, seed, Series A or Series B stage with an emerging generative
+          AI application. Y Combinator companies are preferred; other choices
+          need the professor's approval. Every team discusses its choice with
+          the professor before preparing the overview.
       - title: Explain the product and technology
         text: >-
           Cover the problem, product, generative AI technology, target
@@ -55,10 +56,10 @@ components:
           makes it distinctive.
       - title: Present and connect to your product
         text: >-
-          Every member presents in a ten-minute overview with a short Q&A, then
-          pitches the team's own product ideas in one slide and one minute each.
-          Teams are encouraged to reach a founder or employee; a short guest
-          segment is optional if the company takes part.
+          Every member presents in a ten-minute overview with a two-minute Q&A,
+          then pitches the team's own product ideas in one slide and one minute
+          each. Teams are encouraged to reach a founder, executive or employee;
+          a 15–20 minute guest segment is optional if the company takes part.
   - id: capstone
     title: AI capstone product
     timing: Final nine weeks
@@ -73,7 +74,8 @@ components:
       to one shared minimum viable product, develops multiple prototypes, and
       selects one direction to refine into a complete application. Every product
       uses a frontier-model API for at least one feature, and students
-      progressively build with AI-assisted coding tools.
+      progressively build with AI coding tools such as Codex, Claude or Muse
+      Code.
     # One step per week of `weeks`; the site numbers them Week 8, Week 9….
     steps:
       - title: Form teams
