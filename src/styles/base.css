@@ -15,7 +15,11 @@ html {
   scroll-padding-top: var(--space-16);
 }
 
+/* A column layout keeps the footer at the bottom of short pages. */
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
@@ -53,8 +57,38 @@ a:hover {
   border-radius: var(--radius-sm);
 }
 
+main {
+  flex: 1;
+}
+
 img {
   display: block;
   max-width: 100%;
   height: auto;
+}
+
+/* Centers a band of content at the site's reading width. */
+.page-width {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Hidden until keyboard focus, so keyboard users can jump past the nav. */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 20;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  color: var(--color-on-brand);
+  transform: none;
 }
