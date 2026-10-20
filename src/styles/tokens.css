@@ -42,7 +42,8 @@
 /* Scales: type (fluid, ratio ~1.25), space (4px base), shape, motion. */
 :root {
   --font-sans: 'Inter Variable', system-ui, sans-serif;
-  --font-display: 'Libre Caslon Display', Georgia, serif;
+  --font-serif: 'Crimson Pro Variable', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
