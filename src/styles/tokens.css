@@ -60,6 +60,9 @@
   --space-16: 4rem;
   --space-section: clamp(4rem, 2rem + 6vw, 7.5rem);
 
+  --radius: 6px;
+  --shadow-raised: 0 12px 32px -12px rgb(26 25 24 / 0.25);
+
   --content-max: 70rem;
   --prose-max: 38rem;
   --gutter: clamp(1.25rem, 5vw, 3rem);

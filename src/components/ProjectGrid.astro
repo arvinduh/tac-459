@@ -1,0 +1,87 @@
+---
+/**
+ * Products as a grid of cards: cover screenshot, title and one-line summary,
+ * each linking to the product's page.
+ *
+ * The cover shares a transition name with the product page, so it morphs
+ * into place on navigation.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { href } from '../lib/paths';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+
+const { projects } = Astro.props;
+---
+
+<ul class="plain-list project-grid">
+  {projects.map(({ id, data }) => (
+    <li>
+      <a class="project-card" href={href(`/projects/${id}/`)}>
+        <Image
+          class="project-cover"
+          src={data.images[0]}
+          alt=""
+          widths={[400, 800]}
+          sizes="(width < 48rem) 100vw, 26rem"
+          transition:name={`cover-${id.replace('/', '-')}`}
+        />
+        <span class="project-title">{data.title}</span>
+        <span class="project-summary">{data.summary}</span>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-12) var(--space-8);
+  }
+
+  .project-card {
+    display: grid;
+    gap: var(--space-2);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .project-cover {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius);
+    box-shadow: 0 0 0 1px var(--color-rule);
+    object-fit: cover;
+    object-position: top;
+    transition: box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .project-card:hover .project-cover {
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      var(--shadow-raised);
+  }
+
+  .project-title {
+    width: fit-content;
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--tracking-heading);
+    text-decoration: underline 2px transparent;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--duration-fast) var(--ease-out);
+  }
+
+  .project-card:hover .project-title {
+    text-decoration-color: var(--color-accent);
+  }
+
+  .project-summary {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+</style>

@@ -1,0 +1,28 @@
+---
+/** A quiet link back to the page that lists this one, such as '← Team'. */
+import { href } from '../lib/paths';
+
+interface Props {
+  path: string;
+  label: string;
+}
+
+const { path, label } = Astro.props;
+---
+
+<a class="back-link" href={href(path)}>
+  ← {label}
+</a>
+
+<style>
+  .back-link {
+    width: fit-content;
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    color: var(--color-text);
+  }
+</style>
