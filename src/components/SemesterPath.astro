@@ -1,0 +1,206 @@
+---
+/**
+ * The semester as one thin line down the page's margin, with a stop at the
+ * week each part of the course begins.
+ *
+ * Scrolling the page moves through the semester: the line fills in
+ * Cardinal as the middle of the window passes each stop, and a stop's words
+ * darken from subtle to ink once the line reaches them. Everything is
+ * driven by CSS scroll timelines, so nothing runs while the page is still;
+ * without them, or under reduced motion, the line and words show complete.
+ */
+import Arrow from './Arrow.astro';
+
+interface Stop {
+  week: number;
+  /** Mono tag after the week, such as the part's name. */
+  label: string;
+  title: string;
+  href: string;
+}
+
+interface Props {
+  stops: Stop[];
+}
+
+const { stops } = Astro.props;
+---
+
+<ol class="page-width path">
+  {stops.map(({ week, label, title, href }) => (
+    <li class="stop">
+      <p class="stop-week data">
+        Week {week} · {label}
+      </p>
+      <h2 class="stop-title">
+        <a class="arrow-link stop-link" href={href}>
+          {title}
+          <Arrow />
+        </a>
+      </h2>
+    </li>
+  ))}
+</ol>
+
+<style>
+  @property --lit {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 1;
+  }
+
+  .path {
+    margin-block: 0;
+    padding-block: 0;
+    list-style: none;
+  }
+
+  /*
+   * Each stop reaches back into the gutter so the line can run there while
+   * the words keep the page's one left edge.
+   */
+  .stop {
+    --rail-x: calc(var(--gutter) / 2);
+    --dot: 7px;
+    --dot-y: 0.55rem;
+
+    position: relative;
+    margin-left: calc(-1 * var(--gutter));
+    padding: 0 0 var(--space-section) var(--gutter);
+    color: color-mix(
+      in srgb,
+      var(--color-text) calc(var(--lit) * 100%),
+      var(--color-text-subtle)
+    );
+  }
+
+  .stop:last-child {
+    padding-bottom: 0;
+  }
+
+  /* The line between this stop's dot and the next: a track, then its fill. */
+  .stop:not(:last-child)::before,
+  .stop:not(:last-child)::after {
+    position: absolute;
+    top: var(--dot-y);
+    bottom: calc(-1 * var(--dot-y));
+    left: calc(var(--rail-x) - 0.5px);
+    width: 1px;
+    content: '';
+  }
+
+  .stop::before {
+    background: var(--color-rule);
+  }
+
+  .stop::after {
+    background: var(--color-brand);
+    transform-origin: top;
+  }
+
+  .stop-week {
+    position: relative;
+    color: color-mix(
+      in srgb,
+      var(--color-brand) calc(var(--lit) * 100%),
+      var(--color-text-subtle)
+    );
+  }
+
+  /* The stop's dot, centered on the line beside the week label. */
+  .stop-week::before {
+    position: absolute;
+    top: calc(var(--dot-y) - var(--dot) / 2);
+    left: calc(var(--rail-x) - var(--gutter) - var(--dot) / 2);
+    width: var(--dot);
+    height: var(--dot);
+    box-sizing: border-box;
+    border: 1px solid var(--color-brand);
+    border-radius: 50%;
+    background: color-mix(
+      in srgb,
+      var(--color-brand) calc(var(--lit) * 100%),
+      var(--color-bg)
+    );
+    content: '';
+  }
+
+  .stop-title {
+    max-width: 20ch;
+    margin-top: var(--space-3);
+    font-size: var(--text-title);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .stop-link {
+    display: inline;
+    padding-bottom: 0.05em;
+    background-size: 0% 2px;
+    color: inherit;
+    font-weight: inherit;
+  }
+
+  .stop-link:is(:hover, :focus-visible) {
+    background-size: 100% 2px;
+    color: var(--color-brand);
+  }
+
+  .stop-link :global(.arrow) {
+    color: color-mix(
+      in srgb,
+      var(--color-brand) calc(var(--lit) * 100%),
+      var(--color-text-subtle)
+    );
+    width: 0.4em;
+    height: 0.4em;
+    margin-left: 0.15em;
+  }
+
+  /*
+   * The window's middle is the semester's "now": the timeline's insets
+   * shrink the viewport to that one line. Longhands only; see .reveal.
+   */
+  @supports (animation-timeline: view()) {
+    @media screen and (prefers-reduced-motion: no-preference) {
+      .stop {
+        view-timeline-name: --stop;
+        view-timeline-axis: block;
+        view-timeline-inset: 50%;
+        animation-name: light;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: --stop;
+        animation-range: cover 0 cover 6rem;
+      }
+
+      .stop::after {
+        animation-name: fill;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+        animation-timeline: --stop;
+        animation-range: cover 0% cover 100%;
+      }
+    }
+  }
+
+  @keyframes light {
+    from {
+      --lit: 0;
+    }
+
+    to {
+      --lit: 1;
+    }
+  }
+
+  @keyframes fill {
+    from {
+      transform: scaleY(0);
+    }
+
+    to {
+      transform: scaleY(1);
+    }
+  }
+</style>
