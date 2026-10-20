@@ -8,9 +8,9 @@ import Section from '../components/Section.astro';
 import StepList from '../components/StepList.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getComponent } from '../lib/course';
+import { formatWeeks } from '../lib/term';
 
-const { title, timing, summary, detail, steps, weeks } =
-  await getComponent('capstone');
+const { title, summary, detail, steps, weeks } = await getComponent('capstone');
 // The roadmap is one step per week, so its weeks come from `weeks` alone.
 if (steps.length !== weeks.to - weeks.from + 1) {
   throw new Error(
@@ -21,13 +21,13 @@ if (steps.length !== weeks.to - weeks.from + 1) {
 ---
 
 <BaseLayout title={title} description={summary}>
-  <PageHeader eyebrow={timing} title={title} lede={detail} />
+  <PageHeader eyebrow={formatWeeks(weeks)} title={title} lede={detail} />
   <Section id="roadmap" label="Roadmap">
     <StepList steps={steps} firstWeek={weeks.from} />
   </Section>
   <NextPage
     path="/projects/"
     title="Past projects"
-    text="What past teams built in these nine weeks, with screenshots and links."
+    text="What past teams built on this roadmap, with screenshots of each product."
   />
 </BaseLayout>

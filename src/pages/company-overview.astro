@@ -8,14 +8,15 @@ import Section from '../components/Section.astro';
 import StepList from '../components/StepList.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getComponent } from '../lib/course';
+import { formatWeeks } from '../lib/term';
 
-const { title, timing, summary, detail, steps } =
+const { title, weeks, summary, detail, steps } =
   await getComponent('company-overview');
 const next = await getComponent('capstone');
 ---
 
 <BaseLayout title={title} description={summary}>
-  <PageHeader eyebrow={timing} title={title} lede={detail} />
+  <PageHeader eyebrow={formatWeeks(weeks)} title={title} lede={detail} />
   <Section id="steps" label="How it works">
     <StepList steps={steps} />
   </Section>

@@ -10,7 +10,6 @@ blurb: >-
 components:
   - id: curriculum
     title: Technical foundations
-    timing: Throughout the semester
     promise: Learn how frontier models work.
     # Semester weeks this part spans; the home page puts its stop at `from`.
     weeks: { from: 1, to: 15 }
@@ -28,7 +27,6 @@ components:
       applications.
   - id: company-overview
     title: AI company overview
-    timing: Midsemester
     promise: Study the companies building on them.
     weeks: { from: 5, to: 8 }
     summary: >-
@@ -62,7 +60,6 @@ components:
           a 15–20 minute guest segment is optional if the company takes part.
   - id: capstone
     title: AI capstone product
-    timing: Final nine weeks
     promise: Ship an AI product of your own.
     weeks: { from: 8, to: 16 }
     summary: >-

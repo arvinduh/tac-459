@@ -11,8 +11,9 @@ import PageHeader from '../components/PageHeader.astro';
 import Section from '../components/Section.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getComponent, getModules } from '../lib/course';
+import { formatWeeks } from '../lib/term';
 
-const { title, timing, summary, detail } = await getComponent('curriculum');
+const { title, weeks, summary, detail } = await getComponent('curriculum');
 const modules = await getModules();
 const next = await getComponent('company-overview');
 
@@ -23,6 +24,12 @@ const numbered = modules.map((module) => {
   nextWeek += module.weeks.length;
   return { ...module, firstWeek };
 });
+if (nextWeek - 1 !== weeks.to - weeks.from + 1) {
+  throw new Error(
+    `overview.yaml: the curriculum spans weeks ${weeks.from}–${weeks.to} ` +
+      `but curriculum.yaml has ${nextWeek - 1} weeks of topics`,
+  );
+}
 const pad = (week: number) => String(week).padStart(2, '0');
 /** Names a module's weeks, e.g. 'Weeks 03–05' or 'Week 06'. */
 function weekRange(first: number, count: number) {
@@ -32,7 +39,7 @@ function weekRange(first: number, count: number) {
 ---
 
 <BaseLayout title={title} description={summary}>
-  <PageHeader eyebrow={timing} title={title} lede={detail} />
+  <PageHeader eyebrow={formatWeeks(weeks)} title={title} lede={detail} />
   <div class="modules">
     <Section id="modules" label="Modules">
       <ol class="plain-list">
