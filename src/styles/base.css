@@ -92,3 +92,11 @@ img {
   color: var(--color-on-brand);
   transform: none;
 }
+
+/* Entrance for content that rises into place; reduced motion makes it instant. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
