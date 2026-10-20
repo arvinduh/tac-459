@@ -1,6 +1,5 @@
 # Everything that changes per term, and nothing else.
 label: Fall 2026
-startDate: 2026-08-24 # Monday of week 1; every week's dates derive from it
 meetings:
   - { days: [Mon, Wed], start: '12:00', end: '13:50', location: KAP 160 }
 staff:
@@ -8,17 +7,3 @@ staff:
   - { person: reza-jafarkhani, role: instructor }
   - { person: dylan-chen, role: learningAssistant }
   - { person: arvin-duh, role: learningAssistant }
-# Leave out `hours` for "announced on Piazza" and `where` for "TBA".
-officeHours:
-  - person: reza-jafarkhani
-    hours: { day: Tue, start: '14:30', end: '15:30' }
-    where: [RRB 211, Zoom]
-  - { person: allen-bolourchi, where: [Zoom] }
-  - { person: dylan-chen }
-  - { person: arvin-duh }
-due:
-  - { deliverable: company-overview, date: 2026-11-02, time: '12:00' }
-  - { deliverable: product-roadmap, date: 2026-11-09 }
-  - { deliverable: prototype-code, date: 2026-12-02 }
-  - { deliverable: capstone-presentation, date: 2026-12-11, time: '17:00' }
-  - { deliverable: final-submission, date: 2026-12-14 }

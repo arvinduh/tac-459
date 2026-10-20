@@ -1,4 +1,4 @@
-# Weekly topics by module. Dates come from the term file, not from here.
+# Weekly topics by module, in teaching order. Shared by every term.
 modules:
   - title: Introduction to Generative AI, NLP, and Text Processing
     weeks:
@@ -12,7 +12,6 @@ modules:
           - Overview of NLP Applications in Various Domains
           - Challenges and Limitations in NLP
       - title: Text Cleaning and Preprocessing
-        due: [assignment-1]
         core:
           - Text Cleaning and Preprocessing
           - Text Normalization and Tokenization
@@ -28,7 +27,6 @@ modules:
       Fundamentals of Generative AI, Transformers, and Machine Learning for NLP
     weeks:
       - title: Fundamentals of Machine Learning for NLP and Metrics
-        due: [assignment-2]
         core:
           - Training, Validation, and Test Sets in Model Development
           - Overfitting and Underfitting in NLP
@@ -39,7 +37,6 @@ modules:
           - Evaluation Metrics for NLP Models
           - Cross-Validation Techniques
       - title: Neural Networks and Deep Learning in NLP
-        due: [assignment-3]
         core:
           - Neural Networks and Deep Learning in NLP
           - Activation Functions and Network Topologies
@@ -51,7 +48,6 @@ modules:
           - Sequence Modeling in NLP
           - Case Studies in Deep Learning for NLP
       - title: Transformer Models and Attention Mechanisms
-        due: [assignment-4]
         core:
           - Transformer Models and Attention Mechanisms
           - Understanding the Transformer Architecture
@@ -64,7 +60,6 @@ modules:
   - title: Generative AI and Applications
     weeks:
       - title: Syntax, Parsing, Word Embeddings, and POS Tagging
-        due: [assignment-5]
         core:
           - Syntax, Parsing, Word Embeddings, and POS Tagging
           - Syntax in Natural Language Processing
@@ -77,7 +72,6 @@ modules:
           - Practical Parsing, Embedding, and POS Tagging Techniques
           - Vector Database
       - title: Semantic Analysis, Language Models, and Question Answering
-        due: [assignment-6]
         core:
           - Semantic Analysis, Language Models, and Question Answering
           - Semantic Role Labeling (SRL)
@@ -103,7 +97,6 @@ modules:
   - title: Techniques in Speech and NLP
     weeks:
       - title: Advanced Topics in Machine Learning and NLP
-        due: [assignment-7]
         core:
           - Advanced Topics in Machine Learning and NLP
           - Strategies for Addressing Data Imbalance
@@ -114,7 +107,6 @@ modules:
           - Advanced Optimization Techniques in NLP
           - Case Studies of Advanced ML in NLP
       - title: Named Entity Recognition, Information Retrieval and Search
-        due: [assignment-8]
         core:
           - Named Entity Recognition, Information Retrieval and Search
           - Fundamentals of Information Retrieval
@@ -126,7 +118,6 @@ modules:
           - Search Engines and Indexing Techniques
           - Case Studies and Real-World Applications
       - title: Advanced Machine Translation and Summarization
-        due: [assignment-9]
         core:
           - Advanced Machine Translation and Summarization
           - Text Summarization
@@ -138,7 +129,6 @@ modules:
           - Evaluation of Summarization Techniques
           - Current Trends in MT and Summarization
       - title: Speech Processing and Conversational AI
-        due: [assignment-10]
         core:
           - Speech Processing and Conversational AI
           - Basics of Speech Recognition
@@ -153,7 +143,6 @@ modules:
     weeks:
       - title:
           Generative AI, Products, Techniques, APIs, and Ethical Considerations
-        due: [assignment-11]
         core:
           - 'Generative AI, Products, Techniques, APIs, and Ethical
             Considerations'
@@ -172,7 +161,6 @@ modules:
           - 'Responsible AI, Data Privacy, Ethical Considerations, and
             Governance in AI'
       - title: Training and Fine-Tuning LLMs, Hugging Face, LangChain, and RAG
-        due: [assignment-12]
         core:
           - Training and Fine-Tuning LLMs, Hugging Face, LangChain, and RAG
           - Fine Tuning LLMs, Best Practices and Challenges
@@ -188,7 +176,6 @@ modules:
           - Fine-Tuned LLMs Application
       - title:
           Course Review, Future Trends, and Project Presentations + Final Exam
-        due: [capstone-deliverables]
         core:
           - 'Course Review, Future Trends, and Project Presentations + Final
             Exam'

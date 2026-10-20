@@ -1,7 +1,7 @@
 /**
  * Content schemas: every file under src/content is validated here at build.
  *
- * A typo in a date, a missing person or a dangling deliverable id fails the
+ * A typo, a missing person or a dangling reference fails the
  * build with the file and field name, so broken content never deploys.
  */
 import { defineCollection, reference } from 'astro:content';
@@ -23,12 +23,6 @@ const site = defineCollection({
     description: z.string().max(160),
     /** Term the site shows; past terms stay for the archive. */
     currentTerm: reference('terms'),
-    /** IANA zone that class times and due dates are written in. */
-    timeZone: z
-      .string()
-      .refine((zone) => Intl.supportedValuesOf('timeZone').includes(zone), {
-        message: 'Use an IANA zone such as America/Los_Angeles',
-      }),
     googleSiteVerification: z.array(z.string()),
     indexable: z.boolean(),
   }),
@@ -58,13 +52,6 @@ const people = defineCollection({
 });
 
 /** Every graded item; weeks and terms point at these ids. */
-const deliverables = defineCollection({
-  loader: file('src/content/course/deliverables.yaml'),
-  schema: z.object({
-    title: z.string(),
-    kind: z.enum(['assignment', 'project', 'presentation']),
-  }),
-});
 
 /** Weekly topics grouped by module; week dates derive from the term. */
 const curriculum = defineCollection({
@@ -76,7 +63,6 @@ const curriculum = defineCollection({
         weeks: z.array(
           z.object({
             title: z.string(),
-            due: z.array(reference('deliverables')).default([]),
             core: z.array(z.string()).min(1),
             deeper: z.array(z.string()).default([]),
           }),
@@ -86,8 +72,6 @@ const curriculum = defineCollection({
   }),
 });
 
-/** A calendar day; YAML parses an unquoted 2026-08-24 to UTC midnight. */
-const calendarDay = z.date();
 /** Wall-clock time in the course time zone, e.g. '13:50'. */
 const clock = z.iso.time({ precision: -1 });
 const weekday = z.enum(['Mon', 'Tue', 'Wed', 'Thu', 'Fri']);
@@ -97,7 +81,6 @@ const terms = defineCollection({
   loader: glob({ pattern: '*.yaml', base: 'src/content/terms' }),
   schema: z.object({
     label: z.string(),
-    startDate: calendarDay,
     meetings: z.array(
       z.object({
         days: z.array(weekday).min(1),
@@ -112,27 +95,12 @@ const terms = defineCollection({
         role: z.enum(['instructor', 'learningAssistant']),
       }),
     ),
-    officeHours: z.array(
-      z.object({
-        person: reference('people'),
-        hours: z.object({ day: weekday, start: clock, end: clock }).optional(),
-        where: z.array(z.string()).default([]),
-      }),
-    ),
-    due: z.array(
-      z.object({
-        deliverable: reference('deliverables'),
-        date: calendarDay,
-        time: clock.optional(),
-      }),
-    ),
   }),
 });
 
 export const collections = {
   site,
   people,
-  deliverables,
   curriculum,
   terms,
 };

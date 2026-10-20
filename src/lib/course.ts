@@ -5,8 +5,7 @@
  * singleton fails with one clear message and the current term is resolved
  * in one place.
  */
-import { getCollection, getEntry } from 'astro:content';
-import { formatOfficeHours } from './term';
+import { getEntry } from 'astro:content';
 
 /** Returns the validated contents of site.yaml. */
 export async function getSite() {
@@ -32,26 +31,14 @@ export async function getModules() {
   return curriculum.data.modules;
 }
 
-/** Returns every deliverable's display title by id. */
-export async function getDeliverableTitles(): Promise<Map<string, string>> {
-  const deliverables = await getCollection('deliverables');
-  return new Map(deliverables.map(({ id, data }) => [id, data.title]));
-}
-
-/** Returns this term's staff in term-file order, with office hours. */
+/** Returns this term's staff in term-file order. */
 export async function getCurrentStaff() {
   const term = await getCurrentTerm();
-  const officeHours = new Map(
-    term.officeHours.map(({ person, hours, where }) => [
-      person.id,
-      formatOfficeHours(where, hours),
-    ]),
-  );
   return Promise.all(
     term.staff.map(async ({ person, role }) => {
       const entry = await getEntry(person);
       if (!entry) throw new Error(`Person '${person.id}' is missing`);
-      return { role, person: entry, officeHours: officeHours.get(person.id) };
+      return { role, person: entry };
     }),
   );
 }
