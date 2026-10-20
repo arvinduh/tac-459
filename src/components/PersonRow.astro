@@ -1,0 +1,87 @@
+---
+/**
+ * One person as a single row: portrait, name and roles, linking to their page.
+ *
+ * Portraits show in grayscale so photos from different sources read as one
+ * set. The portrait and name share transition names with the person page.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { href } from '../lib/paths';
+
+interface Props {
+  person: CollectionEntry<'people'>;
+}
+
+const { person } = Astro.props;
+const { name, honorific, positions, photo } = person.data;
+---
+
+<a class="person-row" href={href(`/team/${person.id}/`)}>
+  <Image
+    class="person-photo"
+    src={photo}
+    alt=""
+    width={160}
+    height={160}
+    transition:name={`photo-${person.id}`}
+  />
+  <span class="person-text">
+    <span class="person-name" transition:name={`name-${person.id}`}>
+      {honorific ? `${honorific} ${name}` : name}
+    </span>
+    <span class="person-roles">
+      {positions.map((position) => (
+        <span>{position}</span>
+      ))}
+    </span>
+  </span>
+</a>
+
+<style>
+  .person-row {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    align-items: center;
+    gap: var(--space-6);
+    padding-block: var(--space-6);
+    text-decoration: none;
+  }
+
+  .person-photo {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--color-rule);
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05);
+    transition: filter var(--duration-base) var(--ease-out);
+  }
+
+  .person-row:hover .person-photo {
+    filter: grayscale(0);
+  }
+
+  .person-text {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .person-name {
+    font: var(--text-lg) / 1.2 var(--font-serif);
+    width: fit-content;
+    text-decoration: underline 1px transparent;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color var(--duration-fast) var(--ease-out);
+  }
+
+  .person-row:hover .person-name {
+    text-decoration-color: var(--color-accent);
+  }
+
+  .person-roles {
+    display: grid;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+</style>
