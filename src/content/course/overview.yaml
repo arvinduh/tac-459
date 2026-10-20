@@ -1,13 +1,11 @@
 # The course pitch and its three components. Same for every term.
-# Each component has its own page at /<id>/; `summary` is the short form on
-# the home page and `detail` opens the component's own page.
+# Each component has its own page at /<id>/; `summary` is the short form used
+# in search results and links, and `detail` opens the component's own page.
+# The promise at the top of the home page, as one short sentence.
+headline: Build a generative AI product in one semester.
 lede: >-
   Learn how frontier models work, study the companies building on them, and ship
   an AI product of your own.
-intro: >-
-  The capstone of the USC Artificial Intelligence Minor connects the technical
-  foundations of generative AI with industry analysis and hands-on product
-  development, through three complementary components.
 components:
   - id: curriculum
     title: Technical foundations

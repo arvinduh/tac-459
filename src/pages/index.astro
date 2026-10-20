@@ -1,14 +1,20 @@
 ---
 /**
- * The home page: the course pitch for prospective students.
+ * The home page: the course told as a short story for prospective students.
  *
- * It summarizes each part of the site and links into it, so every detail
- * lives on exactly one page. Every value comes from content files.
+ * Each band answers one question a visitor asks, in this order, with a
+ * picture first: what will I make (the product wall), is it real (counts),
+ * what does it take (the semester map), who teaches it (faces and a class
+ * photo), and where next (links into the detail pages). Every value comes
+ * from content files, and every detail lives on its own page.
  */
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import Arrow from '../components/Arrow.astro';
 import PersonRow from '../components/PersonRow.astro';
-import ProjectGrid from '../components/ProjectGrid.astro';
+import ProductWall from '../components/ProductWall.astro';
 import Section from '../components/Section.astro';
+import SemesterMap from '../components/SemesterMap.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {
   getCurrentStaff,
@@ -19,7 +25,7 @@ import {
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
-import { formatTimes } from '../lib/term';
+import { formatSession, termRank } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
@@ -32,11 +38,21 @@ const ROLE_NAMES = {
 };
 
 const projectTerms = await getProjectTerms();
-const latest = projectTerms.find((entry) => entry.projects.length > 0);
-const productCount = projectTerms.reduce(
-  (sum, entry) => sum + entry.projects.length,
-  0,
+const projects = projectTerms.flatMap((entry) => entry.projects);
+const classPhoto = projectTerms.find((entry) => entry.classPhoto);
+const terms = (await getCollection('terms')).sort(
+  (a, b) => termRank(a.id) - termRank(b.id),
 );
+const weeks = Math.max(...overview.components.map(({ weeks }) => weeks.to));
+
+const stats = [
+  { value: projects.length, label: 'products shipped by student teams' },
+  {
+    value: terms.length,
+    label: `terms taught since ${terms[0]?.data.label ?? term.label}`,
+  },
+  { value: weeks, label: 'weeks from first lecture to launch pitch' },
+];
 
 const absolute = (path: string) => new URL(href(path), Astro.site).href;
 const course = courseSchema({
@@ -51,77 +67,53 @@ const course = courseSchema({
     url: absolute(`/team/${person.id}/`),
   })),
 });
-
-const facts = [
-  { label: 'Term', value: term.label },
-  ...term.meetings.flatMap((meeting) => [
-    { label: 'Meets', value: formatTimes(meeting) },
-    { label: 'Room', value: meeting.location },
-  ]),
-  { label: 'Student products', value: String(productCount) },
-];
 ---
 
 <BaseLayout schema={[course]}>
   <header class="page-width hero">
-    <p class="eyebrow">{site.tagline}</p>
-    <h1 class="hero-title">{site.title}</h1>
+    <p class="eyebrow">
+      {site.courseCode} · {site.title}
+    </p>
+    <h1 class="hero-title">{overview.headline}</h1>
     <p class="hero-lede">{overview.lede}</p>
-    <div class="hero-actions">
+    <div class="link-row">
       <a class="arrow-link" href={href('/curriculum/')}>
         Explore the curriculum
         <Arrow />
       </a>
       <a class="arrow-link" href={href('/projects/')}>
-        See student projects
+        See every product
         <Arrow />
       </a>
     </div>
-    <dl class="hero-facts">
-      {facts.map(({ label, value }) => (
-        <div>
-          <dt>{label}</dt>
-          <dd class="data">{value}</dd>
-        </div>
-      ))}
-    </dl>
   </header>
 
+  <ProductWall projects={projects} />
+
   <div class="sections">
-    <Section id="course" label="The course">
-      <p class="intro">{overview.intro}</p>
-      <ol class="plain-list component-list">
-        {overview.components.map(({ id, title, timing, summary }, index) => (
-          <li class="numbered-row reveal">
-            <span class="numeral">{String(index + 1).padStart(2, '0')}</span>
-            <div class="component-body">
-              <h3 class="component-title">
-                <a href={href(`/${id}/`)}>
-                  {title}
-                  <Arrow />
-                </a>
-              </h3>
-              <p class="component-timing">{timing}</p>
-              <p class="component-summary">{summary}</p>
-            </div>
-          </li>
+    <section class="page-width" aria-label="By the numbers">
+      <dl class="stats">
+        {stats.map(({ value, label }) => (
+          <div class="stat reveal">
+            <dt class="visually-hidden">{label}</dt>
+            <dd class="stat-value">{value}</dd>
+            <dd class="stat-label" aria-hidden="true">
+              {label}
+            </dd>
+          </div>
         ))}
-      </ol>
+      </dl>
+      <p class="term-line data">
+        {site.tagline} · {term.label}
+        {term.meetings.map((meeting) => ` · ${formatSession(meeting)}`)}
+      </p>
+    </section>
+
+    <Section id="semester" label="One semester, three parts">
+      <SemesterMap parts={overview.components} />
     </Section>
 
-    {latest && (
-      <Section id="projects" label="Recent projects">
-        <ProjectGrid projects={latest.projects.slice(0, 2)} />
-        <p class="more-link">
-          <a class="arrow-link" href={href('/projects/')}>
-            See all {productCount} products
-            <Arrow />
-          </a>
-        </p>
-      </Section>
-    )}
-
-    <Section id="team" label={`${term.label} team`}>
+    <Section id="team" label={`Taught in ${term.label} by`}>
       <ul class="plain-list team-grid">
         {staff.map(({ person, role }) => (
           <li class="reveal">
@@ -129,6 +121,17 @@ const facts = [
           </li>
         ))}
       </ul>
+      {classPhoto?.classPhoto && (
+        <figure class="class-photo reveal">
+          <Image
+            src={classPhoto.classPhoto}
+            alt={`The ${classPhoto.label} class of ${site.courseCode}`}
+            widths={[800, 1600, 2400]}
+            sizes="(width < 70rem) 100vw, 64rem"
+          />
+          <figcaption class="data">{classPhoto.label} class</figcaption>
+        </figure>
+      )}
       <p class="more-link">
         <a class="arrow-link" href={href('/team/')}>
           Office hours and past staff
@@ -136,6 +139,26 @@ const facts = [
         </a>
       </p>
     </Section>
+
+    <section class="page-width closing" aria-labelledby="closing-heading">
+      <h2 class="closing-title" id="closing-heading">
+        See what you would build.
+      </h2>
+      <div class="link-row">
+        <a class="arrow-link" href={href('/curriculum/')}>
+          The curriculum, week by week
+          <Arrow />
+        </a>
+        <a class="arrow-link" href={href('/capstone/')}>
+          The nine-week capstone
+          <Arrow />
+        </a>
+        <a class="arrow-link" href={href('/projects/')}>
+          All {projects.length} student products
+          <Arrow />
+        </a>
+      </div>
+    </section>
   </div>
 </BaseLayout>
 
@@ -143,7 +166,7 @@ const facts = [
   .hero {
     display: grid;
     gap: var(--space-6);
-    padding-block: var(--space-section);
+    padding-block: var(--space-16) var(--space-12);
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
@@ -163,12 +186,8 @@ const facts = [
     animation-delay: 180ms;
   }
 
-  .hero > :nth-child(5) {
-    animation-delay: 240ms;
-  }
-
   .hero-title {
-    max-width: 16ch;
+    max-width: 14ch;
     font-size: var(--text-display);
     line-height: 1;
     letter-spacing: var(--tracking-display);
@@ -181,93 +200,86 @@ const facts = [
     line-height: 1.55;
   }
 
-  .hero-actions {
+  .link-row {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3) var(--space-8);
-    margin-top: var(--space-2);
-  }
-
-  /* Facts sit in a ruled row, like a spec sheet: label over value. */
-  .hero-facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4) var(--space-12);
-    margin: var(--space-12) 0 0;
-    padding-top: var(--space-6);
-    border-top: 1px solid var(--color-rule);
-  }
-
-  .hero-facts dt {
-    color: var(--color-text-subtle);
-    font-size: var(--text-xs);
-  }
-
-  .hero-facts dd {
-    margin: 0;
-    color: var(--color-text);
-    font-size: var(--text-sm);
   }
 
   .sections {
     display: grid;
     gap: var(--space-section);
+    margin-top: var(--space-section);
   }
 
-  .intro {
-    max-width: var(--prose-max);
-    margin-bottom: var(--space-12);
-    font-size: var(--text-xl);
-    font-weight: var(--weight-medium);
-    line-height: 1.4;
-    letter-spacing: var(--tracking-heading);
+  /* Big figures, each with what it counts underneath. */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4) var(--space-8);
+    margin: 0;
+  }
+
+  .stat dd {
+    margin: 0;
+  }
+
+  .stat-value {
+    font-size: var(--text-display);
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .stat-label {
+    max-width: 16rem;
+    margin-top: var(--space-3);
+    color: var(--color-text-muted);
+  }
+
+  @media (width < 36rem) {
+    .stat-label {
+      font-size: var(--text-sm);
+    }
+  }
+
+  .term-line {
+    margin-top: var(--space-12);
   }
 
   .team-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr));
     gap: 0 var(--space-8);
   }
 
-  .component-body {
+  .class-photo {
     display: grid;
-    gap: var(--space-2);
+    gap: var(--space-3);
+    margin: var(--space-8) 0 0;
   }
 
-  .component-title {
-    font-size: var(--text-lg);
-  }
-
-  .component-title a {
-    color: var(--color-text);
-    text-decoration: none;
-  }
-
-  .component-title a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
-  }
-
-  .component-title a:hover {
-    color: var(--color-brand);
-  }
-
-  .component-title :global(.arrow) {
-    color: var(--color-brand);
-  }
-
-  .component-timing {
-    color: var(--color-text-subtle);
-    font-size: var(--text-sm);
-  }
-
-  .component-summary {
-    max-width: var(--prose-max);
-    color: var(--color-text-muted);
+  .class-photo img {
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    border-radius: var(--radius);
+    object-fit: cover;
   }
 
   .more-link {
     margin-top: var(--space-8);
+  }
+
+  .closing {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .closing-title {
+    max-width: 14ch;
+    font-size: var(--text-title);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
   }
 </style>

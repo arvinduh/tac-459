@@ -86,9 +86,10 @@ const session = z.object({
 const overview = defineCollection({
   loader: singleton('src/content/course/overview.yaml', 'overview'),
   schema: z.object({
-    /** One-sentence pitch under the home page title. */
+    /** The promise that opens the home page, one short sentence. */
+    headline: z.string(),
+    /** One-sentence pitch under the headline. */
     lede: z.string(),
-    intro: z.string(),
     components: z
       .array(
         z.object({
@@ -100,7 +101,7 @@ const overview = defineCollection({
           weeks: z
             .object({ from: z.int().min(1), to: z.int().min(1) })
             .refine(({ from, to }) => from <= to, 'weeks.from is after to'),
-          /** Short form for the home page. */
+          /** Short form for search results and links to the part. */
           summary: z.string(),
           /** Long form that opens the component's own page. */
           detail: z.string(),
