@@ -1,0 +1,159 @@
+---
+/**
+ * One past product: what it does, how it was built, who built it and its
+ * screenshots.
+ */
+import { Image } from 'astro:assets';
+import {
+  getCollection,
+  getEntry,
+  render,
+  type CollectionEntry,
+} from 'astro:content';
+import BackLink from '../../../components/BackLink.astro';
+import Section from '../../../components/Section.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => {
+    const [term, product] = project.id.split('/');
+    return { params: { term, product }, props: { project } };
+  });
+}
+
+const { project } = Astro.props;
+const { title, term, team, summary, images } = project.data;
+const termEntry = await getEntry(term);
+if (!termEntry) throw new Error(`Term '${term.id}' is missing`);
+const { Content } = await render(project);
+const [cover, ...rest] = images;
+---
+
+<BaseLayout
+  title={title}
+  description={summary}
+  image={cover}
+  trail={[{ name: 'Projects', path: '/projects/' }]}
+>
+  <article class="project">
+    <header class="page-width project-header">
+      <BackLink path="/projects/" label="Projects" />
+      <p class="eyebrow">{termEntry.data.label}</p>
+      <h1 class="project-title">{title}</h1>
+      <p class="project-lede">{summary}</p>
+    </header>
+
+    <div class="page-width">
+      <Image
+        class="shot"
+        src={cover}
+        alt={`Screenshot of ${title}`}
+        widths={[800, 1600, 2400]}
+        sizes="(width < 70rem) 100vw, 64rem"
+        loading="eager"
+        transition:name={`cover-${project.id.replace('/', '-')}`}
+      />
+    </div>
+
+    <Section id="about" label="About">
+      <div class="prose">
+        <Content />
+      </div>
+    </Section>
+
+    <Section id="team" label="Team">
+      <ul class="plain-list team-list">
+        {team.map((name) => (
+          <li>{name}</li>
+        ))}
+      </ul>
+    </Section>
+
+    {rest.length > 0 && (
+      <Section id="screenshots" label="Screenshots">
+        <div class="gallery">
+          {rest.map((image, index) => (
+            <Image
+              class="shot"
+              src={image}
+              alt={`Screenshot ${index + 2} of ${title}`}
+              widths={[800, 1600]}
+              sizes="(width < 48rem) 100vw, 52rem"
+            />
+          ))}
+        </div>
+      </Section>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .project {
+    display: grid;
+    gap: var(--space-16);
+  }
+
+  .project-header {
+    display: grid;
+    gap: var(--space-4);
+    padding-top: var(--space-12);
+  }
+
+  .project-header > * {
+    animation: rise var(--duration-slow) var(--ease-out) both;
+  }
+
+  .project-header :global(.back-link) {
+    margin-bottom: var(--space-8);
+  }
+
+  .project-title {
+    max-width: 20ch;
+    font-size: var(--text-title);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+  }
+
+  .project-lede {
+    max-width: var(--prose-max);
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    line-height: 1.55;
+  }
+
+  .shot {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: 0 0 0 1px var(--color-rule);
+  }
+
+  .prose {
+    display: grid;
+    gap: var(--space-4);
+    max-width: var(--prose-max);
+  }
+
+  .prose :global(h2) {
+    margin-top: var(--space-4);
+    font-size: var(--text-base);
+  }
+
+  .prose :global(p) {
+    color: var(--color-text-muted);
+  }
+
+  .team-list {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .gallery {
+    display: grid;
+    gap: var(--space-8);
+  }
+</style>
