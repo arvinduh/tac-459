@@ -6,7 +6,7 @@
  * in one place.
  */
 import { getCollection, getEntry } from 'astro:content';
-import { placeInLanes } from './tenure';
+import { formatRuns, placeInLanes, toRuns } from './tenure';
 import type { EventText, MeetingSeries } from './calendar';
 import { buildingName, currentTermProblems, termLabel, termRank } from './term';
 
@@ -125,14 +125,47 @@ export async function getProjectTerms() {
 
 const ROLES = ['instructor', 'learningAssistant'] as const;
 
+/** Each staff role's name for one person. */
+export const ROLE_NAMES = {
+  instructor: 'Instructor',
+  learningAssistant: 'Learning assistant',
+} as const;
+
+/** Returns every term file in calendar order. */
+async function getTermsInOrder() {
+  return (await getCollection('terms')).sort(
+    (a, b) => termRank(a.id) - termRank(b.id),
+  );
+}
+
+/**
+ * Returns the roles a person has held in the course, each with the terms
+ * they held it, e.g. { role: 'Instructor', terms: 'Spring 2024–Fall 2026' }.
+ */
+export async function getTeachingRecord(personId: string) {
+  const terms = await getTermsInOrder();
+  const labels = terms.map(({ id }) => termLabel(id));
+  return ROLES.map((role) => {
+    const served = terms.flatMap(({ data }, index) =>
+      data.staff.some(
+        (member) => member.role === role && member.person.id === personId,
+      )
+        ? [index]
+        : [],
+    );
+    return {
+      role: ROLE_NAMES[role],
+      terms: formatRuns(toRuns(served), labels),
+    };
+  }).filter(({ terms: names }) => names !== '');
+}
+
 /**
  * Returns every term in calendar order and, per role, each person's place
  * on the tenure timeline: a lane and the unbroken runs of terms they served.
  */
 export async function getStaffTimeline() {
-  const terms = (await getCollection('terms')).sort(
-    (a, b) => termRank(a.id) - termRank(b.id),
-  );
+  const terms = await getTermsInOrder();
   const groups = await Promise.all(
     ROLES.map(async (role) => {
       const served = new Map<string, number[]>();

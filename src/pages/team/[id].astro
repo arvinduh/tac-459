@@ -9,6 +9,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import BackLink from '../../components/BackLink.astro';
 import Portrait from '../../components/Portrait.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSite, getTeachingRecord } from '../../lib/course';
 import { personSchema } from '../../lib/schema';
 
 interface Props {
@@ -27,6 +28,8 @@ const { person } = Astro.props;
 const { name, honorific, positions, email, links, photo } = person.data;
 const displayName = honorific ? `${honorific} ${name}` : name;
 const { Content } = await render(person);
+const { courseCode } = await getSite();
+const record = await getTeachingRecord(person.id);
 
 const portrait =
   photo && (await getImage({ src: photo, width: 480, format: 'webp' }));
@@ -75,6 +78,15 @@ const hasDetails = contacts.length > 0 || Boolean(person.body?.trim());
           <li>{position}</li>
         ))}
       </ul>
+      {record.length > 0 && (
+        <ul class="person-record data" aria-label={`Roles in ${courseCode}`}>
+          {record.map(({ role, terms }) => (
+            <li>
+              {role} · {terms}
+            </li>
+          ))}
+        </ul>
+      )}
     </header>
 
     {hasDetails && (
@@ -141,7 +153,12 @@ const hasDetails = contacts.length > 0 || Boolean(person.body?.trim());
     list-style: none;
   }
 
-  /* Same two-column grid as every page section. */
+  .person-record {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
   /* Contacts in one row above the bio, both on the page's left edge. */
   .person-grid {
     display: grid;

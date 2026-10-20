@@ -20,6 +20,7 @@ import {
   getOverview,
   getProjectTerms,
   getSite,
+  ROLE_NAMES,
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
@@ -30,11 +31,6 @@ const term = await getCurrentTerm();
 const overview = await getOverview();
 const staff = await getCurrentStaff();
 const instructors = staff.filter(({ role }) => role === 'instructor');
-const ROLE_NAMES = {
-  instructor: 'Instructor',
-  learningAssistant: 'Learning assistant',
-};
-
 const projectTerms = await getProjectTerms();
 const projects = projectTerms.flatMap((entry) => entry.projects);
 
