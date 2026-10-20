@@ -1,0 +1,80 @@
+---
+/**
+ * The course in full: what each part is, then every week of the semester.
+ *
+ * The home page tells the course as a story; this page is the reference.
+ * Each part opens with what it is and when, anchored by its id so the home
+ * page can link to it, and the week-by-week timeline below holds all the
+ * detail: weekly topics, the company overview's steps and the capstone's
+ * roadmap.
+ */
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+import WeekTimeline from '../components/WeekTimeline.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getModules, getOverview } from '../lib/course';
+import { formatWeeks } from '../lib/term';
+import { buildWeeks } from '../lib/weeks';
+
+const [overview, modules] = await Promise.all([getOverview(), getModules()]);
+const parts = overview.components.toSorted(
+  (a, b) => a.weeks.from - b.weeks.from,
+);
+const rows = buildWeeks(parts, modules);
+const span = formatWeeks({ from: 1, to: rows.length });
+---
+
+<BaseLayout title="Course" description={overview.blurb}>
+  <PageHeader eyebrow={span} title="Course" lede={overview.blurb} />
+  <div class="page-width">
+    <ul class="plain-list parts">
+      {parts.map(({ id, title, weeks, detail }) => (
+        <li class={`part lane-${id}`} id={id}>
+          <p class="part-weeks numeral">{formatWeeks(weeks)}</p>
+          <h2 class="part-title">{title}</h2>
+          <p class="part-detail">{detail}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <Section id="weeks" label="Week by week">
+    <WeekTimeline lanes={parts} rows={rows} />
+  </Section>
+</BaseLayout>
+
+<style>
+  .parts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-12) var(--space-8);
+    margin-bottom: var(--space-section);
+  }
+
+  .part {
+    --edge: var(--color-rule-strong);
+
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 2px solid var(--edge);
+    scroll-margin-top: calc(var(--header-height) + var(--space-8));
+  }
+
+  .lane-company-overview {
+    --edge: var(--color-accent);
+  }
+
+  .lane-capstone {
+    --edge: var(--color-brand);
+  }
+
+  .part-title {
+    font-size: var(--text-xl);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .part-detail {
+    color: var(--color-text-muted);
+  }
+</style>
