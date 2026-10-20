@@ -1,0 +1,110 @@
+---
+/**
+ * The technical curriculum: five modules of weekly topics in teaching order.
+ *
+ * Week numbers run on across modules. Each week lists its core topics; the
+ * deeper topics sit in a native disclosure so the page stays scannable.
+ */
+import PageHeader from '../components/PageHeader.astro';
+import Section from '../components/Section.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getComponent, getModules } from '../lib/course';
+
+const { title, timing, summary, detail } = await getComponent('curriculum');
+const modules = await getModules();
+
+// Week numbers run on across modules.
+let nextWeek = 1;
+const numbered = modules.map((module) => {
+  const firstWeek = nextWeek;
+  nextWeek += module.weeks.length;
+  return { ...module, firstWeek };
+});
+---
+
+<BaseLayout title={title} description={summary}>
+  <PageHeader eyebrow={timing} title={title} lede={detail} />
+  <div class="modules">
+    {numbered.map((module, moduleIndex) => (
+      <Section
+        id={`module-${moduleIndex + 1}`}
+        numeral={`Module ${moduleIndex + 1}`}
+        label={module.title}
+      >
+        <ol class="plain-list">
+          {module.weeks.map(({ title, core, deeper }, weekIndex) => (
+            <li class="numbered-row">
+              <span class="numeral">
+                Week {String(module.firstWeek + weekIndex).padStart(2, '0')}
+              </span>
+              <div class="week-body">
+                <h3 class="week-title">{title}</h3>
+                <ul class="topic-list">
+                  {core.map((topic) => (
+                    <li>{topic}</li>
+                  ))}
+                </ul>
+                {deeper.length > 0 && (
+                  <details class="deeper">
+                    <summary>Deeper topics</summary>
+                    <ul class="topic-list">
+                      {deeper.map((topic) => (
+                        <li>{topic}</li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </Section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .modules {
+    display: grid;
+    gap: var(--space-section);
+  }
+
+  .week-body {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .week-title {
+    font-size: var(--text-lg);
+  }
+
+  .topic-list {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding-left: 1.1em;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .topic-list ::marker {
+    color: var(--color-text-subtle);
+  }
+
+  .deeper summary {
+    width: fit-content;
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    cursor: pointer;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .deeper summary:hover {
+    color: var(--color-text);
+  }
+
+  .deeper[open] summary {
+    margin-bottom: var(--space-2);
+  }
+</style>
