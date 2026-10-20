@@ -26,7 +26,6 @@ const site = defineCollection({
     currentTerm: reference('terms'),
     /** Campus building names by room-code prefix, for map links. */
     buildings: z.record(z.string(), z.string()).default({}),
-    googleSiteVerification: z.array(z.string()),
     indexable: z.boolean(),
   }),
 });

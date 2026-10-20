@@ -10,6 +10,5 @@ currentTerm: fall-2026
 # Room codes in term files link to these buildings on Google Maps.
 buildings:
   KAP: Kaprielian Hall
-googleSiteVerification: []
 # Keep false until cutover so the preview never competes with the live site.
 indexable: false

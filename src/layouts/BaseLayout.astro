@@ -112,9 +112,6 @@ const fullTitle = title ? `${title} · ${courseCode}` : site.homeTitle;
     <link rel="icon" href={href('/favicon.svg')} type="image/svg+xml" />
     <link rel="sitemap" href={href('/sitemap-index.xml')} />
     {!site.indexable && <meta name="robots" content="noindex" />}
-    {site.googleSiteVerification.map((token) => (
-      <meta name="google-site-verification" content={token} />
-    ))}
     {jsonLd.map((data) => (
       <script
         is:inline
