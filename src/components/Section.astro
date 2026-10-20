@@ -3,7 +3,8 @@
  * A titled band of a page on the site's two-column editorial grid.
  *
  * The narrow column holds the section's heading; the wide column holds the
- * slot. Below the grid breakpoint the heading stacks on top.
+ * slot, and the heading stays in view while the slot scrolls past. Below
+ * the grid breakpoint the heading stacks on top.
  */
 interface Props {
   /** Anchor for in-page links; also derives the heading's id. */
@@ -58,5 +59,14 @@ const headingId = `${id}-heading`;
     font-size: var(--text-sm);
     font-weight: var(--weight-medium);
     letter-spacing: 0;
+  }
+
+  /* On wide screens the label rides along while its long section scrolls. */
+  @media (width >= 48rem) {
+    .section-grid:not(.stacked) .section-label {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-8));
+      align-self: start;
+    }
   }
 </style>
