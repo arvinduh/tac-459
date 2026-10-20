@@ -149,3 +149,53 @@ modules:
           - Design and Development of Conversational Agents
           - Multimodal Interaction in Conversational AI
           - Case Studies in Speech Processing and Conversational AI
+  - title: Frontier Models, Alignment, and Advanced Generative AI Topics
+    weeks:
+      - title:
+          Generative AI, Products, Techniques, APIs, and Ethical Considerations
+        due: [assignment-11]
+        core:
+          - 'Generative AI, Products, Techniques, APIs, and Ethical
+            Considerations'
+          - Generative Models in NLP (ChatGPT, BARD, Gemini, Llama)
+          - 'Business Intelligence, Marketing, Analytics, and Brand Analysis Use
+            Cases'
+          - Introduction to Product Management and Business Considerations
+        deeper:
+          - 'Advanced Prompt Engineering: Few-shot, Chain-of-thought, and
+            Self-Consistency'
+          - 'Expanding LLM Capabilities: Knowledge Generation Prompting and
+            Program-aided (PAL)'
+          - 'Developing an API with MongoDB and ngrok, and interfacing via
+            Postman'
+          - 'LLM Safety: Prompt Injection, Prompt Leaking, Jailbreaking'
+          - 'Responsible AI, Data Privacy, Ethical Considerations, and
+            Governance in AI'
+      - title: Training and Fine-Tuning LLMs, Hugging Face, LangChain, and RAG
+        due: [assignment-12]
+        core:
+          - Training and Fine-Tuning LLMs, Hugging Face, LangChain, and RAG
+          - Fine Tuning LLMs, Best Practices and Challenges
+          - Overview and Practical Use of Hugging Face in NLP Based Products
+          - Utilizing LangChain and Llama for Customized Language Models
+        deeper:
+          - 'RAG: Retrieval Augmented Generation'
+          - 'Training of Chat GPT with Reinforcement Learning, HITL, and
+            Proximal Policy Optimization'
+          - 'Evaluation of LLMs: MMLU, HellaSwag Benchmark, ARC, WinoGrade,
+            GSM-8k, Truthful QA, PIQA'
+          - LoRA and QLoRA for Efficient Model Adaptation
+          - Fine-Tuned LLMs Application
+      - title:
+          Course Review, Future Trends, and Project Presentations + Final Exam
+        due: [capstone-deliverables]
+        core:
+          - 'Course Review, Future Trends, and Project Presentations + Final
+            Exam'
+          - Recap of Key NLP and Generative AI Concepts
+          - Resources for Advanced Learning
+          - Closing Remarks and Course Evaluation
+        deeper:
+          - Discussion on the Future Trends in NLP and Generative AI
+          - Student Project Presentations
+          - Feedback and Review of Projects
