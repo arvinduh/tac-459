@@ -100,3 +100,10 @@ img {
     transform: translateY(12px);
   }
 }
+
+/* Exit for content leaving during a page transition. */
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}

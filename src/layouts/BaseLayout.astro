@@ -7,6 +7,7 @@ import '@fontsource-variable/inter';
 import '@fontsource/libre-caslon-display/latin-400.css';
 import '../styles/tokens.css';
 import '../styles/base.css';
+import type { TransitionAnimationPair } from 'astro';
 import { ClientRouter } from 'astro:transitions';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -21,6 +22,24 @@ interface Props {
 const site = await getSite();
 const { courseCode, title: courseTitle, tagline } = site;
 const { title, description = site.description } = Astro.props;
+// Old content fades out first and new content rises in after it, so the
+// two pages never overlap mid-swap.
+const swap: TransitionAnimationPair = {
+  old: {
+    name: 'fade-out',
+    duration: 'var(--duration-fast)',
+    easing: 'ease-in',
+    fillMode: 'both',
+  },
+  new: {
+    name: 'rise',
+    duration: 'var(--duration-base)',
+    delay: 'var(--duration-fast)',
+    easing: 'var(--ease-out)',
+    fillMode: 'both',
+  },
+};
+
 const fullTitle = title
   ? `${title} · ${courseCode}`
   : `${courseCode} · ${courseTitle}`;
@@ -45,7 +64,10 @@ const fullTitle = title
       Skip to content
     </a>
     <SiteHeader courseCode={courseCode} />
-    <main id="main-content">
+    <main
+      id="main-content"
+      transition:animate={{ forwards: swap, backwards: swap }}
+    >
       <slot />
     </main>
     <SiteFooter courseCode={courseCode} title={courseTitle} tagline={tagline} />
