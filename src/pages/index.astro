@@ -23,9 +23,12 @@ import { formatSession } from '../lib/term';
 const site = await getSite();
 const term = await getCurrentTerm();
 const overview = await getOverview();
-const instructors = (await getCurrentStaff()).filter(
-  ({ role }) => role === 'instructor',
-);
+const staff = await getCurrentStaff();
+const instructors = staff.filter(({ role }) => role === 'instructor');
+const ROLE_NAMES = {
+  instructor: 'Instructor',
+  learningAssistant: 'Learning assistant',
+};
 
 const latest = (await getProjectTerms()).find(
   (entry) => entry.projects.length > 0,
@@ -82,18 +85,18 @@ const meetings = term.meetings.map(formatSession);
 
     {latest && (
       <Section id="projects" label="Recent projects">
-        <ProjectGrid projects={latest.projects.slice(0, 4)} />
+        <ProjectGrid projects={latest.projects.slice(0, 2)} />
         <p class="more-link">
           <a href={href('/projects/')}>See every term's projects</a>
         </p>
       </Section>
     )}
 
-    <Section id="instructors" label="Instructors">
-      <ul class="plain-list person-list">
-        {instructors.map(({ person }) => (
+    <Section id="team" label={`${term.label} team`}>
+      <ul class="plain-list team-grid">
+        {staff.map(({ person, role }) => (
           <li>
-            <PersonRow person={person} />
+            <PersonRow person={person} caption={ROLE_NAMES[role]} />
           </li>
         ))}
       </ul>
@@ -165,8 +168,10 @@ const meetings = term.meetings.map(formatSession);
     letter-spacing: var(--tracking-heading);
   }
 
-  .person-list > li + li {
-    border-top: 1px solid var(--color-rule);
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: 0 var(--space-8);
   }
 
   .component-body {
@@ -201,10 +206,6 @@ const meetings = term.meetings.map(formatSession);
   .component-summary {
     max-width: var(--prose-max);
     color: var(--color-text-muted);
-  }
-
-  .person-list > li:first-child :global(.person-row) {
-    padding-top: 0;
   }
 
   .more-link {
