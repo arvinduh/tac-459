@@ -120,7 +120,6 @@ const overview = defineCollection({
           steps: z
             .array(
               z.object({
-                label: z.string().optional(),
                 title: z.string(),
                 text: z.string(),
               }),

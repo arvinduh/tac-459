@@ -8,16 +8,18 @@ import PageHeader from '../../components/PageHeader.astro';
 import ProjectGrid from '../../components/ProjectGrid.astro';
 import Section from '../../components/Section.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getProjectTerms, getSite } from '../../lib/course';
+import { getComponent, getProjectTerms, getSite } from '../../lib/course';
 
 const site = await getSite();
 const terms = await getProjectTerms();
 const count = terms.reduce((sum, term) => sum + term.projects.length, 0);
+const { weeks } = await getComponent('capstone');
+const capstoneWeeks = weeks.to - weeks.from + 1;
 ---
 
 <BaseLayout
   title="Projects"
-  description={`${count} AI products built by ${site.courseCode} student teams in the nine-week capstone, from chatbots and advisors to agents.`}
+  description={`${count} AI products built by ${site.courseCode} student teams in the ${capstoneWeeks}-week capstone, from chatbots and advisors to agents.`}
 >
   <PageHeader
     eyebrow="Past capstone products"

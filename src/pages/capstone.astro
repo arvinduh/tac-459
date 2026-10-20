@@ -9,14 +9,21 @@ import StepList from '../components/StepList.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getComponent } from '../lib/course';
 
-const { title, timing, summary, detail, steps } =
+const { title, timing, summary, detail, steps, weeks } =
   await getComponent('capstone');
+// The roadmap is one step per week, so its weeks come from `weeks` alone.
+if (steps.length !== weeks.to - weeks.from + 1) {
+  throw new Error(
+    `overview.yaml: the capstone spans weeks ${weeks.from}–${weeks.to} ` +
+      `but has ${steps.length} steps; it needs one per week`,
+  );
+}
 ---
 
 <BaseLayout title={title} description={summary}>
   <PageHeader eyebrow={timing} title={title} lede={detail} />
   <Section id="roadmap" label="Roadmap">
-    <StepList steps={steps} />
+    <StepList steps={steps} firstWeek={weeks.from} />
   </Section>
   <NextPage
     path="/projects/"

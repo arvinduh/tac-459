@@ -2,8 +2,9 @@
 /**
  * An ordered list of steps, one per row under a hairline.
  *
- * Each row leads with its label (such as 'Week 3') or, without one, its
- * two-digit position, so the order reads at a glance.
+ * Each row leads with its semester week when the steps are one per week
+ * from `firstWeek`, or else its two-digit position, so the order reads at a
+ * glance.
  */
 import type { CollectionEntry } from 'astro:content';
 
@@ -11,15 +12,21 @@ type Component = CollectionEntry<'overview'>['data']['components'][number];
 
 interface Props {
   steps: Component['steps'];
+  /** Semester week of the first step, when there is one step per week. */
+  firstWeek?: number;
 }
 
-const { steps } = Astro.props;
+const { steps, firstWeek } = Astro.props;
 ---
 
 <ol class="plain-list">
-  {steps.map(({ label, title, text }, index) => (
+  {steps.map(({ title, text }, index) => (
     <li class="numbered-row reveal">
-      <span class="numeral">{label ?? String(index + 1).padStart(2, '0')}</span>
+      <span class="numeral">
+        {firstWeek === undefined
+          ? String(index + 1).padStart(2, '0')
+          : `Week ${firstWeek + index}`}
+      </span>
       <div class="step-body">
         <h3 class="step-title">{title}</h3>
         <p class="step-text">{text}</p>
