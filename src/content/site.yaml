@@ -1,0 +1,10 @@
+# Course identity and search metadata. Same for every term.
+courseCode: TAC 459
+title: Generative AI and Natural Language Processing
+tagline: Capstone of the USC AI Minor
+description: >-
+  USC's AI Minor capstone. Explore generative AI, frontier models and NLP, and
+  build a complete AI product.
+googleSiteVerification: []
+# Keep false until cutover so the preview never competes with the live site.
+indexable: false
