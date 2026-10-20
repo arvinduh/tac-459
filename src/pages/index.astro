@@ -5,29 +5,14 @@
  * Every value comes from site.yaml, the current term and the curriculum, so
  * the page rolls forward with the term file and needs no edits itself.
  */
-import UpNext from '../components/UpNext.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import {
-  getCurrentTerm,
-  getDeliverableTitles,
-  getModules,
-  getSite,
-} from '../lib/course';
+import { getCurrentTerm, getModules, getSite } from '../lib/course';
 import { href } from '../lib/paths';
-import { dueKey, formatClock, formatDue } from '../lib/term';
+import { formatClock } from '../lib/term';
 
 const site = await getSite();
 const term = await getCurrentTerm();
 const modules = await getModules();
-const titles = await getDeliverableTitles();
-
-const deadlines = term.due
-  .map(({ deliverable, date, time }) => ({
-    key: dueKey(date, time),
-    title: titles.get(deliverable.id) ?? deliverable.id,
-    when: formatDue(date, time),
-  }))
-  .toSorted((a, b) => a.key.localeCompare(b.key));
 
 const meetings = term.meetings.map(
   ({ days, start, end, location }) =>
@@ -58,15 +43,11 @@ const outline = modules.map(({ title, weeks }, index) => {
           ))}
         </ul>
         <div class="hero-actions">
-          <a class="button button-primary" href={href('/schedule/')}>
-            See the schedule
-          </a>
           <a class="button button-quiet" href={href('/team/')}>
             Meet the team
           </a>
         </div>
       </div>
-      <UpNext timeZone={site.timeZone} limit={3} items={deadlines} />
     </div>
   </section>
 
@@ -77,13 +58,13 @@ const outline = modules.map(({ title, weeks }, index) => {
     <ol class="module-list">
       {outline.map(({ number, title, first, last }) => (
         <li>
-          <a class="module-card" href={href(`/schedule/#module-${number}`)}>
+          <div class="module-card">
             <span class="module-number">{String(number).padStart(2, '0')}</span>
             <span class="module-title">{title}</span>
             <span class="module-weeks">
               Weeks {first}–{last}
             </span>
-          </a>
+          </div>
         </li>
       ))}
     </ol>
