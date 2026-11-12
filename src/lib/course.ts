@@ -18,15 +18,15 @@ import {
   toRuns,
 } from '@tac/content';
 
-/** Returns the validated contents of site.yaml. */
+/** Returns the validated contents of site.json. */
 export async function getSite() {
   const site = await getEntry('site', 'site');
-  if (!site) throw new Error('src/content/site.yaml is missing');
+  if (!site) throw new Error('src/content/site.json is missing');
   return site.data;
 }
 
 /**
- * Returns the term that site.yaml names as current, with its id and name.
+ * Returns the term that site.json names as current, with its id and name.
  *
  * Throws, failing the build, when that term file is not filled in yet.
  */
@@ -37,7 +37,7 @@ export async function getCurrentTerm() {
   const problems = currentTermProblems(term.id, term.data);
   const { classes } = term.data;
   if (problems.length > 0 || !classes) {
-    const file = `src/content/terms/${term.id}.yaml`;
+    const file = `src/content/terms/${term.id}/term.json`;
     throw new Error(
       `${file} is not ready to be current: ${problems.join('; ')}`,
     );
@@ -76,7 +76,7 @@ export async function getClassCalendar(siteUrl: string) {
 export async function getModules() {
   const curriculum = await getEntry('curriculum', 'curriculum');
   if (!curriculum) {
-    throw new Error('src/content/course/curriculum.yaml is missing');
+    throw new Error('src/content/course/curriculum.json is missing');
   }
   return curriculum.data.modules;
 }
@@ -93,21 +93,21 @@ export async function getCurrentStaff() {
   );
 }
 
-/** Returns the course pitch from overview.yaml. */
+/** Returns the course pitch from overview.json. */
 export async function getOverview() {
   const overview = await getEntry('overview', 'overview');
   if (!overview) {
-    throw new Error('src/content/course/overview.yaml is missing');
+    throw new Error('src/content/course/overview.json is missing');
   }
   return overview.data;
 }
 
-/** Returns one course component by the id its page is named after. */
-export async function getComponent(id: string) {
-  const { components } = await getOverview();
-  const component = components.find((entry) => entry.id === id);
-  if (!component) throw new Error(`Course component '${id}' is missing`);
-  return component;
+/** Returns one course part by its id, e.g. 'capstone'. */
+export async function getPart(id: string) {
+  const { parts } = await getOverview();
+  const part = parts.find((entry) => entry.id === id);
+  if (!part) throw new Error(`Course part '${id}' is missing`);
+  return part;
 }
 
 /**
@@ -124,7 +124,7 @@ export async function getProjectTerms() {
       id,
       label: termLabel(id),
       classPhoto: data.classPhoto,
-      projects: projects.filter((project) => project.data.term.id === id),
+      projects: projects.filter((project) => project.id.startsWith(`${id}/`)),
     }))
     .filter((term) => term.projects.length > 0 || term.classPhoto)
     .sort((a, b) => termRank(b.id) - termRank(a.id));

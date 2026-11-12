@@ -1,9 +1,0 @@
-# Everything that changes per term, and nothing else.
-meetings: []
-classPhoto: ./spring-2026.webp
-staff:
-  - { person: allen-bolourchi, role: instructor }
-  - { person: reza-jafarkhani, role: instructor }
-  - { person: dylan-chen, role: learningAssistant }
-  - { person: arvin-duh, role: learningAssistant }
-  - { person: christopher-kuzion, role: learningAssistant }

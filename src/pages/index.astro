@@ -40,10 +40,8 @@ const projectTerms = await getProjectTerms();
 const projects = projectTerms.flatMap((entry) => entry.projects);
 
 // One stop where each part begins, then demo day at the capstone's end.
-const parts = overview.components.toSorted(
-  (a, b) => a.weeks.from - b.weeks.from,
-);
-const capstone = overview.components.find(({ id }) => id === 'capstone');
+const parts = overview.parts.toSorted((a, b) => a.weeks.from - b.weeks.from);
+const capstone = overview.parts.find(({ id }) => id === 'capstone');
 const finale = capstone?.steps?.at(-1);
 const stops = [
   ...parts.map(({ id, title, promise, summary, weeks }) => ({

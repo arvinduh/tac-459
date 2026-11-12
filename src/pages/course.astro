@@ -15,9 +15,7 @@ import { getModules, getOverview } from '../lib/course';
 import { buildLanes, formatWeeks } from '@tac/content';
 
 const [overview, modules] = await Promise.all([getOverview(), getModules()]);
-const parts = overview.components.toSorted(
-  (a, b) => a.weeks.from - b.weeks.from,
-);
+const parts = overview.parts.toSorted((a, b) => a.weeks.from - b.weeks.from);
 const { last, lanes } = buildLanes(parts, modules);
 const span = formatWeeks({ from: 1, to: last });
 ---

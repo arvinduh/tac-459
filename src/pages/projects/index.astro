@@ -9,12 +9,12 @@ import PageHeader from '../../components/PageHeader.astro';
 import ProjectGrid from '../../components/ProjectGrid.astro';
 import Section from '../../components/Section.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getComponent, getProjectTerms, getSite } from '../../lib/course';
+import { getPart, getProjectTerms, getSite } from '../../lib/course';
 
 const site = await getSite();
 const terms = await getProjectTerms();
 const count = terms.reduce((sum, term) => sum + term.projects.length, 0);
-const { weeks } = await getComponent('capstone');
+const { weeks } = await getPart('capstone');
 const capstoneWeeks = weeks.to - weeks.from + 1;
 ---
 

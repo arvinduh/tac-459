@@ -1,9 +1,0 @@
-# Everything that changes per term, and nothing else.
-meetings:
-  - { days: [Mon, Wed], start: '12:00', end: '13:50', location: KAP 160 }
-staff:
-  - { person: allen-bolourchi, role: instructor }
-  - { person: reza-jafarkhani, role: instructor }
-  - { person: dylan-chen, role: learningAssistant }
-  - { person: arvin-duh, role: learningAssistant }
-  - { person: christopher-kuzion, role: learningAssistant }
