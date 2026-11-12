@@ -13,7 +13,6 @@ import PersonRow from '../components/PersonRow.astro';
 import Section from '../components/Section.astro';
 import SemesterStory from '../components/SemesterStory.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { googleCalendarUrl } from '../lib/calendar';
 import {
   getClassCalendar,
   getCurrentStaff,
@@ -25,7 +24,12 @@ import {
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
-import { formatTimes, mapUrl, scheduleUrl } from '../lib/term';
+import {
+  formatTimes,
+  googleCalendarUrl,
+  mapUrl,
+  scheduleUrl,
+} from '@tac/content';
 
 const site = await getSite();
 const term = await getCurrentTerm();

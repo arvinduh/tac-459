@@ -6,7 +6,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { parse } from 'yaml';
-import { rolloverReminder } from '../src/lib/term.ts';
+import { rolloverReminder } from '@tac/content';
 
 const site = parse(await readFile('src/content/site.yaml', 'utf8'));
 const id: string = site.currentTerm;

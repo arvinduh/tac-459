@@ -9,7 +9,7 @@ import Section from '../../components/Section.astro';
 import StaffTimeline from '../../components/StaffTimeline.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCurrentStaff, getCurrentTerm, getSite } from '../../lib/course';
-import { formatSession } from '../../lib/term';
+import { formatSession } from '@tac/content';
 
 const site = await getSite();
 const term = await getCurrentTerm();

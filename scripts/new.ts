@@ -12,7 +12,7 @@
  */
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { termRank } from '../src/lib/term.ts';
+import { termRank } from '@tac/content';
 import { slugify } from './content.ts';
 
 const CONTENT = 'src/content';

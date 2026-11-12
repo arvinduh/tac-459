@@ -12,8 +12,7 @@ import PageHeader from '../components/PageHeader.astro';
 import SemesterMap from '../components/SemesterMap.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getModules, getOverview } from '../lib/course';
-import { formatWeeks } from '../lib/term';
-import { buildLanes } from '../lib/lanes';
+import { buildLanes, formatWeeks } from '@tac/content';
 
 const [overview, modules] = await Promise.all([getOverview(), getModules()]);
 const parts = overview.components.toSorted(

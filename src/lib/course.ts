@@ -6,9 +6,17 @@
  * in one place.
  */
 import { getCollection, getEntry } from 'astro:content';
-import { formatRuns, placeInLanes, toRuns } from './tenure';
-import type { EventText, MeetingSeries } from './calendar';
-import { buildingName, currentTermProblems, termLabel, termRank } from './term';
+import {
+  buildingName,
+  currentTermProblems,
+  type EventText,
+  formatRuns,
+  type MeetingSeries,
+  placeInLanes,
+  termLabel,
+  termRank,
+  toRuns,
+} from '@tac/content';
 
 /** Returns the validated contents of site.yaml. */
 export async function getSite() {
