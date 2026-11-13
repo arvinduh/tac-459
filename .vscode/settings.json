@@ -1,0 +1,28 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["/src/content/site.json"],
+      "url": "./.vscode/schemas/site.json"
+    },
+    {
+      "fileMatch": ["/src/content/course/overview.json"],
+      "url": "./.vscode/schemas/overview.json"
+    },
+    {
+      "fileMatch": ["/src/content/course/curriculum.json"],
+      "url": "./.vscode/schemas/curriculum.json"
+    },
+    {
+      "fileMatch": ["/src/content/people/*/person.json"],
+      "url": "./.vscode/schemas/person.json"
+    },
+    {
+      "fileMatch": ["/src/content/terms/*/term.json"],
+      "url": "./.vscode/schemas/term.json"
+    },
+    {
+      "fileMatch": ["/src/content/projects/*/*/project.json"],
+      "url": "./.vscode/schemas/project.json"
+    }
+  ]
+}
