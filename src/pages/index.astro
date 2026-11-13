@@ -129,15 +129,16 @@ const course = courseSchema({
 </BaseLayout>
 
 <style>
-  /* The hero takes most of the first screen, so the headline has air. */
+  /* The hero fills the first screen and rests on its floor, so the
+     headline has air above it and the next section waits below the fold. */
   .hero {
     display: grid;
     grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
     gap: var(--space-12) var(--space-16);
-    align-content: center;
+    align-content: end;
     align-items: end;
-    min-height: min(48rem, calc(100svh - var(--header-height) - 6rem));
-    padding-block: var(--space-section);
+    min-height: calc(100svh - var(--header-height));
+    padding-block: var(--space-16) var(--space-12);
   }
 
   .hero-head {
@@ -168,8 +169,7 @@ const course = courseSchema({
 
   .hero-blurb {
     color: var(--color-text-muted);
-    font-size: var(--text-lg);
-    line-height: 1.5;
+    line-height: 1.55;
   }
 
   .sections {
@@ -194,7 +194,7 @@ const course = courseSchema({
   @media (width < 56rem) {
     .hero {
       grid-template-columns: minmax(0, 1fr);
-      min-height: 0;
+      gap: var(--space-8);
     }
   }
 </style>

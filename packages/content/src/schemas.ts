@@ -52,11 +52,16 @@ export function siteSchema<T extends z.ZodType>(term: T) {
 /** The course pitch and its parts: course/overview.json. */
 export const overviewSchema = z.strictObject({
   headline: z
-    .array(z.string().max(16))
+    .array(
+      z
+        .string()
+        .max(18)
+        .regex(/^[^*]*\*[^*]+\*[^*]*$/, 'Mark one key term with *asterisks*'),
+    )
     .min(2)
     .max(5)
     .describe(
-      'The promise that opens the home page, one short phrase per line.',
+      'The promise that opens the home page, one short phrase per line, each with its key term in *asterisks*.',
     ),
   blurb: z.string().describe('A short paragraph under the headline.'),
   parts: z

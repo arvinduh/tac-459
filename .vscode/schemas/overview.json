@@ -8,9 +8,10 @@
       "type": "array",
       "items": {
         "type": "string",
-        "maxLength": 16
+        "maxLength": 18,
+        "pattern": "^[^*]*\\*[^*]+\\*[^*]*$"
       },
-      "description": "The promise that opens the home page, one short phrase per line."
+      "description": "The promise that opens the home page, one short phrase per line, each with its key term in *asterisks*."
     },
     "blurb": {
       "type": "string",
