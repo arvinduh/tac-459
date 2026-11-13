@@ -36,10 +36,10 @@
   --color-brand-hover: var(--cardinal-700);
   --color-accent: var(--gold-400);
   --color-focus: var(--cardinal-600);
-  /* The home page's dark band, where Gold may be text: 13:1 on night. */
+  /* The home page's dark band, where Gold may be text: 12.1:1 on night. */
   --color-night: var(--night);
   --color-night-text: var(--paper);
-  /* 7.6:1 on night. */
+  /* 7.5:1 on night. */
   --color-night-muted: var(--night-300);
 }
 
