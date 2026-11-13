@@ -1,0 +1,338 @@
+---
+/**
+ * The semester line: a column per week, a lane per part of the course, and
+ * a bar for every module and step.
+ *
+ * It is the site's one recurring graphic. The line reads at a glance (when
+ * each part runs and how they overlap) and every piece opens its detail in
+ * place: a hover card with a mouse, a sheet on touch. Each piece is also a
+ * link to its part's section, so without script it still goes somewhere.
+ * It is a table, as the staff timeline is: weeks are columns and colspan
+ * carries each bar's length, so it fits any screen with no positional
+ * styles. Card contents are templates rendered here at build time.
+ */
+import { formatWeeks, type Segment } from '@tac/content';
+import Arrow from './Arrow.astro';
+
+interface Part {
+  id: string;
+  title: string;
+  weeks: { from: number; to: number };
+  summary: string;
+}
+
+interface Props {
+  last: number;
+  lanes: Array<{ part: Part; segments: Segment[] }>;
+}
+
+/** One piece of a lane that opens a card. */
+interface Piece {
+  card: string;
+  /** Short label inside the bar, when it has room: a module's name. */
+  label?: string;
+  /** What screen readers hear for the piece. */
+  name: string;
+  meta: string;
+  title: string;
+  text?: string;
+  topics?: Array<{ week: number; title: string }>;
+}
+
+const { last, lanes } = Astro.props;
+const weeks = Array.from({ length: last }, (_, index) => index + 1);
+
+/** Every cell of a lane: its width in weeks and the pieces it holds. */
+function cells(
+  part: Part,
+  segments: Segment[],
+): Array<{ span: number; pieces: Piece[] }> {
+  let week = 1;
+  return segments.map((segment) => {
+    const from = week;
+    week += segment.span;
+    const span = formatWeeks({ from, to: week - 1 });
+    switch (segment.kind) {
+      case 'gap':
+        return { span: segment.span, pieces: [] };
+      case 'module':
+        return {
+          span: segment.span,
+          pieces: [
+            {
+              card: `module-${segment.number}`,
+              label: segment.title,
+              name: `Module ${segment.number}: ${segment.title}`,
+              meta: `Module ${segment.number} · ${span}`,
+              title: segment.title,
+              topics: segment.weeks,
+            },
+          ],
+        };
+      case 'step':
+        return {
+          span: 1,
+          pieces: [
+            {
+              card: `${part.id}-step-${segment.number}`,
+              name: `Week ${segment.week}: ${segment.step.title}`,
+              meta: `Week ${segment.week} · ${part.title}`,
+              title: segment.step.title,
+              text: segment.step.text,
+            },
+          ],
+        };
+      default:
+        return {
+          span: segment.span,
+          pieces: segment.steps.map(({ title, text }, index) => ({
+            card: `${part.id}-step-${index + 1}`,
+            name: `Step ${index + 1}: ${title}`,
+            meta: `Step ${index + 1} · ${span}`,
+            title,
+            text,
+          })),
+        };
+    }
+  });
+}
+
+const rows = lanes.map(({ part, segments }) => ({
+  part,
+  cells: cells(part, segments),
+}));
+const pieces = rows.flatMap(({ cells: row }) =>
+  row.flatMap(({ pieces: held }) => held),
+);
+---
+
+<table class="semester">
+  <caption class="visually-hidden">The semester week by week</caption>
+  <colgroup>
+    <col span={last} />
+  </colgroup>
+  <thead>
+    <tr>
+      {weeks.map((week) => (
+        <th scope="col" class="week">
+          <span class="visually-hidden">Week</span>
+          {week}
+        </th>
+      ))}
+    </tr>
+  </thead>
+  {rows.map(({ part, cells: row }) => (
+    <tbody class={`lane lane-${part.id}`}>
+      <tr>
+        {part.weeks.from > 1 && <td colspan={part.weeks.from - 1} />}
+        <th
+          scope="rowgroup"
+          colspan={last - part.weeks.from + 1}
+          class="lane-label"
+        >
+          <a href={`#${part.id}`} data-card={part.id}>
+            {part.title}
+          </a>
+          <span class="data">{formatWeeks(part.weeks)}</span>
+        </th>
+      </tr>
+      <tr>
+        {row.map(({ span, pieces: held }) => (
+          <td colspan={span > 1 ? span : undefined}>
+            {held.length > 0 && (
+              <span class="pieces">
+                {held.map(({ card, label, name }) => (
+                  <a class="piece" href={`#${part.id}`} data-card={card}>
+                    <span class="bar" />
+                    {label && <span class="piece-label">{label}</span>}
+                    <span class="visually-hidden">{name}</span>
+                  </a>
+                ))}
+              </span>
+            )}
+          </td>
+        ))}
+      </tr>
+    </tbody>
+  ))}
+</table>
+
+{rows.map(({ part }) => (
+  <template id={`card-${part.id}`}>
+    <p class="card-meta">{formatWeeks(part.weeks)}</p>
+    <p class="card-title">{part.title}</p>
+    <p class="card-text">{part.summary}</p>
+    <a class="arrow-link card-link" href={`#${part.id}`}>
+      Read about it
+      <Arrow />
+    </a>
+  </template>
+))}
+{pieces.map(({ card, meta, title, text, topics }) => (
+  <template id={`card-${card}`}>
+    <p class="card-meta">{meta}</p>
+    <p class="card-title">{title}</p>
+    {text && <p class="card-text">{text}</p>}
+    {topics && (
+      <ol class="plain-list card-list">
+        {topics.map(({ week, title: topic }) => (
+          <li>
+            <span class="data">Week {week}</span>
+            {topic}
+          </li>
+        ))}
+      </ol>
+    )}
+  </template>
+))}
+
+<style>
+  .semester {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4px 0;
+    table-layout: fixed;
+  }
+
+  .semester th,
+  .semester td {
+    padding: 0;
+    font-weight: var(--weight-regular);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  /* Each part's color: ink for the curriculum, a lighter ink for the
+     company overview, Gold for the capstone. Cardinal means "you are on it". */
+  .lane {
+    --bar: var(--color-text);
+  }
+
+  .lane-company-overview {
+    --bar: var(--color-text-subtle);
+  }
+
+  .lane-capstone {
+    --bar: var(--color-accent);
+  }
+
+  .week {
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-text-subtle);
+    font: var(--weight-medium) var(--text-xs) / 1.6 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lane-label {
+    padding: var(--space-8) 0 var(--space-2);
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+
+  .lane-label a {
+    color: var(--color-text);
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+  }
+
+  .lane-label a:is(:hover, :focus-visible) {
+    color: var(--color-brand);
+  }
+
+  .lane-label .data {
+    margin-left: var(--space-2);
+  }
+
+  .pieces {
+    display: flex;
+    gap: 4px;
+  }
+
+  /* A piece's hit area is taller than its bar, so touch can find it. */
+  .piece {
+    display: grid;
+    flex: 1;
+    align-content: start;
+    gap: var(--space-2);
+    min-width: 0;
+    padding-block: var(--space-2);
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+
+  .bar {
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--bar);
+    transition:
+      background-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-enter) var(--ease-spring);
+    transform-origin: center;
+  }
+
+  .piece:is(:hover, :focus-visible) .bar,
+  .piece[aria-describedby] .bar {
+    background: var(--color-brand);
+    transform: scaleY(1.6);
+  }
+
+  .piece:active .bar {
+    transform: scaleY(1.2);
+  }
+
+  .piece-label {
+    overflow: hidden;
+    font-size: var(--text-xs);
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .piece:is(:hover, :focus-visible) .piece-label {
+    color: var(--color-text);
+  }
+
+  .piece:focus-visible {
+    outline-offset: 2px;
+  }
+
+  /* Phones: the whole semester still fits; bars drop their names. */
+  @media (width < 48rem) {
+    .semester {
+      border-spacing: 2px 0;
+    }
+
+    .week {
+      font-size: 0.625rem;
+    }
+
+    .lane-label {
+      padding-top: var(--space-6);
+    }
+
+    /* A late lane is narrow, so its weeks take their own line. */
+    .lane-label .data {
+      display: block;
+      margin-left: 0;
+    }
+
+    .pieces {
+      gap: 2px;
+    }
+
+    .piece {
+      padding-block: var(--space-3);
+    }
+
+    .bar {
+      height: 8px;
+    }
+
+    .piece-label {
+      display: none;
+    }
+  }
+</style>

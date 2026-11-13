@@ -55,8 +55,8 @@ function partSegments(part: Part, modules: readonly Module[]): Segment[] {
     const total = modules.reduce((sum, { weeks }) => sum + weeks.length, 0);
     if (total !== span) {
       throw new Error(
-        `overview.yaml: the curriculum spans ${span} weeks but ` +
-          `curriculum.yaml has ${total} weeks of topics`,
+        `overview.json: the curriculum spans ${span} weeks but ` +
+          `curriculum.json has ${total} weeks of topics`,
       );
     }
     let week = from;
@@ -86,10 +86,10 @@ function partSegments(part: Part, modules: readonly Module[]): Segment[] {
  *
  * Throws when the curriculum's span and its weeks of topics disagree.
  */
-export function buildLanes(
-  parts: readonly Part[],
+export function buildLanes<P extends Part>(
+  parts: readonly P[],
   modules: readonly Module[],
-): { last: number; lanes: Array<{ part: Part; segments: Segment[] }> } {
+): { last: number; lanes: Array<{ part: P; segments: Segment[] }> } {
   const last = Math.max(...parts.map(({ weeks }) => weeks.to));
   const gap = (span: number): Segment[] =>
     span > 0 ? [{ kind: 'gap', span }] : [];

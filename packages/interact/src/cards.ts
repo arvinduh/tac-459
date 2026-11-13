@@ -123,16 +123,32 @@ export function startCards(): void {
     if (triggerOf(event.target) === anchor) hide();
   });
 
-  document.addEventListener('click', (event) => {
-    const trigger = triggerOf(event.target);
-    if (!trigger || canHover.matches) return;
-    if (trigger === anchor && isOpen()) {
-      hide();
-      return;
-    }
-    event.preventDefault();
-    show(trigger, true);
-  });
+  // Touch: light dismiss closes the sheet on pointerdown, before the click,
+  // so whether this tap is the second one on the same trigger is noted here.
+  let secondTap = false;
+  document.addEventListener(
+    'pointerdown',
+    (event) => {
+      secondTap = isOpen() && triggerOf(event.target) === anchor;
+    },
+    { capture: true },
+  );
+
+  // Capture phase, so it runs before a client router follows the link.
+  document.addEventListener(
+    'click',
+    (event) => {
+      const trigger = triggerOf(event.target);
+      if (!trigger || canHover.matches) return;
+      if (secondTap) {
+        hide();
+        return;
+      }
+      event.preventDefault();
+      show(trigger, true);
+    },
+    { capture: true },
+  );
 
   card.addEventListener('toggle', (event) => {
     if ((event as ToggleEvent).newState === 'closed') release();
