@@ -1,15 +1,13 @@
 ---
 /**
- * The home page: the course's promise over a picture of what it teaches,
- * then the semester at a glance and the people teaching it.
+ * The home page: the course's promise, then the semester it takes.
  *
- * The picture is self-attention drawn over the headline itself, the idea
- * the curriculum opens on. The semester line opens each part in place and
- * links to the Course page for the rest. Every value comes from content
- * files.
+ * The first screen holds the headline, the blurb, the class facts and the
+ * semester line, whose bars open each part in place. The line is the
+ * page's only picture, and it is real course information. The people
+ * teaching follow. Every value comes from content files.
  */
 import Arrow from '../components/Arrow.astro';
-import Attention from '../components/Attention.astro';
 import PersonRow from '../components/PersonRow.astro';
 import Section from '../components/Section.astro';
 import SemesterLine from '../components/SemesterLine.astro';
@@ -60,10 +58,11 @@ const course = courseSchema({
 
 <BaseLayout schema={[course]}>
   <header class="page-width hero">
-    <p class="data hero-code">
+    <p class="data">
       {site.courseCode} · {site.title}
     </p>
-    <div class="hero-aside">
+    <h1 class="hero-title">{overview.headline}</h1>
+    <div class="hero-row">
       <p class="hero-blurb">{overview.blurb}</p>
       <p class="data hero-facts">
         <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
@@ -72,7 +71,6 @@ const course = courseSchema({
           const series = calendar.series[index];
           return (
             <>
-              {' · '}
               {series ? (
                 <a
                   href={googleCalendarUrl(calendar.text, series)}
@@ -81,22 +79,19 @@ const course = courseSchema({
                   {formatTimes(meeting)}
                 </a>
               ) : (
-                formatTimes(meeting)
+                <span>{formatTimes(meeting)}</span>
               )}
-              {' · '}
-              {map ? <a href={map}>{meeting.location}</a> : meeting.location}
+              {map ? (
+                <a href={map}>{meeting.location}</a>
+              ) : (
+                <span>{meeting.location}</span>
+              )}
             </>
           );
         })}
       </p>
     </div>
-    <div class="hero-headline">
-      <Attention lines={overview.headline} />
-    </div>
-  </header>
-
-  <div class="sections">
-    <Section id="semester" label="One semester, three parts">
+    <div class="hero-semester">
       <SemesterLine last={last} lanes={lanes} />
       <p class="links">
         <a class="arrow-link" href={href('/course/')}>
@@ -108,8 +103,10 @@ const course = courseSchema({
           <Arrow />
         </a>
       </p>
-    </Section>
+    </div>
+  </header>
 
+  <div class="sections">
     <Section id="team" label={`Taught in ${term.label} by`}>
       <ul class="plain-list team-grid">
         {staff.map(({ person, role }) => (
@@ -129,52 +126,67 @@ const course = courseSchema({
 </BaseLayout>
 
 <style>
-  /* A poster: the small words hold the top corners, the headline fills
-     the floor, and the first screen is the whole frame. */
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
-    grid-template-rows: auto 1fr;
-    gap: var(--space-8) var(--space-16);
-    min-height: calc(100svh - var(--header-height));
-    padding-block: var(--space-12);
-  }
-
-  .hero-aside {
-    display: grid;
-    align-content: start;
-    gap: var(--space-4);
-  }
-
-  .hero-headline {
-    grid-column: 1 / -1;
-    align-self: end;
+    gap: var(--space-8);
+    padding-top: var(--space-16);
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
-  .hero > *,
-  .hero-aside > * {
+  .hero > * {
     animation: rise var(--duration-slow) var(--ease-out) both;
   }
 
-  .hero-aside > :nth-child(1) {
+  .hero > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  .hero > :nth-child(3) {
     animation-delay: 120ms;
   }
 
-  .hero-aside > :nth-child(2) {
+  .hero > :nth-child(4) {
     animation-delay: 180ms;
   }
 
+  /* Wide enough that the headline sets in three balanced lines. */
+  .hero-title {
+    max-width: 14ch;
+    font-size: var(--text-display);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  .hero-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4) var(--space-8);
+    align-items: end;
+  }
+
   .hero-blurb {
+    max-width: var(--prose-max);
     color: var(--color-text-muted);
-    font-size: var(--text-sm);
-    line-height: 1.55;
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .hero-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .hero-semester {
+    margin-top: var(--space-8);
   }
 
   .sections {
     display: grid;
     gap: var(--space-section);
-    margin-bottom: var(--space-section);
+    margin-block: var(--space-section);
   }
 
   .links {
@@ -190,11 +202,17 @@ const course = courseSchema({
     gap: 0 var(--space-8);
   }
 
-  @media (width < 56rem) {
+  @media (width < 48rem) {
     .hero {
+      padding-top: var(--space-12);
+    }
+
+    .hero-row {
       grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: auto auto 1fr;
-      gap: var(--space-4);
+    }
+
+    .hero-blurb {
+      font-size: var(--text-base);
     }
   }
 </style>

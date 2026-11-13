@@ -85,8 +85,6 @@
   --duration-fast: 160ms;
   --duration-base: 240ms;
   --duration-slow: 600ms;
-  /* An arc of the home headline's picture drawing itself in. */
-  --duration-draw: 900ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   /* Even start and finish, for fades the eye should see happen. */
   --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
@@ -97,6 +95,5 @@
     --duration-fast: 1ms;
     --duration-base: 1ms;
     --duration-slow: 1ms;
-    --duration-draw: 1ms;
   }
 }

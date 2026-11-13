@@ -19,9 +19,9 @@ in a few deliberate places, so they stay meaningful.
 | Gold `#fc0`     | The capstone's lane and selection                                                     | Text (1.5:1 on paper)       |
 
 Cardinal means "you can act on this, or you are on it": a semester bar turns
-Cardinal when hovered or open, a product name or a headline phrase when pointed
-at. Every page is paper; there are no colored bands. Large fields of Cardinal or
-Gold read as loud, so neither fills more than a thin bar.
+Cardinal when hovered or open, a product name when pointed at. Every page is
+paper; there are no colored bands. Large fields of Cardinal or Gold read as
+loud, so neither fills more than a thin bar.
 
 Contrast on paper: text 16.8:1, muted 6.4:1, subtle 4.6:1 (the floor for any
 text), Cardinal 8.5:1.
@@ -80,19 +80,12 @@ The site has two levels of detail and no more: pages, and cards that open in
 place. A thing gets its own page only when it has more to say than a card holds
 (a person, a product); everything else opens where it is mentioned.
 
-**Home** is a poster. The course name and the blurb with the term's facts
-(linked to the USC Schedule of Classes, the map and Google Calendar) hold the
-top corners in small type; the headline fills the floor of the first screen,
-sized to the width (three quarters for type, the rest for arcs) and capped by
-the screen's height. On phones it is sized by its longest word and lines wrap,
-so it still fills the page. Each line has one key term, marked in `*asterisks*`
-in the content. Self-attention is drawn beside it: arcs curve out from each
-line's end, clear of every line they pass, into the lines it attends to, all
-resting in a faint rule color. The lines take turns being read, top to bottom;
-the reading line's key term and arcs turn Cardinal. Pointing at a line reads it
-and holds the turns, which also stop off screen, in a hidden tab and under
-reduced motion. The semester line and the people teaching follow. No student
-product appears: the course is the subject.
+**Home** fits on one screen: the headline, the blurb with the term's facts
+(linked to the USC Schedule of Classes, the map and Google Calendar), then the
+semester line, the page's only picture, whose bars open each part in place.
+Links to the Course and Projects pages sit under it; the people teaching follow.
+No decorative graphic and no student product: the course is the subject, and its
+real shape is the picture.
 
 **Course** opens on the semester line, generated from the course files: a column
 per week, a lane per part, a bar for every module and step, in the part's color
@@ -135,15 +128,13 @@ free. Card contents use the global classes in `src/styles/cards.css`.
 
 ## Motion
 
-Short and quiet, and only opacity, transform or stroke offsets, so it stays
-smooth on phones. Entrances spring (`--ease-spring`, a CSS `linear()` curve,
-over `--duration-enter`); exits are faster and plain (`--ease-exit`). Content
-rises in on load and between pages; rows marked `reveal` rise in as they scroll
-into view; timeline bars draw in from their first term. The home headline's arcs
-draw in, strongest first, for whichever word is active; a script lays them out
-only on load and resize. Nothing loops, so nothing runs while the page is still.
-Durations come from tokens, and reduced-motion settings collapse them all to an
-instant.
+Short and quiet, and only opacity or transform, so it stays smooth on phones.
+Entrances spring (`--ease-spring`, a CSS `linear()` curve, over
+`--duration-enter`); exits are faster and plain (`--ease-exit`). Content rises
+in on load and between pages; rows marked `reveal` rise in as they scroll into
+view; timeline bars draw in from their first term. Nothing loops, so nothing
+runs while the page is still. Durations come from tokens, and reduced-motion
+settings collapse them all to an instant.
 
 Scroll-driven rules use longhand properties: the CSS minifier folds `animation`
 and `animation-timeline` into one shorthand that browsers reject.
