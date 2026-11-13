@@ -60,12 +60,9 @@ const course = courseSchema({
 
 <BaseLayout schema={[course]}>
   <header class="page-width hero">
-    <div class="hero-head">
-      <p class="data">
-        {site.courseCode} · {site.title}
-      </p>
-      <Attention lines={overview.headline} />
-    </div>
+    <p class="data hero-code">
+      {site.courseCode} · {site.title}
+    </p>
     <div class="hero-aside">
       <p class="hero-blurb">{overview.blurb}</p>
       <p class="data hero-facts">
@@ -92,6 +89,9 @@ const course = courseSchema({
           );
         })}
       </p>
+    </div>
+    <div class="hero-headline">
+      <Attention lines={overview.headline} />
     </div>
   </header>
 
@@ -129,32 +129,30 @@ const course = courseSchema({
 </BaseLayout>
 
 <style>
-  /* The hero fills the first screen and rests on its floor, so the
-     headline has air above it and the next section waits below the fold. */
+  /* A poster: the small words hold the top corners, the headline fills
+     the floor, and the first screen is the whole frame. */
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
-    gap: var(--space-12) var(--space-16);
-    align-content: end;
-    align-items: end;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+    grid-template-rows: auto 1fr;
+    gap: var(--space-8) var(--space-16);
     min-height: calc(100svh - var(--header-height));
-    padding-block: var(--space-16) var(--space-12);
-  }
-
-  .hero-head {
-    display: grid;
-    gap: var(--space-12);
+    padding-block: var(--space-12);
   }
 
   .hero-aside {
     display: grid;
-    gap: var(--space-6);
-    max-width: 24rem;
-    padding-bottom: 0.4rem;
+    align-content: start;
+    gap: var(--space-4);
+  }
+
+  .hero-headline {
+    grid-column: 1 / -1;
+    align-self: end;
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
-  .hero-head > *,
+  .hero > *,
   .hero-aside > * {
     animation: rise var(--duration-slow) var(--ease-out) both;
   }
@@ -169,6 +167,7 @@ const course = courseSchema({
 
   .hero-blurb {
     color: var(--color-text-muted);
+    font-size: var(--text-sm);
     line-height: 1.55;
   }
 
@@ -194,7 +193,8 @@ const course = courseSchema({
   @media (width < 56rem) {
     .hero {
       grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-8);
+      grid-template-rows: auto auto 1fr;
+      gap: var(--space-4);
     }
   }
 </style>

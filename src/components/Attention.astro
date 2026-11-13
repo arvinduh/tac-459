@@ -30,8 +30,10 @@ const lines = marked.map((line) => {
   const [before = '', key = '', after = ''] = line.split('*');
   return { before, key, after };
 });
-const longest = Math.max(
-  ...lines.map(({ before, key, after }) => (before + key + after).length),
+const texts = lines.map(({ before, key, after }) => before + key + after);
+const longest = Math.max(...texts.map((text) => text.length));
+const longestWord = Math.max(
+  ...texts.flatMap((text) => text.split(' ')).map((word) => word.length),
 );
 
 /** A stable value in [0, 1) for a pair of positions. */
@@ -55,7 +57,10 @@ const heads = lines.map((_, i) => {
 });
 ---
 
-<div class="attention" style={`--longest: ${longest}`}>
+<div
+  class="attention"
+  style={`--longest: ${longest}; --longest-word: ${longestWord}`}
+>
   <h1 class="headline">
     {lines.map(({ before, key, after }, i) => (
       <>
@@ -96,8 +101,15 @@ const heads = lines.map((_, i) => {
     const ends = Array.from(
       root.querySelectorAll<HTMLElement>('.phrase'),
       (phrase) => {
-        const rect = phrase.getBoundingClientRect();
+        // A phrase may wrap on a phone; its arcs leave its last line.
+        const range = document.createRange();
+        range.selectNodeContents(phrase);
+        const rects = range.getClientRects();
+        const rect = rects[rects.length - 1] ?? phrase.getBoundingClientRect();
+        const widest = Math.max(...Array.from(rects, ({ right }) => right));
         return {
+          // The rightmost edge of any of its lines, which arcs must clear.
+          edge: Math.max(widest, rect.right) - box.left + GAP,
           x: rect.right - box.left + GAP,
           y: rect.top - box.top + rect.height * 0.56,
         };
@@ -105,25 +117,29 @@ const heads = lines.map((_, i) => {
     );
     const arcs = Array.from(
       root.querySelectorAll<SVGPathElement>('.head path'),
-      (path) => ({
-        path,
-        from: ends[Number(path.closest('g')?.dataset['head'])],
-        to: ends[Number(path.dataset['to'])],
-      }),
+      (path) => {
+        const i = Number(path.closest('g')?.dataset['head']);
+        const j = Number(path.dataset['to']);
+        // Clear every line the arc passes, not just its two ends.
+        const passed = ends.slice(Math.min(i, j), Math.max(i, j) + 1);
+        const clear = Math.max(...passed.map(({ edge }) => edge));
+        return { path, from: ends[i], to: ends[j], clear };
+      },
     );
     // One scale for every arc, so the widest still fits the box.
     let fit = 1;
-    for (const { from, to } of arcs) {
+    for (const { from, to, clear } of arcs) {
       if (!from || !to) continue;
       const reach = Math.abs(to.y - from.y) * BULGE;
-      const room = box.width - 4 - Math.max(from.x, to.x);
+      const room = box.width - 4 - clear;
       if (reach > 0) fit = Math.min(fit, Math.max(room, 0) / reach);
     }
-    for (const { path, from, to } of arcs) {
+    for (const { path, from, to, clear } of arcs) {
       if (!from || !to) continue;
-      // A cubic peaks at three quarters of its control points' offset.
-      const bulge = (Math.abs(to.y - from.y) * BULGE * fit) / 0.75;
-      const out = Math.max(from.x, to.x) + bulge;
+      // A cubic with both controls at x = out peaks, halfway along, at
+      // 0.75 out + 0.125 (from + to); solve so the peak clears the lines.
+      const peak = clear + Math.abs(to.y - from.y) * BULGE * fit;
+      const out = (peak - 0.125 * (from.x + to.x)) / 0.75;
       path.setAttribute(
         'd',
         `M${from.x} ${from.y}C${out} ${from.y} ${out} ${to.y} ${to.x} ${to.y}`,
@@ -218,11 +234,25 @@ const heads = lines.map((_, i) => {
   .headline {
     position: relative;
     z-index: 1;
-    /* Geist averages about 0.54em a character; the longest line takes at
-       most four fifths of the width, leaving the rest for arcs. */
-    font-size: min(var(--text-display), calc(80cqi / (var(--longest) * 0.54)));
-    line-height: 1.02;
+    /* Geist averages about 0.54em a character. The longest line takes at
+       most three quarters of the width, leaving the rest for arcs, and the
+       whole headline at most about half the screen's height. */
+    font-size: min(12svh, calc(75cqi / (var(--longest) * 0.54)));
+    line-height: 1;
     letter-spacing: var(--tracking-display);
+  }
+
+  /* A phone is too narrow for whole lines at a size that fills it, so the
+     type is sized by the longest word instead and lines wrap. */
+  @container (width < 40rem) {
+    .headline {
+      font-size: min(12svh, calc(78cqi / (var(--longest-word) * 0.54)));
+    }
+
+    /* Wrap before the arcs' strip, so they keep a fifth of the width. */
+    .phrase {
+      max-width: 80cqi;
+    }
   }
 
   /* One phrase to a line: each is a token the arcs can reach. */
