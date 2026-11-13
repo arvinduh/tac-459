@@ -80,18 +80,19 @@ The site has two levels of detail and no more: pages, and cards that open in
 place. A thing gets its own page only when it has more to say than a card holds
 (a person, a product); everything else opens where it is mentioned.
 
-**Home** is the headline, a few short phrases one to a line, each with one key
-term marked in `*asterisks*` in the content. Self-attention is drawn beside it:
-arcs curve out from each line's end into the lines it attends to, all resting in
-a faint rule color. The lines take turns being read, top to bottom; the reading
-line's key term and arcs turn Cardinal. Pointing at a line reads it and holds
-the turns, which also stop off screen, in a hidden tab and under reduced motion.
-The type shrinks until the longest line leaves room for the arcs, so keep
-phrases short (the build checks). The hero fills the first screen and rests on
-its floor, with the blurb and the term's facts (linked to the USC Schedule of
-Classes, the map and Google Calendar) in a column beside the headline. The
-semester line and the people teaching follow. No student product appears: the
-course is the subject.
+**Home** is a poster. The course name and the blurb with the term's facts
+(linked to the USC Schedule of Classes, the map and Google Calendar) hold the
+top corners in small type; the headline fills the floor of the first screen,
+sized to the width (three quarters for type, the rest for arcs) and capped by
+the screen's height. On phones it is sized by its longest word and lines wrap,
+so it still fills the page. Each line has one key term, marked in `*asterisks*`
+in the content. Self-attention is drawn beside it: arcs curve out from each
+line's end, clear of every line they pass, into the lines it attends to, all
+resting in a faint rule color. The lines take turns being read, top to bottom;
+the reading line's key term and arcs turn Cardinal. Pointing at a line reads it
+and holds the turns, which also stop off screen, in a hidden tab and under
+reduced motion. The semester line and the people teaching follow. No student
+product appears: the course is the subject.
 
 **Course** opens on the semester line, generated from the course files: a column
 per week, a lane per part, a bar for every module and step, in the part's color
