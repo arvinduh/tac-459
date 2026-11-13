@@ -1,17 +1,19 @@
 ---
 /**
- * The home page's picture: self-attention drawn over the course headline.
+ * The home page's headline, set one word to a line, with self-attention
+ * drawn beside it: the headline is the picture.
  *
- * Each word of the headline is a token on a line, and arcs rise from one
- * word to the words it attends to, thicker and brighter the more weight
- * they carry. The weights are a build-time stand-in, not a trained model:
- * nearby words and content words score higher, with a little seeded
- * variation, so any headline an editor writes gets a plausible picture.
+ * Arcs leave each word's end and curve out to the right into the words it
+ * attends to, heavier the more weight they carry. Every word's arcs rest
+ * faintly at once; one word's draw in Cardinal, first the word the others
+ * attend to most, then whichever word is pointed at. The weights are a
+ * build-time stand-in, not a trained model: nearby words and content words
+ * score higher, with seeded variation, so any headline an editor writes
+ * gets a plausible picture.
  *
- * It draws itself in once on load. Pointing at a word redraws the arcs from
- * that word, with CSS alone: every word's arcs are rendered, and :has()
- * shows the hovered word's. Nothing runs while the page is still, and the
- * picture is decoration, so it is hidden from screen readers.
+ * The words are the page's real h1. The arcs depend on where the words
+ * land, so a small script measures them on load and on resize only;
+ * without it the headline still reads.
  */
 interface Props {
   sentence: string;
@@ -19,19 +21,10 @@ interface Props {
 
 const { sentence } = Astro.props;
 
-/** Horizontal room per token, in viewBox units. */
-const STEP = 100;
-/** Arc height per unit of distance between its two words. */
-const LIFT = 0.6;
-/** Room under the arcs' feet for the words. */
-const BELOW = 56;
 /** Arcs drawn per word, strongest first. */
-const ARCS_PER_WORD = 4;
+const ARCS_PER_WORD = 3;
 
-const words = sentence
-  .split(/\s+/)
-  .map((word) => word.replace(/[^\p{L}\p{N}-]/gu, ''))
-  .filter(Boolean);
+const words = sentence.split(/\s+/).filter(Boolean);
 
 /** A stable value in [0, 1) for a pair of positions. */
 function jitter(i: number, j: number): number {
@@ -42,157 +35,193 @@ function jitter(i: number, j: number): number {
 /** How much word i attends to word j, before normalizing. */
 function score(i: number, j: number): number {
   const near = Math.exp(-Math.abs(i - j) / 3);
-  const content = (words[j]?.length ?? 0) > 3 ? 2.5 : 1;
+  const letters = words[j]?.replace(/[^\p{L}\p{N}]/gu, '') ?? '';
+  const content = letters.length > 3 ? 2.5 : 1;
   return near * content * (0.7 + 0.6 * jitter(i, j));
 }
 
-const heads = words.map((word, i) => {
+const heads = words.map((_, i) => {
   const scores = words.map((_, j) => (i === j ? 0 : score(i, j)));
   const total = scores.reduce((sum, value) => sum + value, 0);
-  const arcs = scores
+  return scores
     .map((value, j) => ({ j, weight: value / total }))
     .toSorted((a, b) => b.weight - a.weight)
-    .slice(0, ARCS_PER_WORD)
-    .map(({ j, weight }) => {
-      const from = STEP * (i + 0.5);
-      const to = STEP * (j + 0.5);
-      return { j, weight, from, to };
-    });
-  return { word, x: STEP * (i + 0.5), arcs };
+    .slice(0, ARCS_PER_WORD);
 });
 
 // The word that draws on load: the one the others attend to most.
 const received = words.map((_, j) =>
   heads
-    .flatMap(({ arcs }) => arcs)
+    .flat()
     .filter((arc) => arc.j === j)
     .reduce((sum, { weight }) => sum + weight, 0),
 );
 const query = received.indexOf(Math.max(...received));
-const width = STEP * words.length;
-
-// The picture is exactly as tall as its tallest arc, so it has no dead
-// space above. A cubic with both controls at height h peaks at 0.75h.
-const longest = Math.max(
-  ...heads.flatMap(({ arcs }) => arcs.map(({ from, to }) => to - from)),
-  ...heads.flatMap(({ arcs }) => arcs.map(({ from, to }) => from - to)),
-);
-const foot = Math.ceil(longest * LIFT * 0.75) + 12;
-const height = foot + BELOW;
-
-/** The path of an arc between two x positions. */
-function arc(from: number, to: number): string {
-  const top = foot - Math.abs(to - from) * LIFT;
-  return `M${from} ${foot}C${from} ${top} ${to} ${top} ${to} ${foot}`;
-}
 ---
 
-<svg
-  class="attention"
-  viewBox={`0 0 ${width} ${height}`}
-  aria-hidden="true"
-  focusable="false"
->
-  <g class="ghosts">
-    {heads.flatMap(({ arcs }) =>
-      arcs.map(({ from, to, weight }) => (
-        <path
-          class="ghost"
-          d={arc(from, to)}
-          style={`--weight: ${weight.toFixed(3)}`}
-        />
-      )),
-    )}
-  </g>
-  {heads.map(({ word, x, arcs }, i) => (
-    <g class:list={['head', { 'is-query': i === query }]}>
-      <rect class="hit" x={x - STEP / 2} y="0" width={STEP} height={height} />
-      {arcs.map(({ from, to, weight }, rank) => (
-        <path
-          class="arc"
-          d={arc(from, to)}
-          pathLength="1"
-          style={`--weight: ${weight.toFixed(3)}; --rank: ${rank}`}
-        />
-      ))}
-      <circle class="dot" cx={x} cy={foot} r="5" />
-      <text class="word" x={x} y={foot + 36}>
-        {word}
-      </text>
-    </g>
-  ))}
-</svg>
+<div class="attention" data-query={query}>
+  <h1 class="headline">
+    {words.map((word, i) => (
+      <>
+        <span class="word" data-word={i}>
+          {word}
+        </span>{' '}
+      </>
+    ))}
+  </h1>
+  <svg class="arcs" aria-hidden="true" focusable="false">
+    {heads.map((arcs, i) => (
+      <g class="head" data-head={i}>
+        {arcs.map(({ j, weight }, rank) => (
+          <path
+            pathLength="1"
+            data-to={j}
+            style={`--weight: ${weight.toFixed(3)}; --rank: ${rank}`}
+          />
+        ))}
+      </g>
+    ))}
+  </svg>
+</div>
 
-<style>
-  .attention {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
+<script>
+  /** Space between a word's end and where its arcs leave, in pixels. */
+  const GAP = 14;
+  /** How far an arc bulges per pixel between its words, before fitting. */
+  const BULGE = 0.55;
 
-  .hit {
-    fill: transparent;
-  }
-
-  /* Every word's arcs at once, faint: the whole layer behind the one
-     being read. */
-  .ghost {
-    fill: none;
-    stroke: var(--color-night-text);
-    stroke-width: calc(1px + var(--weight) * 10px);
-    opacity: calc(0.04 + var(--weight) * 0.3);
-  }
-
-  .arc {
-    fill: none;
-    stroke: var(--color-accent);
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    stroke-linecap: round;
-    stroke-width: calc(1.5px + var(--weight) * 16px);
-    opacity: calc(0.25 + var(--weight) * 2.5);
-    pointer-events: none;
-  }
-
-  .dot {
-    fill: var(--color-night-muted);
-    transition: fill var(--duration-fast) var(--ease-out);
-  }
-
-  .word {
-    fill: var(--color-night-muted);
-    font: var(--weight-medium) 15px var(--font-mono);
-    text-anchor: middle;
-    transition: fill var(--duration-fast) var(--ease-out);
-  }
-
-  /* The word being read: on load the query, then whichever word is under
-     the pointer. Its arcs draw in, strongest first. */
-  .attention:not(:has(.head:hover)) .is-query .arc,
-  .head:hover .arc {
-    animation: draw var(--duration-draw) var(--ease-out) both;
-    animation-delay: calc(var(--rank) * 90ms + var(--draw-delay, 0ms));
-  }
-
-  .attention:not(:has(.head:hover)) .is-query .arc {
-    --draw-delay: 400ms;
-  }
-
-  .attention:not(:has(.head:hover)) .is-query :is(.dot, .word),
-  .head:hover :is(.dot, .word) {
-    fill: var(--color-accent);
-  }
-
-  /* Phones draw the picture small, so its words grow to stay legible;
-     the widest still fits its neighbors' room. */
-  @media (width < 48rem) {
-    .word {
-      font-size: 23px;
+  /** Lays every arc out from where the words landed. */
+  function layout(root: HTMLElement): void {
+    const box = root.getBoundingClientRect();
+    const ends = Array.from(
+      root.querySelectorAll<HTMLElement>('.word'),
+      (word) => {
+        const rect = word.getBoundingClientRect();
+        return {
+          x: rect.right - box.left + GAP,
+          y: rect.top - box.top + rect.height * 0.56,
+        };
+      },
+    );
+    const arcs = Array.from(
+      root.querySelectorAll<SVGPathElement>('.head path'),
+      (path) => ({
+        path,
+        from: ends[Number(path.closest('g')?.dataset['head'])],
+        to: ends[Number(path.dataset['to'])],
+      }),
+    );
+    // One scale for every arc, so the widest still fits the box.
+    let fit = 1;
+    for (const { from, to } of arcs) {
+      if (!from || !to) continue;
+      const reach = Math.abs(to.y - from.y) * BULGE;
+      const room = box.width - 4 - Math.max(from.x, to.x);
+      if (reach > 0) fit = Math.min(fit, Math.max(room, 0) / reach);
+    }
+    for (const { path, from, to } of arcs) {
+      if (!from || !to) continue;
+      // A cubic peaks at three quarters of its control points' offset.
+      const bulge = (Math.abs(to.y - from.y) * BULGE * fit) / 0.75;
+      const out = Math.max(from.x, to.x) + bulge;
+      path.setAttribute(
+        'd',
+        `M${from.x} ${from.y}C${out} ${from.y} ${out} ${to.y} ${to.x} ${to.y}`,
+      );
     }
   }
 
+  /** Draws one word's arcs in, over the resting ones. */
+  function activate(root: HTMLElement, index: string): void {
+    for (const head of root.querySelectorAll<SVGGElement>('.head')) {
+      const active = head.dataset['head'] === index;
+      head.classList.toggle('is-active', active);
+      // SVG paints in document order, so the active word's arcs go last.
+      if (active) head.parentNode?.append(head);
+    }
+    for (const word of root.querySelectorAll<HTMLElement>('.word')) {
+      word.classList.toggle('is-active', word.dataset['word'] === index);
+    }
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    const root = document.querySelector<HTMLElement>('.attention');
+    if (!root) return;
+    // Fires once on observe, then on every resize; fonts can shift words.
+    const observer = new ResizeObserver(() => layout(root));
+    observer.observe(root);
+    void document.fonts.ready.then(() => layout(root));
+    activate(root, root.dataset['query'] ?? '0');
+    root.addEventListener('pointerover', (event) => {
+      const word = (event.target as Element).closest<HTMLElement>('.word');
+      const index = word?.dataset['word'];
+      if (index && !word.classList.contains('is-active')) {
+        activate(root, index);
+      }
+    });
+    document.addEventListener(
+      'astro:before-swap',
+      () => observer.disconnect(),
+      { once: true },
+    );
+  });
+</script>
+
+<style>
+  .attention {
+    position: relative;
+  }
+
+  .headline {
+    position: relative;
+    z-index: 1;
+    font-size: var(--text-display);
+    line-height: 0.96;
+    letter-spacing: var(--tracking-display);
+  }
+
+  /* One word to a line: each is a token the arcs can reach. */
+  .word {
+    display: block;
+    width: fit-content;
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .word.is-active {
+    color: var(--color-brand);
+  }
+
+  .arcs {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .head path {
+    fill: none;
+    stroke: var(--color-rule-strong);
+    stroke-linecap: round;
+    stroke-width: calc(0.75px + var(--weight) * 2.5px);
+    transition: stroke var(--duration-base) var(--ease-out);
+  }
+
+  /* The word being read: its arcs draw in, strongest first. */
+  .head.is-active path {
+    stroke: var(--color-brand);
+    stroke-dasharray: 1;
+    stroke-width: calc(1.5px + var(--weight) * 8px);
+    animation: draw var(--duration-draw) var(--ease-out) both;
+    animation-delay: calc(var(--rank) * 90ms);
+  }
+
   @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+
     to {
       stroke-dashoffset: 0;
     }

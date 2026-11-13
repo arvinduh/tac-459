@@ -65,50 +65,45 @@ const course = courseSchema({
 ---
 
 <BaseLayout schema={[course]}>
-  <header class="hero">
-    <div class="page-width hero-inner">
-      <div class="hero-head">
-        <p class="data">
-          {site.courseCode} · {site.title}
-        </p>
-        <h1 class="hero-title">{overview.headline}</h1>
-      </div>
-      <figure class="hero-picture">
-        <Attention sentence={overview.headline} />
-      </figure>
+  <header class="page-width hero">
+    <div class="hero-head">
+      <p class="data">
+        {site.courseCode} · {site.title}
+      </p>
+      <Attention sentence={overview.headline} />
+    </div>
+    <div class="hero-aside">
       <p class="hero-blurb">{overview.blurb}</p>
-      <div class="hero-aside">
-        <p class="data hero-facts">
-          <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
-          {term.meetings.map((meeting, index) => {
-            const map = mapUrl(meeting.location, site.buildings);
-            const series = calendar.series[index];
-            return (
-              <>
-                {' · '}
-                {series ? (
-                  <a
-                    href={googleCalendarUrl(calendar.text, series)}
-                    data-tip="Add the class to Google Calendar"
-                  >
-                    {formatTimes(meeting)}
-                  </a>
-                ) : (
-                  formatTimes(meeting)
-                )}
-                {' · '}
-                {map ? <a href={map}>{meeting.location}</a> : meeting.location}
-              </>
-            );
-          })}
-        </p>
-        <p class="data">
-          Above, self-attention over the headline
-          {attentionWeek >= 0 &&
-            `, taught in week ${firstWeek + attentionWeek}`}
-          . Point at a word.
-        </p>
-      </div>
+      <p class="data hero-facts">
+        <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
+        {term.meetings.map((meeting, index) => {
+          const map = mapUrl(meeting.location, site.buildings);
+          const series = calendar.series[index];
+          return (
+            <>
+              {' · '}
+              {series ? (
+                <a
+                  href={googleCalendarUrl(calendar.text, series)}
+                  data-tip="Add the class to Google Calendar"
+                >
+                  {formatTimes(meeting)}
+                </a>
+              ) : (
+                formatTimes(meeting)
+              )}
+              {' · '}
+              {map ? <a href={map}>{meeting.location}</a> : meeting.location}
+            </>
+          );
+        })}
+      </p>
+      <p class="hero-note">
+        Beside the headline, self-attention: where each word looks as a
+        transformer reads it
+        {attentionWeek >= 0 && `, taught in week ${firstWeek + attentionWeek}`}.
+        Point at a word.
+      </p>
     </div>
   </header>
 
@@ -146,92 +141,53 @@ const course = courseSchema({
 </BaseLayout>
 
 <style>
-  /* A dark band, the site's one, so the picture's Gold reads as light. */
   .hero {
-    background: var(--color-night);
-    color: var(--color-night-text);
-  }
-
-  .hero-inner {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     gap: var(--space-12) var(--space-16);
-    padding-block: var(--space-16) var(--space-12);
-  }
-
-  .hero-head,
-  .hero-picture {
-    grid-column: 1 / -1;
+    align-items: end;
+    padding-top: var(--space-16);
   }
 
   .hero-head {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-8);
   }
 
   .hero-aside {
     display: grid;
-    align-content: start;
-    gap: var(--space-4);
-    padding-top: 0.4em;
+    gap: var(--space-6);
+    padding-bottom: 0.5rem;
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
-  .hero-inner > * {
+  .hero-head > *,
+  .hero-aside > * {
     animation: rise var(--duration-slow) var(--ease-out) both;
   }
 
-  .hero-inner > :nth-child(2) {
-    animation-delay: 60ms;
-  }
-
-  .hero-inner > :nth-child(3) {
+  .hero-aside > :nth-child(1) {
     animation-delay: 120ms;
   }
 
-  .hero-inner > :nth-child(4) {
+  .hero-aside > :nth-child(2) {
     animation-delay: 180ms;
   }
 
-  .hero .data {
-    color: var(--color-night-muted);
-  }
-
-  .hero a {
-    color: var(--color-night-text);
-    text-decoration-color: color-mix(
-      in srgb,
-      var(--color-night-text) 35%,
-      transparent
-    );
-  }
-
-  .hero a:hover {
-    color: var(--color-accent);
-    text-decoration-color: currentcolor;
-  }
-
-  .hero :focus-visible {
-    outline-color: var(--color-accent);
-  }
-
-  .hero-title {
-    font-size: var(--text-display);
-    line-height: 1;
-    letter-spacing: var(--tracking-display);
-    max-width: 20ch;
-    text-wrap: balance;
+  .hero-aside > :nth-child(3) {
+    animation-delay: 240ms;
   }
 
   .hero-blurb {
-    max-width: var(--prose-max);
-    color: var(--color-night-muted);
+    color: var(--color-text-muted);
     font-size: var(--text-lg);
-    line-height: 1.55;
+    line-height: 1.5;
   }
 
-  .hero-picture {
-    margin: 0;
+  .hero-note {
+    max-width: 34ch;
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
   }
 
   .sections {
@@ -254,7 +210,7 @@ const course = courseSchema({
   }
 
   @media (width < 56rem) {
-    .hero-inner {
+    .hero {
       grid-template-columns: minmax(0, 1fr);
       padding-top: var(--space-12);
     }

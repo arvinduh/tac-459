@@ -12,19 +12,19 @@ tokens (`--color-brand`, `--text-lg`, …), never hex codes or pixel sizes.
 Warm ink on paper carries the content. USC Cardinal and Gold carry the identity
 in a few deliberate places, so they stay meaningful.
 
-| Color           | Role                                                                                   | Never                       |
-| --------------- | -------------------------------------------------------------------------------------- | --------------------------- |
-| Ink on paper    | All reading text, in three strengths: text, muted, subtle                              |                             |
-| Cardinal `#900` | Brand and action: header line, wordmark, links, and whatever is hovered, open or here  | Page or section backgrounds |
-| Gold `#fc0`     | The capstone's lane, selection, and the home picture's arcs, the only place it is text | Text on paper (1.5:1)       |
-| Night `#161514` | The home hero only: one dark band, so the picture's Gold reads as light                | Any other band              |
+| Color           | Role                                                                                  | Never                       |
+| --------------- | ------------------------------------------------------------------------------------- | --------------------------- |
+| Ink on paper    | All reading text, in three strengths: text, muted, subtle                             |                             |
+| Cardinal `#900` | Brand and action: header line, wordmark, links, and whatever is hovered, open or here | Page or section backgrounds |
+| Gold `#fc0`     | The capstone's lane and selection                                                     | Text (1.5:1 on paper)       |
 
 Cardinal means "you can act on this, or you are on it": a semester bar turns
-Cardinal when hovered or open, a product name when pointed at. Large fields of
-Cardinal or Gold read as loud, so neither fills more than a thin bar.
+Cardinal when hovered or open, a product name or a headline word when pointed
+at. Every page is paper; there are no colored bands. Large fields of Cardinal or
+Gold read as loud, so neither fills more than a thin bar.
 
 Contrast on paper: text 16.8:1, muted 6.4:1, subtle 4.6:1 (the floor for any
-text), Cardinal 8.5:1. On night: paper 17.5:1, muted 7.5:1, Gold 12.1:1.
+text), Cardinal 8.5:1.
 
 ## Type
 
@@ -80,11 +80,13 @@ The site has two levels of detail and no more: pages, and cards that open in
 place. A thing gets its own page only when it has more to say than a card holds
 (a person, a product); everything else opens where it is mentioned.
 
-**Home** is the headline, then a picture of self-attention over the headline
-itself (arcs from each word to the words it attends to), then the blurb and the
-term's facts, linked to the USC Schedule of Classes, the map and Google
-Calendar. The semester line and the people teaching follow. No student product
-appears: the course is the subject.
+**Home** is the headline set one word to a line, with self-attention drawn
+beside it: arcs curve out from each word's end into the words it attends to, all
+resting in a faint rule color, one word's drawn in Cardinal. Pointing at a word
+redraws its arcs. The blurb, the term's facts (linked to the USC Schedule of
+Classes, the map and Google Calendar) and a line explaining the picture sit in a
+column beside it. The semester line and the people teaching follow. No student
+product appears: the course is the subject.
 
 **Course** opens on the semester line, generated from the course files: a column
 per week, a lane per part, a bar for every module and step, in the part's color
@@ -131,11 +133,11 @@ Short and quiet, and only opacity, transform or stroke offsets, so it stays
 smooth on phones. Entrances spring (`--ease-spring`, a CSS `linear()` curve,
 over `--duration-enter`); exits are faster and plain (`--ease-exit`). Content
 rises in on load and between pages; rows marked `reveal` rise in as they scroll
-into view; timeline bars draw in from their first term. The home picture draws
-its arcs in once, strongest first, and redraws them for whichever word is
-pointed at, with CSS `:has()` alone. Nothing loops, so nothing runs while the
-page is still. Durations come from tokens, and reduced-motion settings collapse
-them all to an instant.
+into view; timeline bars draw in from their first term. The home headline's arcs
+draw in, strongest first, for whichever word is active; a script lays them out
+only on load and resize. Nothing loops, so nothing runs while the page is still.
+Durations come from tokens, and reduced-motion settings collapse them all to an
+instant.
 
 Scroll-driven rules use longhand properties: the CSS minifier folds `animation`
 and `animation-timeline` into one shorthand that browsers reject.
