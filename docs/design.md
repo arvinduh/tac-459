@@ -19,7 +19,7 @@ in a few deliberate places, so they stay meaningful.
 | Gold `#fc0`     | The capstone's lane and selection                                                     | Text (1.5:1 on paper)       |
 
 Cardinal means "you can act on this, or you are on it": a semester bar turns
-Cardinal when hovered or open, a product name or a headline word when pointed
+Cardinal when hovered or open, a product name or a headline phrase when pointed
 at. Every page is paper; there are no colored bands. Large fields of Cardinal or
 Gold read as loud, so neither fills more than a thin bar.
 
@@ -80,13 +80,15 @@ The site has two levels of detail and no more: pages, and cards that open in
 place. A thing gets its own page only when it has more to say than a card holds
 (a person, a product); everything else opens where it is mentioned.
 
-**Home** is the headline set one word to a line, with self-attention drawn
-beside it: arcs curve out from each word's end into the words it attends to, all
-resting in a faint rule color, one word's drawn in Cardinal. Pointing at a word
-redraws its arcs. The blurb, the term's facts (linked to the USC Schedule of
-Classes, the map and Google Calendar) and a line explaining the picture sit in a
-column beside it. The semester line and the people teaching follow. No student
-product appears: the course is the subject.
+**Home** is the headline, a few short phrases one to a line, with self-attention
+drawn beside it: arcs curve out from each line's end into the lines it attends
+to, all resting in a faint rule color, one line's drawn in Cardinal. Pointing at
+a phrase redraws its arcs. The type shrinks until the longest line leaves room
+for the arcs, so keep phrases short (16 characters at most, which the build
+checks). The blurb, the term's facts (linked to the USC Schedule of Classes, the
+map and Google Calendar) and a line explaining the picture sit in a column
+beside it. The semester line and the people teaching follow. No student product
+appears: the course is the subject.
 
 **Course** opens on the semester line, generated from the course files: a column
 per week, a lane per part, a bar for every module and step, in the part's color

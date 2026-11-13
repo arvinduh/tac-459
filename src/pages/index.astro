@@ -70,7 +70,7 @@ const course = courseSchema({
       <p class="data">
         {site.courseCode} · {site.title}
       </p>
-      <Attention sentence={overview.headline} />
+      <Attention lines={overview.headline} />
     </div>
     <div class="hero-aside">
       <p class="hero-blurb">{overview.blurb}</p>
@@ -99,10 +99,10 @@ const course = courseSchema({
         })}
       </p>
       <p class="hero-note">
-        Beside the headline, self-attention: where each word looks as a
-        transformer reads it
+        Beside the headline, self-attention: how much each phrase attends to the
+        others as a transformer reads it
         {attentionWeek >= 0 && `, taught in week ${firstWeek + attentionWeek}`}.
-        Point at a word.
+        Point at a phrase.
       </p>
     </div>
   </header>

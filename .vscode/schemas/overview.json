@@ -3,8 +3,14 @@
   "type": "object",
   "properties": {
     "headline": {
-      "type": "string",
-      "description": "The promise that opens the home page."
+      "minItems": 2,
+      "maxItems": 5,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 16
+      },
+      "description": "The promise that opens the home page, one short phrase per line."
     },
     "blurb": {
       "type": "string",

@@ -1,5 +1,10 @@
 {
-  "headline": "Build a generative AI product in one semester.",
+  "headline": [
+    "From attention",
+    "and alignment",
+    "to a product",
+    "in a semester."
+  ],
   "blurb": "The capstone course of the USC Artificial Intelligence Minor, connecting technical foundations, industry analysis and hands-on AI product development.",
   "parts": [
     {

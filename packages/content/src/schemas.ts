@@ -51,7 +51,13 @@ export function siteSchema<T extends z.ZodType>(term: T) {
 
 /** The course pitch and its parts: course/overview.json. */
 export const overviewSchema = z.strictObject({
-  headline: z.string().describe('The promise that opens the home page.'),
+  headline: z
+    .array(z.string().max(16))
+    .min(2)
+    .max(5)
+    .describe(
+      'The promise that opens the home page, one short phrase per line.',
+    ),
   blurb: z.string().describe('A short paragraph under the headline.'),
   parts: z
     .array(

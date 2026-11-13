@@ -1,30 +1,27 @@
 ---
 /**
- * The home page's headline, set one word to a line, with self-attention
+ * The home page's headline, one phrase to a line, with self-attention
  * drawn beside it: the headline is the picture.
  *
- * Arcs leave each word's end and curve out to the right into the words it
- * attends to, heavier the more weight they carry. Every word's arcs rest
- * faintly at once; one word's draw in Cardinal, first the word the others
- * attend to most, then whichever word is pointed at. The weights are a
- * build-time stand-in, not a trained model: nearby words and content words
- * score higher, with seeded variation, so any headline an editor writes
- * gets a plausible picture.
+ * Arcs leave each phrase's end and curve out to the right into the phrases
+ * it attends to, heavier the more weight they carry. Every phrase's arcs
+ * rest faintly at once; one phrase's draw in Cardinal, first the one the
+ * others attend to most, then whichever is pointed at. The weights are a
+ * build-time stand-in, not a trained model: nearer phrases score higher,
+ * with seeded variation, so any headline an editor writes gets a plausible
+ * picture. The type shrinks until the longest line leaves room for arcs.
  *
- * The words are the page's real h1. The arcs depend on where the words
- * land, so a small script measures them on load and on resize only;
+ * The phrases are the page's real h1. The arcs depend on where the lines
+ * end, so a small script measures them on load and on resize only;
  * without it the headline still reads.
  */
 interface Props {
-  sentence: string;
+  /** The headline, one phrase per line. */
+  lines: string[];
 }
 
-const { sentence } = Astro.props;
-
-/** Arcs drawn per word, strongest first. */
-const ARCS_PER_WORD = 3;
-
-const words = sentence.split(/\s+/).filter(Boolean);
+const { lines } = Astro.props;
+const longest = Math.max(...lines.map((line) => line.length));
 
 /** A stable value in [0, 1) for a pair of positions. */
 function jitter(i: number, j: number): number {
@@ -32,25 +29,22 @@ function jitter(i: number, j: number): number {
   return x - Math.floor(x);
 }
 
-/** How much word i attends to word j, before normalizing. */
+/** How much line i attends to line j, before normalizing. */
 function score(i: number, j: number): number {
-  const near = Math.exp(-Math.abs(i - j) / 3);
-  const letters = words[j]?.replace(/[^\p{L}\p{N}]/gu, '') ?? '';
-  const content = letters.length > 3 ? 2.5 : 1;
-  return near * content * (0.7 + 0.6 * jitter(i, j));
+  return Math.exp(-Math.abs(i - j) / 2) * (0.5 + jitter(i, j));
 }
 
-const heads = words.map((_, i) => {
-  const scores = words.map((_, j) => (i === j ? 0 : score(i, j)));
+const heads = lines.map((_, i) => {
+  const scores = lines.map((_, j) => (i === j ? 0 : score(i, j)));
   const total = scores.reduce((sum, value) => sum + value, 0);
   return scores
     .map((value, j) => ({ j, weight: value / total }))
-    .toSorted((a, b) => b.weight - a.weight)
-    .slice(0, ARCS_PER_WORD);
+    .filter(({ j }) => j !== i)
+    .toSorted((a, b) => b.weight - a.weight);
 });
 
-// The word that draws on load: the one the others attend to most.
-const received = words.map((_, j) =>
+// The phrase that draws on load: the one the others attend to most.
+const received = lines.map((_, j) =>
   heads
     .flat()
     .filter((arc) => arc.j === j)
@@ -59,12 +53,12 @@ const received = words.map((_, j) =>
 const query = received.indexOf(Math.max(...received));
 ---
 
-<div class="attention" data-query={query}>
+<div class="attention" data-query={query} style={`--longest: ${longest}`}>
   <h1 class="headline">
-    {words.map((word, i) => (
+    {lines.map((line, i) => (
       <>
-        <span class="word" data-word={i}>
-          {word}
+        <span class="phrase" data-phrase={i}>
+          {line}
         </span>{' '}
       </>
     ))}
@@ -85,18 +79,18 @@ const query = received.indexOf(Math.max(...received));
 </div>
 
 <script>
-  /** Space between a word's end and where its arcs leave, in pixels. */
+  /** Space between a phrase's end and where its arcs leave, in pixels. */
   const GAP = 14;
-  /** How far an arc bulges per pixel between its words, before fitting. */
-  const BULGE = 0.55;
+  /** How far an arc bulges per pixel between its lines, before fitting. */
+  const BULGE = 1;
 
-  /** Lays every arc out from where the words landed. */
+  /** Lays every arc out from where the lines end. */
   function layout(root: HTMLElement): void {
     const box = root.getBoundingClientRect();
     const ends = Array.from(
-      root.querySelectorAll<HTMLElement>('.word'),
-      (word) => {
-        const rect = word.getBoundingClientRect();
+      root.querySelectorAll<HTMLElement>('.phrase'),
+      (phrase) => {
+        const rect = phrase.getBoundingClientRect();
         return {
           x: rect.right - box.left + GAP,
           y: rect.top - box.top + rect.height * 0.56,
@@ -131,31 +125,31 @@ const query = received.indexOf(Math.max(...received));
     }
   }
 
-  /** Draws one word's arcs in, over the resting ones. */
+  /** Draws one phrase's arcs in, over the resting ones. */
   function activate(root: HTMLElement, index: string): void {
     for (const head of root.querySelectorAll<SVGGElement>('.head')) {
       const active = head.dataset['head'] === index;
       head.classList.toggle('is-active', active);
-      // SVG paints in document order, so the active word's arcs go last.
+      // SVG paints in document order, so the active phrase's arcs go last.
       if (active) head.parentNode?.append(head);
     }
-    for (const word of root.querySelectorAll<HTMLElement>('.word')) {
-      word.classList.toggle('is-active', word.dataset['word'] === index);
+    for (const phrase of root.querySelectorAll<HTMLElement>('.phrase')) {
+      phrase.classList.toggle('is-active', phrase.dataset['phrase'] === index);
     }
   }
 
   document.addEventListener('astro:page-load', () => {
     const root = document.querySelector<HTMLElement>('.attention');
     if (!root) return;
-    // Fires once on observe, then on every resize; fonts can shift words.
+    // Fires once on observe, then on every resize; fonts can shift lines.
     const observer = new ResizeObserver(() => layout(root));
     observer.observe(root);
     void document.fonts.ready.then(() => layout(root));
     activate(root, root.dataset['query'] ?? '0');
     root.addEventListener('pointerover', (event) => {
-      const word = (event.target as Element).closest<HTMLElement>('.word');
-      const index = word?.dataset['word'];
-      if (index && !word.classList.contains('is-active')) {
+      const phrase = (event.target as Element).closest<HTMLElement>('.phrase');
+      const index = phrase?.dataset['phrase'];
+      if (index && !phrase.classList.contains('is-active')) {
         activate(root, index);
       }
     });
@@ -170,24 +164,27 @@ const query = received.indexOf(Math.max(...received));
 <style>
   .attention {
     position: relative;
+    container-type: inline-size;
   }
 
   .headline {
     position: relative;
     z-index: 1;
-    font-size: var(--text-display);
-    line-height: 0.96;
+    /* Geist averages about 0.54em a character; the longest line takes at
+       most four fifths of the width, leaving the rest for arcs. */
+    font-size: min(var(--text-display), calc(80cqi / (var(--longest) * 0.54)));
+    line-height: 1.02;
     letter-spacing: var(--tracking-display);
   }
 
-  /* One word to a line: each is a token the arcs can reach. */
-  .word {
+  /* One phrase to a line: each is a token the arcs can reach. */
+  .phrase {
     display: block;
     width: fit-content;
     transition: color var(--duration-base) var(--ease-out);
   }
 
-  .word.is-active {
+  .phrase.is-active {
     color: var(--color-brand);
   }
 
@@ -208,7 +205,7 @@ const query = received.indexOf(Math.max(...received));
     transition: stroke var(--duration-base) var(--ease-out);
   }
 
-  /* The word being read: its arcs draw in, strongest first. */
+  /* The phrase being read: its arcs draw in, strongest first. */
   .head.is-active path {
     stroke: var(--color-brand);
     stroke-dasharray: 1;
