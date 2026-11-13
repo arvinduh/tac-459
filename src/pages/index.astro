@@ -1,30 +1,32 @@
 ---
 /**
- * The home page: the course's promise, then the semester as a scroll story.
+ * The home page: the course's promise over a picture of what it teaches,
+ * then the semester at a glance and the people teaching it.
  *
- * A drawing opens under the headline, then takes one half of the page as
- * one panel per part of the course, and one for demo day, passes in the
- * other, changing with each. The people
- * teaching it close the page. Every value comes from content files, and
- * the detail lives on the Course page.
+ * The picture is self-attention drawn over the headline itself, the idea
+ * the curriculum opens on. The semester line opens each part in place and
+ * links to the Course page for the rest. Every value comes from content
+ * files.
  */
 import Arrow from '../components/Arrow.astro';
+import Attention from '../components/Attention.astro';
 import PersonRow from '../components/PersonRow.astro';
 import Section from '../components/Section.astro';
-import SemesterStory from '../components/SemesterStory.astro';
+import SemesterLine from '../components/SemesterLine.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {
   getClassCalendar,
   getCurrentStaff,
   getCurrentTerm,
+  getModules,
   getOverview,
-  getProjectTerms,
   getSite,
   ROLE_NAMES,
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
 import {
+  buildLanes,
   formatTimes,
   googleCalendarUrl,
   mapUrl,
@@ -36,33 +38,15 @@ const term = await getCurrentTerm();
 const overview = await getOverview();
 const staff = await getCurrentStaff();
 const instructors = staff.filter(({ role }) => role === 'instructor');
-const projectTerms = await getProjectTerms();
-const projects = projectTerms.flatMap((entry) => entry.projects);
-
-// One stop where each part begins, then demo day at the capstone's end.
+const modules = await getModules();
 const parts = overview.parts.toSorted((a, b) => a.weeks.from - b.weeks.from);
-const capstone = overview.parts.find(({ id }) => id === 'capstone');
-const finale = capstone?.steps?.at(-1);
-const stops = [
-  ...parts.map(({ id, title, promise, summary, weeks }) => ({
-    week: weeks.from,
-    label: title,
-    title: promise,
-    text: summary,
-    href: href(`/course/#${id}`),
-  })),
-  ...(capstone && finale
-    ? [
-        {
-          week: capstone.weeks.to,
-          label: finale.title,
-          title: `${projects.length} products launched so far.`,
-          text: finale.text,
-          href: href('/projects/'),
-        },
-      ]
-    : []),
-];
+const { last, lanes } = buildLanes(parts, modules);
+
+// The week the curriculum teaches attention, which the picture draws.
+const firstWeek = parts.find(({ id }) => id === 'curriculum')?.weeks.from ?? 1;
+const attentionWeek = modules
+  .flatMap(({ weeks }) => weeks)
+  .findIndex(({ title }) => /attention/i.test(title));
 
 const absolute = (path: string) => new URL(href(path), Astro.site).href;
 const calendar = await getClassCalendar(absolute('/'));
@@ -81,46 +65,68 @@ const course = courseSchema({
 ---
 
 <BaseLayout schema={[course]}>
-  <header class="page-width hero">
-    <p class="eyebrow">
-      {site.courseCode} · {site.title}
-    </p>
-    <h1 class="hero-title">{overview.headline}</h1>
-    <p class="hero-blurb">{overview.blurb}</p>
-    <div class="hero-facts">
-      <p class="data">
-        <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
-        {term.meetings.map((meeting, index) => {
-          const map = mapUrl(meeting.location, site.buildings);
-          const series = calendar.series[index];
-          return (
-            <>
-              {' · '}
-              {series ? (
-                <a
-                  href={googleCalendarUrl(calendar.text, series)}
-                  title="Add the class to Google Calendar"
-                >
-                  {formatTimes(meeting)}
-                </a>
-              ) : (
-                formatTimes(meeting)
-              )}
-              {' · '}
-              {map ? <a href={map}>{meeting.location}</a> : meeting.location}
-            </>
-          );
-        })}
-      </p>
+  <header class="hero">
+    <div class="page-width hero-inner">
+      <div class="hero-head">
+        <p class="data">
+          {site.courseCode} · {site.title}
+        </p>
+        <h1 class="hero-title">{overview.headline}</h1>
+      </div>
+      <figure class="hero-picture">
+        <Attention sentence={overview.headline} />
+      </figure>
+      <p class="hero-blurb">{overview.blurb}</p>
+      <div class="hero-aside">
+        <p class="data hero-facts">
+          <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
+          {term.meetings.map((meeting, index) => {
+            const map = mapUrl(meeting.location, site.buildings);
+            const series = calendar.series[index];
+            return (
+              <>
+                {' · '}
+                {series ? (
+                  <a
+                    href={googleCalendarUrl(calendar.text, series)}
+                    data-tip="Add the class to Google Calendar"
+                  >
+                    {formatTimes(meeting)}
+                  </a>
+                ) : (
+                  formatTimes(meeting)
+                )}
+                {' · '}
+                {map ? <a href={map}>{meeting.location}</a> : meeting.location}
+              </>
+            );
+          })}
+        </p>
+        <p class="data">
+          Above, self-attention over the headline
+          {attentionWeek >= 0 &&
+            `, taught in week ${firstWeek + attentionWeek}`}
+          . Point at a word.
+        </p>
+      </div>
     </div>
   </header>
 
-  <SemesterStory
-    panels={stops}
-    covers={projects.slice(0, 8).map(({ data }) => data.images[0])}
-  />
-
   <div class="sections">
+    <Section id="semester" label="One semester, three parts">
+      <SemesterLine last={last} lanes={lanes} />
+      <p class="links">
+        <a class="arrow-link" href={href('/course/')}>
+          The course week by week
+          <Arrow />
+        </a>
+        <a class="arrow-link" href={href('/projects/')}>
+          What past teams shipped
+          <Arrow />
+        </a>
+      </p>
+    </Section>
+
     <Section id="team" label={`Taught in ${term.label} by`}>
       <ul class="plain-list team-grid">
         {staff.map(({ person, role }) => (
@@ -129,7 +135,7 @@ const course = courseSchema({
           </li>
         ))}
       </ul>
-      <p class="more-link">
+      <p class="links">
         <a class="arrow-link" href={href('/team/')}>
           Office hours and past staff
           <Arrow />
@@ -140,51 +146,105 @@ const course = courseSchema({
 </BaseLayout>
 
 <style>
+  /* A dark band, the site's one, so the picture's Gold reads as light. */
   .hero {
+    background: var(--color-night);
+    color: var(--color-night-text);
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: var(--space-12) var(--space-16);
+    padding-block: var(--space-16) var(--space-12);
+  }
+
+  .hero-head,
+  .hero-picture {
+    grid-column: 1 / -1;
+  }
+
+  .hero-head {
     display: grid;
     gap: var(--space-6);
-    padding-block: var(--space-16) 0;
+  }
+
+  .hero-aside {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding-top: 0.4em;
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
-  .hero > * {
+  .hero-inner > * {
     animation: rise var(--duration-slow) var(--ease-out) both;
   }
 
-  .hero > :nth-child(2) {
+  .hero-inner > :nth-child(2) {
     animation-delay: 60ms;
   }
 
-  .hero > :nth-child(3) {
+  .hero-inner > :nth-child(3) {
     animation-delay: 120ms;
   }
 
-  .hero > :nth-child(4) {
+  .hero-inner > :nth-child(4) {
     animation-delay: 180ms;
   }
 
-  /* Wide enough that the headline breaks into two lines on a laptop. */
+  .hero .data {
+    color: var(--color-night-muted);
+  }
+
+  .hero a {
+    color: var(--color-night-text);
+    text-decoration-color: color-mix(
+      in srgb,
+      var(--color-night-text) 35%,
+      transparent
+    );
+  }
+
+  .hero a:hover {
+    color: var(--color-accent);
+    text-decoration-color: currentcolor;
+  }
+
+  .hero :focus-visible {
+    outline-color: var(--color-accent);
+  }
+
   .hero-title {
-    max-width: 22ch;
     font-size: var(--text-display);
     line-height: 1;
     letter-spacing: var(--tracking-display);
+    max-width: 20ch;
+    text-wrap: balance;
   }
 
   .hero-blurb {
     max-width: var(--prose-max);
-    color: var(--color-text-muted);
+    color: var(--color-night-muted);
     font-size: var(--text-lg);
     line-height: 1.55;
   }
 
-  .hero-facts {
-    display: grid;
-    gap: var(--space-3);
+  .hero-picture {
+    margin: 0;
   }
 
   .sections {
-    margin-top: var(--space-section);
+    display: grid;
+    gap: var(--space-section);
+    margin-block: var(--space-section);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-8);
+    margin-top: var(--space-8);
   }
 
   .team-grid {
@@ -193,7 +253,10 @@ const course = courseSchema({
     gap: 0 var(--space-8);
   }
 
-  .more-link {
-    margin-top: var(--space-8);
+  @media (width < 56rem) {
+    .hero-inner {
+      grid-template-columns: minmax(0, 1fr);
+      padding-top: var(--space-12);
+    }
   }
 </style>

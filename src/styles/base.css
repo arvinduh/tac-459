@@ -150,13 +150,6 @@ img {
   transform: translateX(3px);
 }
 
-/* Small Cardinal line naming what a page or hero is about. */
-.eyebrow {
-  color: var(--color-brand);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-}
-
 /*
  * Data: codes, counts, times, places and term names. Mono marks text a
  * reader looks up rather than reads, so it never carries a sentence.

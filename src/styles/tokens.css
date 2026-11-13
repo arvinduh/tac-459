@@ -17,6 +17,8 @@
   --cardinal-600: #900;
   --cardinal-700: #7a0000;
   --gold-400: #fc0;
+  --night: #161514;
+  --night-300: #aca59e;
 
   --color-bg: var(--paper);
   --color-text: var(--ink-900);
@@ -34,6 +36,11 @@
   --color-brand-hover: var(--cardinal-700);
   --color-accent: var(--gold-400);
   --color-focus: var(--cardinal-600);
+  /* The home page's dark band, where Gold may be text: 13:1 on night. */
+  --color-night: var(--night);
+  --color-night-text: var(--paper);
+  /* 7.6:1 on night. */
+  --color-night-muted: var(--night-300);
 }
 
 :root {
@@ -85,6 +92,8 @@
   --duration-fast: 160ms;
   --duration-base: 240ms;
   --duration-slow: 600ms;
+  /* An arc of the home picture drawing itself in. */
+  --duration-draw: 900ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   /* Even start and finish, for fades the eye should see happen. */
   --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
@@ -95,5 +104,6 @@
     --duration-fast: 1ms;
     --duration-base: 1ms;
     --duration-slow: 1ms;
+    --duration-draw: 1ms;
   }
 }
