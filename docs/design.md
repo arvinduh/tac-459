@@ -30,22 +30,22 @@ text), Cardinal 8.5:1.
 
 Two families, each with a meaning. A third would need a role neither covers.
 
-| Family         | Means           | Used for                                                                  |
-| -------------- | --------------- | ------------------------------------------------------------------------- |
-| Inter          | The voice       | Everything people read: headings, prose, labels, names                    |
-| JetBrains Mono | Data to look up | Course code, numerals, week and term labels, times and places, menu notes |
+| Family     | Means           | Used for                                                                  |
+| ---------- | --------------- | ------------------------------------------------------------------------- |
+| Geist      | The voice       | Everything people read: headings, prose, labels, names                    |
+| Geist Mono | Data to look up | Course code, numerals, week and term labels, times and places, menu notes |
 
 Mono never carries a sentence. In markup, data text takes the `data` class
 (subtle) or `numeral` (Cardinal, for things that mark order).
 
-A serif was tried and dropped: on this site it had no job Inter did not already
+A serif was tried and dropped: on this site it had no job Geist did not already
 do. It earns a place only for a new role, such as quoting students.
 
 **Weights.** 600 for headings and names, the things that title a block or open a
 page. 500 for labels, eyebrows and links that lead onward. 400 for everything
 else. Bold inside prose (`strong`) is 600. Nothing uses 700.
 
-**Italic.** Not used. Emphasis comes from weight, and Inter's italic is not
+**Italic.** Not used. Emphasis comes from weight, and Geist's italic is not
 loaded.
 
 **Sizes.** One scale in `tokens.css`, largest first:
