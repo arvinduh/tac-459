@@ -1,77 +1,297 @@
 ---
 /**
- * The course in full: the semester as one map, then what each part is.
+ * The course in full: the semester line, then each part of the course.
  *
- * The home page tells the course as a story; this page is the reference.
- * The map comes first, so the shape of the semester reads before any
- * paragraph, and its shapes open every detail: weekly topics, the company
- * overview's steps and the capstone's roadmap. Each part's description
- * follows, anchored by its id so the home page and the map link to it.
+ * The line comes first, so the shape of the semester reads before any
+ * paragraph, and every bar opens its detail in place. Each part follows as
+ * a full section anchored by its id, so /course/#capstone links straight to
+ * it and its words are real page text for search engines. The capstone
+ * ends with products past teams shipped, the path from course to project.
  */
+import { buildLanes, formatWeeks } from '@tac/content';
+import { Image } from 'astro:assets';
+import Arrow from '../components/Arrow.astro';
 import PageHeader from '../components/PageHeader.astro';
-import SemesterMap from '../components/SemesterMap.astro';
+import SemesterLine from '../components/SemesterLine.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getModules, getOverview } from '../lib/course';
-import { formatWeeks } from '../lib/term';
-import { buildLanes } from '../lib/lanes';
+import { getModules, getOverview, getProjectTerms } from '../lib/course';
+import { href } from '../lib/paths';
 
-const [overview, modules] = await Promise.all([getOverview(), getModules()]);
-const parts = overview.components.toSorted(
-  (a, b) => a.weeks.from - b.weeks.from,
-);
+const [overview, modules, projectTerms] = await Promise.all([
+  getOverview(),
+  getModules(),
+  getProjectTerms(),
+]);
+const parts = overview.parts.toSorted((a, b) => a.weeks.from - b.weeks.from);
 const { last, lanes } = buildLanes(parts, modules);
-const span = formatWeeks({ from: 1, to: last });
+
+// The newest term's first three products show what the capstone produces.
+const shipped = (
+  projectTerms.find(({ projects }) => projects.length > 0)?.projects ?? []
+).slice(0, 3);
+
+/** Each module's first week, counted from the curriculum's start. */
+const curriculum = parts.find(({ id }) => id === 'curriculum');
+let nextWeek = curriculum?.weeks.from ?? 1;
+const moduleWeeks = modules.map(({ title, weeks }) => {
+  const from = nextWeek;
+  nextWeek += weeks.length;
+  return {
+    title,
+    span: formatWeeks({ from, to: nextWeek - 1 }),
+    weeks: weeks.map((topics, index) => ({ ...topics, week: from + index })),
+  };
+});
 ---
 
 <BaseLayout title="Course" description={overview.blurb}>
-  <PageHeader eyebrow={span} title="Course" lede={overview.blurb} />
+  <PageHeader title="Course" lede={overview.blurb} />
   <div class="page-width">
-    <SemesterMap last={last} lanes={lanes} />
-    <ul class="plain-list parts">
-      {parts.map(({ id, title, weeks, detail }) => (
-        <li class={`part lane-${id}`} id={id}>
-          <p class="part-weeks numeral">{formatWeeks(weeks)}</p>
-          <h2 class="part-title">{title}</h2>
-          <p class="part-detail">{detail}</p>
-        </li>
-      ))}
-    </ul>
+    <SemesterLine last={last} lanes={lanes} />
   </div>
+
+  {parts.map(({ id, title, weeks, promise, detail, steps }) => (
+    <section class="page-width part" id={id} aria-labelledby={`${id}-title`}>
+      <header class="part-head">
+        <p class="data">{formatWeeks(weeks)}</p>
+        <h2 class="part-title" id={`${id}-title`}>
+          {title}
+        </h2>
+        <p class="part-promise">{promise}</p>
+      </header>
+      <div class="part-body">
+        <p class="part-detail">{detail}</p>
+
+        {id === 'curriculum' && (
+          <ol class="plain-list modules">
+            {moduleWeeks.map(({ title: module, span, weeks: topics }) => (
+              <li class="module">
+                <h3 class="module-title">
+                  {module}
+                  <span class="data">{span}</span>
+                </h3>
+                <ol class="plain-list rows">
+                  {topics.map(({ week, title: topic, core, deeper }) => (
+                    <li class="row">
+                      <span class="data">Week {week}</span>
+                      <div>
+                        <p class="row-title">{topic}</p>
+                        <p class="row-text">{core.join(' · ')}</p>
+                        {deeper.length > 0 && (
+                          <p class="row-deeper">
+                            Going further: {deeper.join(' · ')}
+                          </p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {id !== 'curriculum' && steps.length > 0 && (
+          <ol class="plain-list rows">
+            {steps.map(({ title: step, text }, index) => (
+              <li class="row">
+                <span class="data">
+                  {steps.length === weeks.to - weeks.from + 1
+                    ? `Week ${weeks.from + index}`
+                    : `Step ${index + 1}`}
+                </span>
+                <div>
+                  <p class="row-title">{step}</p>
+                  <p class="row-text">{text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {id === 'capstone' && shipped.length > 0 && (
+          <div class="shipped">
+            <h3 class="shipped-title">Shipped by past teams</h3>
+            <ul class="plain-list shipped-list">
+              {shipped.map(({ id: product, data }) => (
+                <li>
+                  <a
+                    class="shipped-link"
+                    href={href(`/projects/${product}/`)}
+                    data-card={`project-${product.replace('/', '-')}`}
+                  >
+                    {data.title}
+                    <Arrow />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a class="arrow-link" href={href('/projects/')}>
+              Every product
+              <Arrow />
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  ))}
+
+  {shipped.map(({ id: product, data }) => (
+    <template id={`card-project-${product.replace('/', '-')}`}>
+      <Image
+        class="card-image"
+        src={data.images[0]}
+        alt=""
+        widths={[352, 704]}
+        sizes="22rem"
+      />
+      <p class="card-title">{data.title}</p>
+      <p class="card-text">{data.summary}</p>
+    </template>
+  ))}
 </BaseLayout>
 
 <style>
-  .parts {
+  .part {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-    gap: var(--space-12) var(--space-8);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: var(--space-8) var(--space-16);
     margin-top: var(--space-section);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-rule);
+    scroll-margin-top: calc(var(--header-height) + var(--space-6));
   }
 
-  .part {
-    --edge: var(--color-rule-strong);
-
+  .part-head {
     display: grid;
     align-content: start;
     gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: 2px solid var(--edge);
-    scroll-margin-top: calc(var(--header-height) + var(--space-8));
   }
 
-  .lane-company-overview {
-    --edge: var(--color-accent);
-  }
-
-  .lane-capstone {
-    --edge: var(--color-brand);
+  @media (width >= 56rem) {
+    .part-head {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-8));
+    }
   }
 
   .part-title {
     font-size: var(--text-xl);
-    letter-spacing: var(--tracking-heading);
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  /* Arriving from a link to a part: its title answers in Cardinal. */
+  .part:target .part-title {
+    color: var(--color-brand);
+  }
+
+  .part-promise {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    line-height: 1.4;
+  }
+
+  .part-body {
+    display: grid;
+    gap: var(--space-12);
+    max-width: var(--prose-max);
   }
 
   .part-detail {
+    font-size: var(--text-lg);
+    line-height: 1.55;
+  }
+
+  .modules {
+    display: grid;
+    gap: var(--space-12);
+  }
+
+  .module-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-base);
+  }
+
+  .rows {
+    display: grid;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .row .data {
+    padding-top: 0.15em;
+  }
+
+  .row-title {
+    font-weight: var(--weight-medium);
+  }
+
+  .row-text {
+    margin-top: var(--space-1);
     color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .row-deeper {
+    margin-top: var(--space-1);
+    color: var(--color-text-subtle);
+    font-size: var(--text-sm);
+  }
+
+  .shipped {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+  }
+
+  .shipped-title {
+    font-size: var(--text-base);
+  }
+
+  .shipped-list {
+    display: grid;
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  .shipped-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-text);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-heading);
+    text-decoration: none;
+  }
+
+  .shipped-link:is(:hover, :focus-visible) {
+    color: var(--color-brand);
+  }
+
+  @media (width < 56rem) {
+    .part {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (width < 32rem) {
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+    }
   }
 </style>

@@ -19,7 +19,7 @@ leaves a warning asking someone to run `npm run images` later.
 ```sh
 npm install        # once, and again after pulling dependency changes
 npm run dev        # preview at http://localhost:4321/tac-459/
-npm run images     # shrink and rename any images you added
+npm run images     # shrink any oversized images you added
 npm run check      # the same checks the build runs
 ```
 
@@ -31,20 +31,20 @@ npm run check      # the same checks the build runs
 npm run new -- term spring-2027
 ```
 
-This copies the current term file to `src/content/terms/spring-2027.yaml`. The
-file name is the term: the site names it "Spring 2027" and links its USC
+This copies the current term to `src/content/terms/spring-2027/term.json`. The
+folder name is the term: the site names it "Spring 2027" and links its USC
 Schedule of Classes page from it. In the new file, update:
 
 | Field      | What                                                      |
 | ---------- | --------------------------------------------------------- |
-| `classes`  | First and last day of classes, `{ start: 2027-01-11, … }` |
+| `classes`  | First and last day of classes, `"start": "2027-01-11"`    |
 | `meetings` | Days, times and room; a room code such as `KAP 160` links |
 | `staff`    | Who teaches, with any office hours                        |
 
-Then set `currentTerm: spring-2027` in `src/content/site.yaml`. The build
+Then set `"currentTerm": "spring-2027"` in `src/content/site.json`. The build
 refuses a current term whose class dates are missing or still last term's, or
 that has no meetings or no instructor, and says which. A new room's building
-goes under `buildings` in `site.yaml` once. Old term files stay: they feed the
+goes under `buildings` in `site.json` once. Old term folders stay: they feed the
 team timeline and the projects page.
 
 Every Monday a CI run checks the date; three weeks after the last class it fails
@@ -58,14 +58,13 @@ generated from these fields.
 npm run new -- person "Jane Doe"
 ```
 
-This creates `src/content/people/jane-doe/index.md`. Fill in the template. Their
-initials stand in for a portrait until you put a square photo in the same
-folder, run `npm run images` and uncomment the `photo` line. Then add them to
-the term file's `staff` list:
+This creates `src/content/people/jane-doe/person.json`. Fill in the template.
+Their initials stand in for a portrait until you drop a square photo, under any
+name, into the same folder. A longer bio with headings or lists goes in a
+`bio.md` beside it. Then add them to the term file's `staff` list:
 
-```yaml
-staff:
-  - { person: jane-doe, role: learningAssistant }
+```json
+{ "person": "jane-doe", "role": "learningAssistant" }
 ```
 
 `role` is `instructor` or `learningAssistant`. A person's folder stays forever,
@@ -74,17 +73,22 @@ so past staff keep their pages and their place on the timeline.
 ### Post office hours
 
 Add `officeHours` to that person's line in the term file, either as a weekly
-slot or as a short note such as `officeHours: Announced on Piazza`.
+slot or as a short note such as `"officeHours": "Announced on Piazza"`.
 
-```yaml
-staff:
-  - person: jane-doe
-    role: learningAssistant
-    officeHours:
-      { days: [Thu], start: '15:00', end: '16:00', location: SAL 125 }
+```json
+{
+  "person": "jane-doe",
+  "role": "learningAssistant",
+  "officeHours": {
+    "days": ["Thu"],
+    "start": "15:00",
+    "end": "16:00",
+    "location": "SAL 125"
+  }
+}
 ```
 
-Times are 24-hour (`'15:00'`), in quotes. Days are `Mon` to `Fri`.
+Times are 24-hour (`"15:00"`). Days are `Mon` to `Fri`.
 
 ### Add last term's products
 
@@ -94,34 +98,34 @@ For each team:
 npm run new -- project fall-2026 "Study Buddy AI"
 ```
 
-This creates `src/content/projects/fall-2026/study-buddy-ai/index.yaml`. Add the
-screenshots to that folder named `1`, `2`, `3` (the first is the cover), run
-`npm run images`, and fill in the template. Add the class photo next to the term
-file (`src/content/terms/fall-2026.jpg`) and set `classPhoto: ./fall-2026.jpg`
-in the term file before running `npm run images`.
+This creates `src/content/projects/fall-2026/study-buddy-ai/project.json`. Fill
+in the template and drop the screenshots into that folder. They show in name
+order, so name them `1`, `2`, `3`; the first is the cover. Drop the class photo
+into the term's folder (`src/content/terms/fall-2026/`).
 
 ### Change the course description or curriculum
 
 | What                                                   | File                     |
 | ------------------------------------------------------ | ------------------------ |
-| Course title, home tab title and search description    | `site.yaml`              |
-| Home headline and blurb; each part's promise and weeks | `course/overview.yaml`   |
-| Modules, weekly topics, deeper topics                  | `course/curriculum.yaml` |
+| Course title, home tab title and search description    | `site.json`              |
+| Home headline and blurb; each part's promise and weeks | `course/overview.json`   |
+| Modules, weekly topics, deeper topics                  | `course/curriculum.json` |
 
 ## Which format, and why
 
-- **YAML** (`.yaml`) holds records: fields with fixed meanings that the site
-  lays out the same way every time (terms, products, the curriculum).
-- **Markdown** (`.md`) holds prose that varies from person to person, so only
-  people's bios use it. The fields at the top between `---` lines are YAML; the
-  bio below them can use `## headings`, `- lists` and `**bold**`.
+- **JSON** (`.json`) holds records: fields with fixed meanings that the site
+  lays out the same way every time (terms, products, people, the curriculum).
+  Open the repository in VS Code and every field autocompletes, explains itself
+  on hover and is underlined when wrong.
+- **Markdown** (`bio.md`) holds only prose that needs formatting, such as a bio
+  with `## headings`, `- lists` and `**bold**`. It never holds fields.
+- **Images** are found by folder: drop them in, no file lists to update.
 
 ## Images
 
 The build accepts JPEG, PNG and WebP and serves every size each page needs, so
-any photo works. `npm run images` keeps the repository small: it converts images
-to WebP at most 2400px wide, renames them to lowercase ids (so `IMG 2041.JPG`
-becomes `img-2041.webp`) and updates the files that point at them.
+any photo works. `npm run images` keeps the repository small by shrinking any
+image wider than 2400px in place.
 
 ## Where to look next
 

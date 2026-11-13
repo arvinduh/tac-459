@@ -1,16 +1,18 @@
 ---
 /**
- * Document shell for every page: metadata from site.yaml, global styles and
+ * Document shell for every page: metadata from site.json, global styles and
  * the client router that animates navigation between pages.
  *
  * It owns everything search engines and link previews read: title,
  * description, canonical URL, social card, breadcrumbs and any JSON-LD the
  * page passes in.
  */
-import '@fontsource-variable/inter/opsz.css';
-import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '@tac/interact/interact.css';
 import '../styles/tokens.css';
 import '../styles/base.css';
+import '../styles/cards.css';
 import type { TransitionAnimationPair } from 'astro';
 import { getImage } from 'astro:assets';
 import { ClientRouter } from 'astro:transitions';
@@ -134,6 +136,11 @@ const fullTitle = title ? `${title} · ${courseCode}` : site.homeTitle;
     </main>
     <SiteFooter courseCode={courseCode} title={courseTitle} />
     <script>
+      import { startCards, startHints } from '@tac/interact';
+
+      startCards();
+      startHints();
+
       // A page transition is cancelled when the window resizes mid-way, as a
       // phone's address bar does. The new page still loads; only the
       // animation is skipped. Astro leaves that rejection unhandled, which

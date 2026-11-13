@@ -1,0 +1,32 @@
+{
+  "meetings": [
+    {
+      "days": ["Mon"],
+      "start": "17:00",
+      "end": "20:20",
+      "location": "KAP 160"
+    }
+  ],
+  "staff": [
+    {
+      "person": "allen-bolourchi",
+      "role": "instructor"
+    },
+    {
+      "person": "reza-jafarkhani",
+      "role": "instructor"
+    },
+    {
+      "person": "rajeev-singh",
+      "role": "learningAssistant"
+    },
+    {
+      "person": "nitin-sai-bommi",
+      "role": "learningAssistant"
+    },
+    {
+      "person": "varuna-krishna-kolla",
+      "role": "learningAssistant"
+    }
+  ]
+}

@@ -30,7 +30,6 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font: var(--text-base) / 1.6 var(--font-sans);
-  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizelegibility;
 }
@@ -149,13 +148,6 @@ img {
 
 :is(a, button):is(:hover, :focus-visible) .arrow-head {
   transform: translateX(3px);
-}
-
-/* Small Cardinal line naming what a page or hero is about. */
-.eyebrow {
-  color: var(--color-brand);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
 }
 
 /*

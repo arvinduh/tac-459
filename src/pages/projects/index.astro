@@ -1,82 +1,286 @@
 ---
 /**
- * What past teams built in the capstone, newest term first, with each
- * term's class photo.
+ * What past teams built in the capstone: an index of every product, newest
+ * term first.
+ *
+ * Names lead, set large, so the whole archive reads at a glance and every
+ * product is a plain text link for search engines. On wide screens a frame
+ * beside the list shows the cover of whichever product the pointer or
+ * keyboard is on; on phones each row carries its own small cover. Each
+ * term's class photo opens in place from a link by its heading.
  */
-import { Image } from 'astro:assets';
-import FullSize from '../../components/FullSize.astro';
+import { getImage, Image } from 'astro:assets';
+import Arrow from '../../components/Arrow.astro';
 import PageHeader from '../../components/PageHeader.astro';
-import ProjectGrid from '../../components/ProjectGrid.astro';
-import Section from '../../components/Section.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getComponent, getProjectTerms, getSite } from '../../lib/course';
+import { getPart, getProjectTerms, getSite } from '../../lib/course';
+import { href } from '../../lib/paths';
 
 const site = await getSite();
-const terms = await getProjectTerms();
-const count = terms.reduce((sum, term) => sum + term.projects.length, 0);
-const { weeks } = await getComponent('capstone');
+const terms = await Promise.all(
+  (await getProjectTerms()).map(async (term) => ({
+    ...term,
+    photo:
+      term.classPhoto &&
+      (await getImage({ src: term.classPhoto, format: 'webp' })),
+  })),
+);
+const products = terms.flatMap(({ projects }) => projects);
+const { weeks } = await getPart('capstone');
 const capstoneWeeks = weeks.to - weeks.from + 1;
+const [first] = products;
 ---
 
 <BaseLayout
   title="Projects"
-  description={`${count} AI products built by ${site.courseCode} student teams in the ${capstoneWeeks}-week capstone, from chatbots and advisors to agents.`}
+  description={`${products.length} AI products built by ${site.courseCode} student teams in the ${capstoneWeeks}-week capstone, from chatbots and advisors to agents.`}
 >
   <PageHeader
-    eyebrow="Past capstone products"
     title="Projects"
-    lede="Every term, teams take a product from idea to a working application built on frontier models. These are the products they shipped."
+    lede={`Every term, teams take a product from idea to a working application built on frontier models in ${capstoneWeeks} weeks. These are the ${products.length} they shipped.`}
   />
-  <div class="terms">
-    {terms.map(({ id, label, classPhoto, projects }) => (
-      <Section id={id} label={label}>
-        <div class="term-body">
-          {classPhoto && (
-            <figure class="class-photo">
-              <FullSize src={classPhoto} label={`The ${label} class photo`}>
-                <Image
-                  src={classPhoto}
-                  alt={`The ${label} ${site.courseCode} class`}
-                  widths={[800, 1600]}
-                  sizes="(width < 48rem) 100vw, 52rem"
-                />
-              </FullSize>
-              <figcaption>The {label} class</figcaption>
-            </figure>
-          )}
-          {projects.length > 0 && <ProjectGrid projects={projects} />}
-        </div>
-      </Section>
-    ))}
+  <div class="page-width archive">
+    <div class="index">
+      {terms.map(({ id, label, classPhoto, photo, projects }) => (
+        <section class="term" id={id} aria-labelledby={`${id}-title`}>
+          <header class="term-head">
+            <h2 class="term-title" id={`${id}-title`}>
+              {label}
+            </h2>
+            <span class="data">
+              {projects.length > 0
+                ? `${projects.length} products`
+                : 'Products to come'}
+            </span>
+            {classPhoto && photo && (
+              <a class="term-photo" href={photo.src} data-card={`class-${id}`}>
+                Class photo
+              </a>
+            )}
+          </header>
+          <ul class="plain-list rows">
+            {projects.map(({ id: product, data }) => (
+              <li>
+                <a
+                  class="row"
+                  href={href(`/projects/${product}/`)}
+                  data-cover={product}
+                >
+                  <span class="row-text">
+                    <span class="row-title">{data.title}</span>
+                    <span class="row-summary">{data.summary}</span>
+                  </span>
+                  <Image
+                    class="row-thumb"
+                    src={data.images[0]}
+                    alt=""
+                    widths={[96, 192]}
+                    sizes="96px"
+                  />
+                  <Arrow />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+
+    <div class="preview" aria-hidden="true">
+      <div class="frame">
+        {products.map(({ id: product, data }) => (
+          <Image
+            class:list={['cover', { 'is-shown': product === first?.id }]}
+            data-for={product}
+            src={data.images[0]}
+            alt=""
+            widths={[560, 1120]}
+            sizes="35rem"
+          />
+        ))}
+      </div>
+    </div>
   </div>
+
+  {terms.map(
+    ({ id, label, classPhoto }) =>
+      classPhoto && (
+        <template id={`card-class-${id}`}>
+          <Image
+            class="card-image"
+            src={classPhoto}
+            alt={`The ${label} ${site.courseCode} class`}
+            widths={[352, 704]}
+            sizes="22rem"
+          />
+          <p class="card-title">The {label} class</p>
+        </template>
+      ),
+  )}
 </BaseLayout>
 
+<script>
+  // Shows the cover of the product under the pointer or keyboard focus.
+  function showCover(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const row = target.closest<HTMLElement>('[data-cover]');
+    if (!row) return;
+    for (const cover of document.querySelectorAll<HTMLElement>('.cover')) {
+      cover.classList.toggle(
+        'is-shown',
+        cover.dataset['for'] === row.dataset['cover'],
+      );
+    }
+  }
+
+  document.addEventListener('pointerover', showCover);
+  document.addEventListener('focusin', showCover);
+</script>
+
 <style>
-  .terms {
+  .archive {
     display: grid;
-    gap: var(--space-section);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    gap: var(--space-16);
+    align-items: start;
   }
 
-  .term-body {
+  .index {
     display: grid;
-    gap: var(--space-12);
+    gap: var(--space-16);
   }
 
-  .class-photo {
-    display: grid;
-    gap: var(--space-3);
-    margin: 0;
+  .term {
+    scroll-margin-top: calc(var(--header-height) + var(--space-6));
   }
 
-  .class-photo img {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius);
-    object-fit: cover;
+  .term-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-text);
   }
 
-  .class-photo figcaption {
-    color: var(--color-text-subtle);
+  .term-title {
+    font-size: var(--text-base);
+  }
+
+  .term-photo {
+    margin-left: auto;
     font-size: var(--text-sm);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-6);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--color-rule);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+
+  .row-text {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .row-title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.3;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  .row-summary {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  .row:is(:hover, :focus-visible) .row-title {
+    color: var(--color-brand);
+  }
+
+  .row :global(.arrow) {
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .row:is(:hover, :focus-visible) :global(.arrow) {
+    opacity: 1;
+  }
+
+  .row-thumb {
+    display: none;
+  }
+
+  .preview {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-8));
+  }
+
+  .frame {
+    display: grid;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--color-surface);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      var(--shadow-raised);
+  }
+
+  .cover {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    opacity: 0;
+    transform: scale(1.02);
+    transition:
+      opacity var(--duration-base) var(--ease-in-out),
+      transform var(--duration-enter) var(--ease-spring);
+  }
+
+  .cover.is-shown {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Phones and tablets: no frame; each row carries its own cover. */
+  @media (width < 64rem) {
+    .archive {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .preview {
+      display: none;
+    }
+
+    .row {
+      grid-template-columns: minmax(0, 1fr) 4.5rem;
+      gap: var(--space-4);
+    }
+
+    .row-thumb {
+      display: block;
+      width: 4.5rem;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      box-shadow: 0 0 0 1px var(--color-rule);
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .row :global(.arrow) {
+      display: none;
+    }
   }
 </style>

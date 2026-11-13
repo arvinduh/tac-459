@@ -1,0 +1,142 @@
+/*
+ * Motion and the floating shells of @tac/interact.
+ *
+ * One spring for every entrance, one quick curve for every exit, so the
+ * whole site moves as one system. Shells read the site's semantic tokens
+ * (--color-bg, --color-text, --color-rule, --color-scrim, --shadow-overlay);
+ * what goes inside a card is styled by the site.
+ */
+:root {
+  /* A damped spring with about 3% overshoot: things arriving. */
+  --ease-spring: linear(
+    0,
+    0.269,
+    0.49,
+    0.662,
+    0.791,
+    0.883,
+    0.945,
+    0.985,
+    1.009,
+    1.022,
+    1.027,
+    1.027,
+    1.024,
+    1.02,
+    1.016,
+    1.013,
+    1.009,
+    1.006,
+    1.004,
+    1.003,
+    1.002,
+    1.001,
+    1
+  );
+  /* Exponential ease-out with no bounce: things leaving. */
+  --ease-exit: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-enter: 420ms;
+  --duration-exit: 140ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-enter: 1ms;
+    --duration-exit: 1ms;
+  }
+}
+
+.interact-card,
+.interact-hint {
+  --from-y: -6px;
+
+  position: fixed;
+  inset: auto;
+  top: var(--card-y, 0);
+  left: var(--card-x, 0);
+  margin: 0;
+  border: 1px solid var(--color-rule);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+  color: var(--color-text);
+  opacity: 0;
+  transform: translateY(var(--from-y)) scale(0.97);
+  transform-origin: top center;
+  transition:
+    display var(--duration-exit) allow-discrete,
+    opacity var(--duration-exit) var(--ease-exit),
+    overlay var(--duration-exit) allow-discrete,
+    transform var(--duration-exit) var(--ease-exit);
+}
+
+.interact-card[data-side='above'] {
+  --from-y: 6px;
+
+  transform-origin: bottom center;
+}
+
+.interact-card:popover-open,
+.interact-hint:popover-open {
+  opacity: 1;
+  transform: none;
+  transition:
+    display var(--duration-enter) allow-discrete,
+    opacity calc(var(--duration-enter) / 2) var(--ease-exit),
+    overlay var(--duration-enter) allow-discrete,
+    transform var(--duration-enter) var(--ease-spring);
+}
+
+@starting-style {
+  .interact-card:popover-open,
+  .interact-hint:popover-open {
+    opacity: 0;
+    transform: translateY(var(--from-y)) scale(0.97);
+  }
+}
+
+.interact-card {
+  width: min(22rem, calc(100vw - 24px));
+  max-height: min(28rem, calc(100dvh - 24px));
+  padding: 1rem 1.125rem 1.125rem;
+  overflow: auto;
+  border-radius: 14px;
+}
+
+.interact-card::backdrop {
+  background: transparent;
+}
+
+/* Touch: the same card as a sheet along the bottom, over a light scrim. */
+.interact-card.is-sheet {
+  --from-y: 100%;
+
+  inset: auto 0 0;
+  width: 100%;
+  max-height: 70dvh;
+  padding: 1.25rem max(1.25rem, env(safe-area-inset-left))
+    max(1.5rem, env(safe-area-inset-bottom));
+  border-width: 1px 0 0;
+  border-radius: 20px 20px 0 0;
+  transform-origin: bottom center;
+}
+
+.interact-card.is-sheet:popover-open {
+  transition:
+    display var(--duration-enter) allow-discrete,
+    opacity calc(var(--duration-enter) / 2) var(--ease-exit),
+    overlay var(--duration-enter) allow-discrete,
+    transform var(--duration-enter) var(--ease-exit);
+}
+
+.interact-card.is-sheet::backdrop {
+  background: var(--color-scrim);
+}
+
+.interact-hint {
+  max-width: 18rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  pointer-events: none;
+}

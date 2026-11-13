@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "headline": {
+      "type": "string",
+      "description": "The promise that opens the home page."
+    },
+    "blurb": {
+      "type": "string",
+      "description": "A short paragraph under the headline."
+    },
+    "parts": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "curriculum",
+              "company-overview",
+              "capstone"
+            ],
+            "description": "The part's link on the Course page, e.g. #capstone."
+          },
+          "title": {
+            "type": "string"
+          },
+          "promise": {
+            "type": "string",
+            "description": "The part as one short promise."
+          },
+          "weeks": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "to": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          },
+          "summary": {
+            "type": "string",
+            "description": "Short form for cards and search."
+          },
+          "detail": {
+            "type": "string",
+            "description": "Long form, opening its section."
+          },
+          "steps": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "text"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "promise",
+          "weeks",
+          "summary",
+          "detail"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "headline",
+    "blurb",
+    "parts"
+  ],
+  "additionalProperties": false
+}

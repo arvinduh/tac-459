@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "classes": {
+      "description": "First and last day of classes; needed once current.",
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        "end": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "meetings": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri"
+              ]
+            }
+          },
+          "start": {
+            "type": "string",
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+            "description": "Start time, 24-hour, e.g. '12:00'."
+          },
+          "end": {
+            "type": "string",
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+            "description": "End time, 24-hour, e.g. '13:50'."
+          },
+          "location": {
+            "type": "string",
+            "description": "A room code such as 'KAP 160', or 'Zoom'."
+          }
+        },
+        "required": [
+          "days",
+          "start",
+          "end",
+          "location"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "staff": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "instructor",
+              "learningAssistant"
+            ]
+          },
+          "officeHours": {
+            "description": "A weekly slot, or a note like 'Announced on Piazza'.",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "days": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "Mon",
+                        "Tue",
+                        "Wed",
+                        "Thu",
+                        "Fri"
+                      ]
+                    }
+                  },
+                  "start": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                    "description": "Start time, 24-hour, e.g. '12:00'."
+                  },
+                  "end": {
+                    "type": "string",
+                    "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+                    "description": "End time, 24-hour, e.g. '13:50'."
+                  },
+                  "location": {
+                    "type": "string",
+                    "description": "A room code such as 'KAP 160', or 'Zoom'."
+                  }
+                },
+                "required": [
+                  "days",
+                  "start",
+                  "end",
+                  "location"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "person",
+          "role"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "staff"
+  ],
+  "additionalProperties": false
+}

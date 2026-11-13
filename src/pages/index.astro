@@ -1,66 +1,44 @@
 ---
 /**
- * The home page: the course's promise, then the semester as a scroll story.
+ * The home page: the course's promise, then the semester it takes.
  *
- * A drawing opens under the headline, then takes one half of the page as
- * one panel per part of the course, and one for demo day, passes in the
- * other, changing with each. The people
- * teaching it close the page. Every value comes from content files, and
- * the detail lives on the Course page.
+ * The first screen holds the headline, the blurb, the class facts and the
+ * semester line, whose bars open each part in place. The line is the
+ * page's only picture, and it is real course information. The people
+ * teaching follow. Every value comes from content files.
  */
 import Arrow from '../components/Arrow.astro';
 import PersonRow from '../components/PersonRow.astro';
 import Section from '../components/Section.astro';
-import SemesterStory from '../components/SemesterStory.astro';
+import SemesterLine from '../components/SemesterLine.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { googleCalendarUrl } from '../lib/calendar';
 import {
   getClassCalendar,
   getCurrentStaff,
   getCurrentTerm,
+  getModules,
   getOverview,
-  getProjectTerms,
   getSite,
   ROLE_NAMES,
 } from '../lib/course';
 import { href } from '../lib/paths';
 import { courseSchema } from '../lib/schema';
-import { formatTimes, mapUrl, scheduleUrl } from '../lib/term';
+import {
+  buildLanes,
+  formatTimes,
+  googleCalendarUrl,
+  mapUrl,
+  scheduleUrl,
+} from '@tac/content';
 
 const site = await getSite();
 const term = await getCurrentTerm();
 const overview = await getOverview();
 const staff = await getCurrentStaff();
 const instructors = staff.filter(({ role }) => role === 'instructor');
-const projectTerms = await getProjectTerms();
-const projects = projectTerms.flatMap((entry) => entry.projects);
-
-// One stop where each part begins, then demo day at the capstone's end.
-const parts = overview.components.toSorted(
-  (a, b) => a.weeks.from - b.weeks.from,
-);
-const capstone = overview.components.find(({ id }) => id === 'capstone');
-const finale = capstone?.steps?.at(-1);
-const stops = [
-  ...parts.map(({ id, title, promise, summary, weeks }) => ({
-    week: weeks.from,
-    label: title,
-    title: promise,
-    text: summary,
-    href: href(`/course/#${id}`),
-  })),
-  ...(capstone && finale
-    ? [
-        {
-          week: capstone.weeks.to,
-          label: finale.title,
-          title: `${projects.length} products launched so far.`,
-          text: finale.text,
-          href: href('/projects/'),
-        },
-      ]
-    : []),
-];
+const modules = await getModules();
+const parts = overview.parts.toSorted((a, b) => a.weeks.from - b.weeks.from);
+const { last, lanes } = buildLanes(parts, modules);
 
 const absolute = (path: string) => new URL(href(path), Astro.site).href;
 const calendar = await getClassCalendar(absolute('/'));
@@ -80,43 +58,53 @@ const course = courseSchema({
 
 <BaseLayout schema={[course]}>
   <header class="page-width hero">
-    <p class="eyebrow">
+    <p class="data">
       {site.courseCode} · {site.title}
     </p>
     <h1 class="hero-title">{overview.headline}</h1>
-    <p class="hero-blurb">{overview.blurb}</p>
-    <div class="hero-facts">
-      <p class="data">
+    <div class="hero-row">
+      <p class="hero-blurb">{overview.blurb}</p>
+      <p class="data hero-facts">
         <a href={scheduleUrl(term.id, site.courseCode)}>{term.label}</a>
         {term.meetings.map((meeting, index) => {
           const map = mapUrl(meeting.location, site.buildings);
           const series = calendar.series[index];
           return (
             <>
-              {' · '}
               {series ? (
                 <a
                   href={googleCalendarUrl(calendar.text, series)}
-                  title="Add the class to Google Calendar"
+                  data-tip="Add the class to Google Calendar"
                 >
                   {formatTimes(meeting)}
                 </a>
               ) : (
-                formatTimes(meeting)
+                <span>{formatTimes(meeting)}</span>
               )}
-              {' · '}
-              {map ? <a href={map}>{meeting.location}</a> : meeting.location}
+              {map ? (
+                <a href={map}>{meeting.location}</a>
+              ) : (
+                <span>{meeting.location}</span>
+              )}
             </>
           );
         })}
       </p>
     </div>
+    <div class="hero-semester">
+      <SemesterLine last={last} lanes={lanes} />
+      <p class="links">
+        <a class="arrow-link" href={href('/course/')}>
+          The course week by week
+          <Arrow />
+        </a>
+        <a class="arrow-link" href={href('/projects/')}>
+          What past teams shipped
+          <Arrow />
+        </a>
+      </p>
+    </div>
   </header>
-
-  <SemesterStory
-    panels={stops}
-    covers={projects.slice(0, 8).map(({ data }) => data.images[0])}
-  />
 
   <div class="sections">
     <Section id="team" label={`Taught in ${term.label} by`}>
@@ -127,7 +115,7 @@ const course = courseSchema({
           </li>
         ))}
       </ul>
-      <p class="more-link">
+      <p class="links">
         <a class="arrow-link" href={href('/team/')}>
           Office hours and past staff
           <Arrow />
@@ -140,8 +128,8 @@ const course = courseSchema({
 <style>
   .hero {
     display: grid;
-    gap: var(--space-6);
-    padding-block: var(--space-16) 0;
+    gap: var(--space-8);
+    padding-top: var(--space-16);
   }
 
   /* Parts rise in one after another; reduced motion makes this instant. */
@@ -161,28 +149,51 @@ const course = courseSchema({
     animation-delay: 180ms;
   }
 
-  /* Wide enough that the headline breaks into two lines on a laptop. */
+  /* Wide enough that the headline sets in three balanced lines. */
   .hero-title {
-    max-width: 22ch;
+    max-width: 14ch;
     font-size: var(--text-display);
     line-height: 1;
     letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+  }
+
+  .hero-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4) var(--space-8);
+    align-items: end;
   }
 
   .hero-blurb {
     max-width: var(--prose-max);
     color: var(--color-text-muted);
     font-size: var(--text-lg);
-    line-height: 1.55;
+    line-height: 1.5;
+    text-wrap: pretty;
   }
 
   .hero-facts {
-    display: grid;
-    gap: var(--space-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .hero-semester {
+    margin-top: var(--space-8);
   }
 
   .sections {
-    margin-top: var(--space-section);
+    display: grid;
+    gap: var(--space-section);
+    margin-block: var(--space-section);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-8);
+    margin-top: var(--space-8);
   }
 
   .team-grid {
@@ -191,7 +202,17 @@ const course = courseSchema({
     gap: 0 var(--space-8);
   }
 
-  .more-link {
-    margin-top: var(--space-8);
+  @media (width < 48rem) {
+    .hero {
+      padding-top: var(--space-12);
+    }
+
+    .hero-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-blurb {
+      font-size: var(--text-base);
+    }
   }
 </style>

@@ -5,30 +5,34 @@
   "engines": {
     "node": ">=22.22.0"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "prettier --check . && astro check",
+    "check": "prettier --check . && astro check && node scripts/schemas.ts --check",
     "format": "prettier --write .",
-    "test": "node --test 'src/**/*.test.ts' 'scripts/**/*.test.ts'",
+    "test": "node --test 'src/**/*.test.ts' 'scripts/**/*.test.ts' 'packages/*/src/**/*.test.ts'",
     "images": "node scripts/images.ts",
     "new": "node scripts/new.ts",
-    "rollover": "node scripts/rollover.ts"
-  },
-  "dependencies": {
-    "@astrojs/sitemap": "3.7.4",
-    "@fontsource-variable/inter": "5.3.0",
-    "@fontsource-variable/jetbrains-mono": "5.3.0",
-    "astro": "7.3.8",
-    "yaml": "2.9.1"
+    "rollover": "node scripts/rollover.ts",
+    "schemas": "node scripts/schemas.ts"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.11",
+    "@astrojs/sitemap": "3.7.4",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@tac/content": "*",
+    "@tac/interact": "*",
     "@types/node": "22.20.5",
+    "astro": "7.3.8",
     "prettier": "3.9.10",
     "prettier-plugin-astro": "1.1.1",
     "sharp": "0.35.5",
-    "typescript": "6.0.3"
+    "typescript": "6.0.3",
+    "zod": "^4.6.5"
   }
 }

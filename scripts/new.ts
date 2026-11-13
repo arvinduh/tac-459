@@ -12,7 +12,7 @@
  */
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { termRank } from '../src/lib/term.ts';
+import { termRank } from '@tac/content';
 import { slugify } from './content.ts';
 
 const CONTENT = 'src/content';
@@ -29,29 +29,24 @@ async function create(path: string, text: string) {
   console.log(`Created ${path}`);
 }
 
-/** Creates a person's folder with a bio template. */
+/** Writes a value as a formatted JSON file, refusing to replace one. */
+async function createJson(path: string, value: unknown) {
+  await create(path, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+/** Creates a person's folder with a record template. */
 async function newPerson(name: string) {
   const dir = join(CONTENT, 'people', slugify(name));
   await mkdir(dir, { recursive: true });
-  await create(
-    join(dir, 'index.md'),
-    `---
-name: ${name}
-positions:
-  - Learning Assistant
-# Optional: email, honorific (e.g. Prof.), links: { linkedin: …, viterbi: … }
-# Initials show until a photo is added: put photo.webp here and uncomment.
-# photo: ./photo.webp
----
-
-A few sentences about ${name}: studies, work and interests.
-
-## Experience
-
-- One line per role or project.
-`,
+  await createJson(join(dir, 'person.json'), {
+    name,
+    positions: ['Learning Assistant'],
+    summary: `A sentence or two about ${name} for the team page.`,
+  });
+  console.log(
+    `Next: fill in ${dir}/person.json. Initials show until a square ` +
+      'photo is added to the folder; a bio.md there becomes the long bio.',
   );
-  console.log(`Next: fill in ${dir}/index.md; add a square photo when ready.`);
 }
 
 /** Creates a product folder under its term with a record template. */
@@ -59,42 +54,32 @@ async function newProject(term: string, title: string) {
   termRank(term);
   const dir = join(CONTENT, 'projects', term, slugify(title));
   await mkdir(dir, { recursive: true });
-  await create(
-    join(dir, 'index.yaml'),
-    `title: ${JSON.stringify(title)}
-term: ${term}
-# One sentence, at most 160 characters, for cards and search results.
-summary: What the product does, for whom.
-description: What the product does and why it matters, in a short paragraph.
-built: How the team built it, naming the models and tools.
-team:
-  - First Last
-# Screenshots in this folder; the first one is the cover.
-images:
-  - ./1.webp
-`,
-  );
+  await createJson(join(dir, 'project.json'), {
+    title,
+    summary: 'What the product does, for whom, in one sentence.',
+    description: 'What the product does and why it matters.',
+    built: 'How the team built it, naming the models and tools.',
+    team: ['First Last'],
+  });
   console.log(
-    `Next: add screenshots to ${dir} as 1, 2, 3…, then run npm run images.`,
+    `Next: add screenshots to ${dir}; they show in name order, so the ` +
+      'first one is the cover.',
   );
 }
 
-/** Creates a term file from the current one, with the same staff. */
+/** Creates a term folder from the current one, with the same staff. */
 async function newTerm(id: string) {
   termRank(id);
-  const site = await readFile(join(CONTENT, 'site.yaml'), 'utf8');
-  const current = /^currentTerm: (\S+)/m.exec(site)?.[1];
-  if (!current) throw new Error('site.yaml has no currentTerm');
-  const from = join(CONTENT, 'terms', `${current}.yaml`);
-  const text = await readFile(from, 'utf8');
-  // Last term's class photo is not this term's.
-  await create(
-    join(CONTENT, 'terms', `${id}.yaml`),
-    text.replace(/^classPhoto: .*\n/m, ''),
-  );
+  const sitePath = join(CONTENT, 'site.json');
+  const { currentTerm } = JSON.parse(await readFile(sitePath, 'utf8'));
+  const from = join(CONTENT, 'terms', String(currentTerm), 'term.json');
+  const dir = join(CONTENT, 'terms', id);
+  await mkdir(dir, { recursive: true });
+  // The class photo stays behind: last term's photo is not this term's.
+  await create(join(dir, 'term.json'), await readFile(from, 'utf8'));
   console.log(
-    `Next: update meetings, staff and office hours in it, then set ` +
-      `currentTerm: ${id} in ${join(CONTENT, 'site.yaml')}.`,
+    `Next: update classes, meetings and staff in ${dir}/term.json, then ` +
+      `set "currentTerm": "${id}" in ${sitePath}.`,
   );
 }
 

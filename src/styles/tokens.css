@@ -37,14 +37,14 @@
 }
 
 :root {
-  /* Inter is the voice; mono marks data. See docs/design.md. */
-  --font-sans: 'Inter Variable', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  /* Geist is the voice; its mono marks data. See docs/design.md. */
+  --font-sans: 'Geist Variable', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
-  /* Inter needs tighter tracking as it grows. */
-  --tracking-display: -0.035em;
+  /* Geist needs tighter tracking as it grows. */
+  --tracking-display: -0.03em;
   --tracking-heading: -0.015em;
 
   /* One modular scale; the largest steps grow with the viewport. */

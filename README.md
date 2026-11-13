@@ -2,18 +2,19 @@
 
 The website for TAC 459, Generative AI and Natural Language Processing, the
 capstone of the USC AI Minor. Built with [Astro](https://astro.build) as a
-static site.
+static site. Content rules live in the `@tac/content` workspace package
+(`packages/content`).
 
 **Updating the course?** Read [docs/editing.md](docs/editing.md). Every update
 is a content file under `src/content/`; no code changes needed.
 
 | Folder or file               | Holds                                                |
 | ---------------------------- | ---------------------------------------------------- |
-| `site.yaml`                  | Course name, search description and current term     |
-| `course/overview.yaml`       | The pitch and the three components, with their steps |
-| `course/curriculum.yaml`     | Modules and weekly topics                            |
-| `terms/<term>.yaml`          | One term: meetings, staff, office hours, class photo |
-| `people/<id>/`               | One person's roles, links, photo and bio             |
+| `site.json`                  | Course name, search description and current term     |
+| `course/overview.json`       | The pitch and the course's three parts               |
+| `course/curriculum.json`     | Modules and weekly topics                            |
+| `terms/<term>/`              | One term: meetings, staff, office hours, class photo |
+| `people/<id>/`               | One person's record, photo and optional bio          |
 | `projects/<term>/<product>/` | One past product: record and screenshots             |
 
 [docs/design.md](docs/design.md) explains the colors, type and layout rules.
@@ -26,7 +27,8 @@ Requires Node 22.22 or later.
 | ------------------------- | ------------------------------------------------ |
 | `npm run dev`             | Serves the site locally with live reload         |
 | `npm run new -- <kind> …` | Starts a person, project or term from a template |
-| `npm run images`          | Shrinks, converts and renames content images     |
+| `npm run images`          | Shrinks oversized content images                 |
+| `npm run schemas`         | Regenerates the editor hints for content files   |
 | `npm run check`           | Checks formatting, types and content             |
 | `npm test`                | Runs the unit tests                              |
 | `npm run build`           | Builds the static site into `dist/`              |

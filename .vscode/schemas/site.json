@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "courseCode": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "homeTitle": {
+      "type": "string",
+      "maxLength": 70,
+      "description": "The home page's tab and search-result title."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 160,
+      "description": "The search-result snippet."
+    },
+    "currentTerm": {
+      "type": "string",
+      "description": "The term the site shows, e.g. fall-2026."
+    },
+    "buildings": {
+      "default": {},
+      "description": "Building names by room-code prefix, for map links.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "indexable": {
+      "type": "boolean",
+      "description": "Lets search engines index the site; false until launch."
+    }
+  },
+  "required": [
+    "courseCode",
+    "title",
+    "homeTitle",
+    "description",
+    "currentTerm",
+    "indexable"
+  ],
+  "additionalProperties": false
+}

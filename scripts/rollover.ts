@@ -5,14 +5,14 @@
  *   npm run rollover
  */
 import { readFile } from 'node:fs/promises';
-import { parse } from 'yaml';
-import { rolloverReminder } from '../src/lib/term.ts';
+import { rolloverReminder } from '@tac/content';
 
-const site = parse(await readFile('src/content/site.yaml', 'utf8'));
-const id: string = site.currentTerm;
-const term = parse(await readFile(`src/content/terms/${id}.yaml`, 'utf8'));
+const site = JSON.parse(await readFile('src/content/site.json', 'utf8'));
+const id = String(site.currentTerm);
+const path = `src/content/terms/${id}/term.json`;
+const term = JSON.parse(await readFile(path, 'utf8'));
 const end = String(term.classes?.end ?? '');
-if (!end) throw new Error(`src/content/terms/${id}.yaml has no classes.end`);
+if (!end) throw new Error(`${path} has no classes.end`);
 
 const reminder = rolloverReminder(
   id,

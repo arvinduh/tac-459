@@ -17,7 +17,7 @@ const [overview, projectTerms, term] = await Promise.all([
   getProjectTerms(),
   getCurrentTerm(),
 ]);
-const weeks = Math.max(...overview.components.map(({ weeks }) => weeks.to));
+const weeks = Math.max(...overview.parts.map(({ weeks }) => weeks.to));
 const products = projectTerms.reduce(
   (sum, entry) => sum + entry.projects.length,
   0,
