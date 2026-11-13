@@ -95,7 +95,7 @@ const sections = groups.map(({ role, laneCount, people }) => ({
                   <a
                     class:list={['bar', { current }]}
                     href={href(`/team/${person.id}/`)}
-                    title={person.data.name}
+                    data-tip={person.data.name}
                   >
                     <span class="sticky-text">{person.data.name}</span>
                   </a>
