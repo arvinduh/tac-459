@@ -17,11 +17,10 @@ import { buildLanes, formatWeeks } from '@tac/content';
 const [overview, modules] = await Promise.all([getOverview(), getModules()]);
 const parts = overview.parts.toSorted((a, b) => a.weeks.from - b.weeks.from);
 const { last, lanes } = buildLanes(parts, modules);
-const span = formatWeeks({ from: 1, to: last });
 ---
 
 <BaseLayout title="Course" description={overview.blurb}>
-  <PageHeader eyebrow={span} title="Course" lede={overview.blurb} />
+  <PageHeader title="Course" lede={overview.blurb} />
   <div class="page-width">
     <SemesterMap last={last} lanes={lanes} />
     <ul class="plain-list parts">
