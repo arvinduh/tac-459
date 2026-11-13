@@ -85,10 +85,10 @@ drawn beside it: arcs curve out from each line's end into the lines it attends
 to, all resting in a faint rule color, one line's drawn in Cardinal. Pointing at
 a phrase redraws its arcs. The type shrinks until the longest line leaves room
 for the arcs, so keep phrases short (16 characters at most, which the build
-checks). The blurb, the term's facts (linked to the USC Schedule of Classes, the
-map and Google Calendar) and a line explaining the picture sit in a column
-beside it. The semester line and the people teaching follow. No student product
-appears: the course is the subject.
+checks). The blurb and the term's facts (linked to the USC Schedule of Classes,
+the map and Google Calendar) sit in a column beside it, and the hero fills most
+of the first screen so the headline has air. The semester line and the people
+teaching follow. No student product appears: the course is the subject.
 
 **Course** opens on the semester line, generated from the course files: a column
 per week, a lane per part, a bar for every module and step, in the part's color
