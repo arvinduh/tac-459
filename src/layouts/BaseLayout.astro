@@ -9,6 +9,7 @@
  */
 import '@fontsource-variable/inter/opsz.css';
 import '@fontsource-variable/jetbrains-mono';
+import '@tac/interact/interact.css';
 import '../styles/tokens.css';
 import '../styles/base.css';
 import type { TransitionAnimationPair } from 'astro';
@@ -134,6 +135,11 @@ const fullTitle = title ? `${title} · ${courseCode}` : site.homeTitle;
     </main>
     <SiteFooter courseCode={courseCode} title={courseTitle} />
     <script>
+      import { startCards, startHints } from '@tac/interact';
+
+      startCards();
+      startHints();
+
       // A page transition is cancelled when the window resizes mid-way, as a
       // phone's address bar does. The new page still loads; only the
       // animation is skipped. Astro leaves that rejection unhandled, which
